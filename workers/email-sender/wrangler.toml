@@ -1,0 +1,12 @@
+name = "slowfield-email"
+main = "src/index.ts"
+compatibility_date = "2024-09-01"
+
+# Email Routing binding — allows the Worker to send outbound emails
+# Requires Email Routing enabled on slowfield.example
+send_email = [
+  { name = "SEND_EMAIL" }
+]
+
+[vars]
+ALLOWED_FROM = "noreply@slowfield.example"

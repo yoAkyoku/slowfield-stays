@@ -1,0 +1,17 @@
+{
+  // ESLint was never configured, so `npm run lint` opened an interactive setup
+  // prompt and nothing was ever linted. next/core-web-vitals is the config that
+  // prompt would have written; the two rules below are turned off for reasons
+  // specific to this project rather than because they were noisy.
+  "extends": ["next/core-web-vitals"],
+  "ignorePatterns": [".next/", "node_modules/", "public/", "tests/stubs/"],
+  "rules": {
+    // next.config.mjs sets images.unoptimized — the standalone server cannot
+    // reach /storage/*, so next/image 400s on every stored image. <img> is the
+    // deliberate choice here, not an oversight, and the rule fired 60 times.
+    "@next/next/no-img-element": "off",
+    // Pages Router rule: it wants fonts in pages/_document.js. This app is App
+    // Router, where the <link> in app/layout.tsx does apply to every page.
+    "@next/next/no-page-custom-font": "off"
+  }
+}

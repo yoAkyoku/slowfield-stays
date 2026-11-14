@@ -1,0 +1,10 @@
+/* Roles screen: the permissions card's locked note and flush save bar. */
+.admin-shell .roles-locked-note { padding: 16px 20px 0; }
+.admin-shell .roles-permissions-card .roles-tab-content--locked { background: transparent; }
+.admin-shell .roles-permissions-card .roles-search-empty { color: var(--a-text-3); }
+.admin-shell .roles-permissions-card .a-form-actions--sticky {
+  margin: 0;
+  border-radius: 0 0 var(--a-radius-lg) var(--a-radius-lg);
+}
+.admin-shell .roles-tabs-view .a-toolbar__end { flex-wrap: nowrap; }
+.admin-shell .roles-tabs-view .a-toolbar__end .a-search { flex: 0 1 240px; min-width: 160px; }

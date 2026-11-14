@@ -1,0 +1,5 @@
+/* Site editor: spacing around the section tabs and locale switch, and the
+   article-placement button. Everything else is the shared kit (app/admin/ui). */
+.admin-shell .se-kit-tabs { margin-bottom: 20px; }
+.admin-shell .se-locale-bar { margin-bottom: 12px; }
+.admin-shell .article-placement-preview > .a-btn { justify-self: start; align-self: flex-start; width: auto; }

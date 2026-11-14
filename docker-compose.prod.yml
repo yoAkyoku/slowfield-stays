@@ -1,0 +1,100 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    # Docker's default json-file driver has no size cap, so container logs
+    # grow until the disk is full. Anchored here and reused below.
+    logging: &default-logging
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: slowfield
+      POSTGRES_USER: staycation
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U staycation -d slowfield"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: ./backend
+    # A name and tag, so the previous image survives a rebuild instead of
+    # becoming dangling. Without one there is no "roll back to the last good
+    # backend" — only "fetch the old source and build again". That rebuild now
+    # does reproduce the same image: backend/requirements.lock pins every
+    # dependency, where `pip install .` used to take whatever was newest on
+    # PyPI at the moment of the build.
+    image: slowfield-backend:latest
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media:/app/storage/media
+    environment:
+      DATABASE_URL: postgresql+asyncpg://staycation:${DB_PASSWORD}@db:5432/slowfield
+      SECRET_KEY: ${SECRET_KEY}
+      APP_ENV: production
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      FRONTEND_URL: ${FRONTEND_URL}
+      ADMIN_BOOTSTRAP_EMAIL: ${ADMIN_BOOTSTRAP_EMAIL}
+      ADMIN_BOOTSTRAP_PASSWORD: ${ADMIN_BOOTSTRAP_PASSWORD}
+
+  frontend:
+    build:
+      context: ./frontend
+      # Dockerfile.deploy copies a build made on the developer's machine.
+      # Without this line Compose picks up ./frontend/Dockerfile, which builds
+      # from source inside the container — and the deploy bundle ships only
+      # .next/, not app/, so that silently rebuilt whatever stale source
+      # happened to be on the server and every deploy appeared to do nothing.
+      dockerfile: Dockerfile.deploy
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_APP_ENV: production
+    image: slowfield-frontend:latest
+    restart: unless-stopped
+    logging: *default-logging
+    depends_on:
+      # service_healthy, not the bare list form.
+      #
+      # The backend runs `alembic upgrade head` as the first half of its CMD, so
+      # a migration that fails takes the container down — and `restart:
+      # unless-stopped` then loops it. With the short form, Caddy and Next came
+      # up regardless and served the site with no API behind it. Because
+      # NEXT_PUBLIC_APP_ENV was also unset (below), the public pages rendered
+      # empty fallbacks rather than errors, and `docker compose up -d` exited 0.
+      # The whole failure was invisible from outside.
+      backend:
+        condition: service_healthy
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      INTERNAL_API_URL: http://backend:8000/api/v1
+      FRONTEND_URL: ${FRONTEND_URL}
+      # Read at runtime (it is not inlined at build time, so setting it here
+      # works). It turns STRICT_PUBLIC_API on: a 5xx from the API becomes a
+      # failed render instead of a page that quietly shows nothing.
+      NEXT_PUBLIC_APP_ENV: production
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    logging: *default-logging
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/etc/caddy/certs:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+volumes:
+  pgdata:
+  media:

@@ -1,0 +1,38 @@
+/* Content management (CMS, tags, categories, website pages): only what the
+ * kit (app/admin/ui) does not cover. */
+
+/* Wide auto-layout tables: keep the title column readable. */
+.admin-shell .cms-table .a-cell-title { min-width: 220px; max-width: 420px; }
+
+/* The first column stays put while the table scrolls sideways. */
+.admin-shell .cms-sticky-first th:first-child,
+.admin-shell .cms-sticky-first td:first-child { position: sticky; left: 0; z-index: 1; background: var(--a-surface); }
+.admin-shell .cms-sticky-first thead th:first-child { z-index: 2; background: var(--a-surface-2); }
+
+/* Banner thumbnail */
+.admin-shell .cms-thumb {
+  position: relative; display: grid; place-items: center; width: 96px; height: 56px; overflow: hidden;
+  border-radius: var(--a-radius-sm); background: var(--a-surface-3); color: var(--a-text-3); font-size: var(--a-fs-xs);
+}
+.admin-shell .cms-thumb img,
+.admin-shell .cms-thumb video { object-fit: cover; }
+
+/* Inline "n suggestions" toggle in a table cell. */
+.admin-shell .cms-checks summary { cursor: pointer; font-size: var(--a-fs-sm); color: var(--a-text-2); white-space: nowrap; }
+.admin-shell .cms-checks[open] summary { margin-bottom: 6px; }
+
+/* Category picker: two-column scrolling checklist. */
+.admin-shell .cms-pick-list {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 16px;
+  max-height: min(380px, 42dvh); overflow-y: auto; overscroll-behavior: contain;
+  padding: 12px 14px; border: 1px solid var(--a-border); border-radius: var(--a-radius);
+}
+.admin-shell .cms-pick-list > p { grid-column: 1 / -1; margin: 0; }
+@media (max-width: 640px) { .admin-shell .cms-pick-list { grid-template-columns: 1fr; } }
+
+/* Editor forms: the kit Callout has no outer margin, and the legacy fieldset
+   these editors sit in does not space its children. */
+.admin-shell .cms-editor-grid .a-callout { margin-bottom: 16px; }
+
+/* Translation-tab note: sits above the form like the draft notice. */
+.admin-shell .cms-locale-hint { margin-bottom: 16px; }

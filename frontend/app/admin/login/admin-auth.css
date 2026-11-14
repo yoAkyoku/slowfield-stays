@@ -1,0 +1,29 @@
+/* Sign-in / reset-password screens (outside .admin-shell): the centred-card
+   page shell. Controls inside are the admin UI kit. */
+.admin-auth.a-auth {
+  min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column;
+  background:
+    radial-gradient(1200px 600px at 100% -10%, var(--a-brand-soft), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, var(--a-accent-soft), transparent 60%),
+    var(--a-bg);
+}
+.a-auth__top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px clamp(16px, 4vw, 40px); }
+.a-auth__brand { display: inline-flex; align-items: center; gap: 10px; font-size: var(--a-fs-md); font-weight: 600; color: var(--a-text); }
+.a-auth__mark {
+  display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--a-radius);
+  background: var(--a-brand); color: #fff; font-size: var(--a-fs-sm); font-weight: 700;
+}
+.a-auth__main { flex: 1; display: grid; place-items: center; padding: 24px 16px 64px; }
+.a-auth__card {
+  width: 100%; max-width: 400px; padding: 32px;
+  background: var(--a-surface); border: 1px solid var(--a-border); border-radius: var(--a-radius-lg); box-shadow: var(--a-shadow);
+}
+.a-auth__head { margin-bottom: 24px; }
+.a-auth__head .a-page-title { margin: 4px 0 6px; }
+.a-auth__head .a-page-desc { margin: 0; }
+.a-auth__form { display: grid; gap: 16px; }
+.a-auth__intro strong { display: block; font-size: var(--a-fs); font-weight: 600; }
+.a-auth__intro p { margin: 4px 0 0; color: var(--a-text-2); font-size: var(--a-fs-sm); }
+.a-auth__links { display: flex; justify-content: center; }
+.a-auth__foot { margin-top: 24px; text-align: center; color: var(--a-text-3); font-size: var(--a-fs-xs); }
+@media (max-width: 480px) { .a-auth__card { padding: 24px 20px; } }

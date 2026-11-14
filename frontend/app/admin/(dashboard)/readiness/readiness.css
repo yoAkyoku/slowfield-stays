@@ -1,0 +1,32 @@
+/* Readiness screen: step cards, inline values and the checklist item that
+   is itself a submit button (toggles a QA item). */
+.admin-shell .readiness-page .a-subhead > span { color: var(--a-text-3); font-variant-numeric: tabular-nums; margin-right: 4px; }
+.admin-shell .readiness-step { display: grid; gap: 6px; align-content: start; }
+.admin-shell .readiness-step .a-badge { justify-self: start; }
+.admin-shell .readiness-step strong { font-size: var(--a-fs-sm); font-weight: 600; }
+.admin-shell .readiness-step p { margin: 0; color: var(--a-text-2); font-size: var(--a-fs-sm); }
+.admin-shell .readiness-step__head { display: flex; align-items: center; gap: 8px; color: var(--a-text-2); }
+.admin-shell .readiness-value { font-size: var(--a-fs-xs); color: var(--a-text-2); background: var(--a-surface-3); padding: 1px 6px; border-radius: var(--a-radius-sm); overflow-wrap: anywhere; }
+.admin-shell .readiness-bullets { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+
+.admin-shell .readiness-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: calc(100% + 20px);
+  margin: 0 -10px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: var(--a-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.admin-shell .readiness-toggle:hover { background: var(--a-surface-2); }
+.admin-shell .readiness-toggle:disabled { opacity: 0.6; cursor: progress; }
+.admin-shell .readiness-toggle .admin-spinner { width: 14px; height: 14px; margin-top: 3px; }
+.admin-shell .readiness-toggle__text { flex: 1; min-width: 0; display: grid; gap: 2px; font-size: var(--a-fs-sm); }
+.admin-shell .readiness-toggle__text code { font-size: var(--a-fs-xs); color: var(--a-text-2); overflow-wrap: anywhere; }
+.admin-shell .is-done .readiness-toggle__text { color: var(--a-text-3); text-decoration: line-through; }

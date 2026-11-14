@@ -1,0 +1,20 @@
+/* Site / permission strip under the admin topbar.
+   A generic kit "<InlineMeta>" / badge-row component would make this unnecessary. */
+.admin-shell .a-access-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  padding: 8px 32px;
+  border-bottom: 1px solid var(--a-border);
+  background: var(--a-surface-2);
+  font-size: var(--a-fs-xs);
+  color: var(--a-text-2);
+}
+.admin-shell .a-access-bar__site { color: var(--a-text); font-weight: 600; font-size: var(--a-fs-sm); margin-right: 4px; }
+.admin-shell .a-access-bar__label { color: var(--a-text-3); }
+@media (max-width: 760px) {
+  .admin-shell .a-access-bar { padding: 8px 16px; }
+}
+/* Rendered inside a page (site editor screens) rather than under the topbar. */
+.admin-shell .a-page > .a-access-bar { padding: 8px 14px; border: 1px solid var(--a-border); border-radius: var(--a-radius); }

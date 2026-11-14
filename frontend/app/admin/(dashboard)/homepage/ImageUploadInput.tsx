@@ -1,0 +1,206 @@
+"use client";
+
+import { Search, Upload, X } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import { useAdminSiteSlug, useAdminPermission } from "../../modules/AdminSiteContext";
+import { isVideoUrl, videoPosterUrl } from "../../../modules/media";
+import MediaUploadRequirements from "../../modules/MediaUploadRequirements";
+import VideoThumbnail from "../../modules/VideoThumbnail";
+import MediaPickerThumbnail, { type MediaPickerAsset } from "../../modules/MediaPickerThumbnail";
+import { Button, buttonClass, Dialog, Field, Input, SearchInput, Stack } from "../../ui";
+
+type MediaAsset = MediaPickerAsset;
+
+function proxyUrl(apiPath: string, site: string) {
+  return `/admin/api/proxy?path=${encodeURIComponent(apiPath)}&site=${encodeURIComponent(site)}`;
+}
+
+export default function ImageUploadInput({
+  value,
+  onChange,
+  placeholder = "https://…",
+  uploadLabel,
+  libraryLabel,
+  hideRemove = false
+}: {
+  value: string;
+  onChange: (url: string) => void;
+  placeholder?: string;
+  uploadLabel?: string;
+  libraryLabel?: string;
+  hideRemove?: boolean;
+}) {
+  const siteSlug = useAdminSiteSlug();
+  const canUpload = useAdminPermission("media:write");
+  const canBrowse = useAdminPermission("media:read");
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [assets, setAssets] = useState<MediaAsset[]>([]);
+  const [loadingLibrary, setLoadingLibrary] = useState(false);
+  const [mediaQuery, setMediaQuery] = useState("");
+  const urlId = useId();
+
+  const filteredAssets = assets.filter((a) => {
+    if (!mediaQuery.trim()) return true;
+    const q = mediaQuery.toLowerCase();
+    const name = [a.display_name, a.alt, a.alt_text, a.url, a.file].filter(Boolean).join(" ").toLowerCase();
+    return name.includes(q);
+  });
+
+  /* The library picker is the kit Dialog: focus moves in, Tab stays inside,
+     Escape closes it and the page behind holds still. */
+
+  useEffect(() => {
+    if (!showLibrary || assets.length) return;
+    const site = siteSlug;
+    setLoadingLibrary(true);
+    setError("");
+    fetch(proxyUrl("/admin/media", site))
+      .then(async (response) => {
+        if (response.status === 401) {
+          window.location.href = "/admin/login";
+          throw new Error("unauthorized");
+        }
+        if (!response.ok) throw new Error("failed");
+        return (await response.json()) as MediaAsset[];
+      })
+      .then((result) => setAssets(result))
+      .catch(() => setError("媒體庫載入失敗 Failed to load library"))
+      .finally(() => setLoadingLibrary(false));
+  }, [assets.length, showLibrary, siteSlug]);
+
+  async function upload(file: File) {
+    setUploading(true);
+    setError("");
+    const site = siteSlug;
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("alt_text", file.name);
+    const res = await fetch(proxyUrl("/admin/media", site), {
+      method: "POST",
+      body: fd
+    });
+    setUploading(false);
+    if (!res.ok) { setError("上傳失敗 Upload failed"); return; }
+    const data = (await res.json()) as { id?: number; url: string; file?: string; display_name?: string; alt?: string; alt_text?: string; poster_url?: string };
+    onChange(data.url);
+    setAssets((current) => [{ id: data.id ?? Date.now(), url: data.url, file: data.file, display_name: data.display_name, alt: data.alt, alt_text: data.alt_text, poster_url: data.poster_url }, ...current]);
+  }
+
+  const isVideo = isVideoUrl(value);
+
+  return (
+    <div className="img-pick">
+      {value ? (
+        <div className="img-pick__preview">
+          {isVideo ? (
+            <VideoThumbnail src={value} poster={videoPosterUrl(value)} label="Video preview" />
+          ) : (
+            <img src={value} alt="" />
+          )}
+          {!hideRemove && (
+            <button
+              type="button"
+              className="img-pick__remove"
+              onClick={() => onChange("")}
+              aria-label="移除圖片 Remove image"
+              title="移除圖片 Remove image"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+      ) : canUpload ? (
+        <label className="img-pick__drop">
+          <Upload size={18} />
+          <span>{uploading ? "…" : (uploadLabel || "上傳圖片 Upload")}</span>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*,video/mp4,video/webm"
+            style={{ display: "none" }}
+            onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); }}
+          />
+        </label>
+      ) : null}
+
+      <div className="img-pick__bar">
+        {value && canUpload && (
+          <label className={buttonClass({ size: "sm" })}>
+            <Upload />
+            <span>{uploading ? "…" : (uploadLabel || "更換 Replace")}</span>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*,video/mp4,video/webm"
+              style={{ display: "none" }}
+              onChange={e => { const f = e.target.files?.[0]; if (f) upload(f); }}
+            />
+          </label>
+        )}
+        {canBrowse && (
+          <Button icon={<Search />} onClick={() => setShowLibrary(true)} size="sm">
+            {libraryLabel || "媒體庫 Media"}
+          </Button>
+        )}
+      </div>
+      <MediaUploadRequirements />
+
+      {/* Unlabelled, this box read as a required field: an author who had just
+          uploaded a photo saw an address they were apparently meant to fill in.
+          Naming it says what it is, an alternative to the two buttons above. */}
+      {/* .meta is the admin's existing small-label style, so the field reads
+          like the rest of the form instead of needing a class of its own. */}
+      <Field error={error || undefined} htmlFor={urlId} label={"或貼上網址 Or paste a URL"}>
+        <Input
+          id={urlId}
+          type="text"
+          value={value}
+          placeholder={placeholder}
+          onChange={e => onChange(e.target.value)}
+        />
+      </Field>
+
+      <Dialog closeLabel="關閉 Close" onClose={() => setShowLibrary(false)} open={showLibrary} size="lg" title={libraryLabel || "媒體庫 Media Library"}>
+        <Stack>
+          {!loadingLibrary && assets.length > 0 && (
+            <SearchInput
+              aria-label="搜尋媒體 Search media"
+              autoFocus
+              icon={<Search />}
+              placeholder="搜尋… Search…"
+              value={mediaQuery}
+              onChange={(e) => setMediaQuery(e.target.value)}
+            />
+          )}
+          {loadingLibrary && <p className="meta" style={{ padding: "24px 0", textAlign: "center" }}>{"載入中… Loading…"}</p>}
+          {!loadingLibrary && assets.length === 0 && <p className="meta" style={{ padding: "24px 0", textAlign: "center" }}>{"沒有圖片 No images found"}</p>}
+          {!loadingLibrary && filteredAssets.length > 0 && (
+            <div className="media-inline-library-grid">
+              {filteredAssets.map((asset) => {
+                const assetUrl = asset.url ?? asset.file ?? "";
+                if (!assetUrl) return null;
+                return (
+                  <MediaPickerThumbnail
+                    key={asset.id}
+                    asset={asset}
+                    assetUrl={assetUrl}
+                    selected={value === assetUrl}
+                    onSelect={() => { onChange(assetUrl); setShowLibrary(false); }}
+                  />
+                );
+              })}
+            </div>
+          )}
+          {!loadingLibrary && assets.length > 0 && filteredAssets.length === 0 && (
+            <p className="meta" style={{ textAlign: "center", padding: "24px 0" }}>
+              {"沒有符合的圖片 No matching images"}
+            </p>
+          )}
+        </Stack>
+      </Dialog>
+    </div>
+  );
+}

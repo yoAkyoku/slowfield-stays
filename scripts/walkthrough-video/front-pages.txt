@@ -1,0 +1,54 @@
+/ | 首頁
+/stays | 住宿總覽
+/stays/detail/villa-hejing | 住宿｜禾境 Hejing Villa
+/stays/detail/moon-mist-villa-puli | 住宿｜月霧山居 Moon Mist Villa
+/stays/detail/reef-house-fengbin | 住宿｜礁岸之家 Reef House
+/stays/hejing | 禾境子站｜首頁
+/stays/hejing/about | 禾境子站｜關於禾境
+/stays/hejing/space | 禾境子站｜空間
+/stays/hejing/experience | 禾境子站｜體驗
+/stays/hejing/pricing | 禾境子站｜房型與價格
+/stays/hejing/faq | 禾境子站｜FAQ
+/stays/hejing/news | 禾境子站｜最新消息
+/stays/hejing/articles | 禾境子站｜文章
+/stays/hejing/contact | 禾境子站｜交通聯繫
+/stays/hejing/news/2026-room-promo | 禾境子站｜消息內頁
+/stays/hejing/journal/luozhuang-sakura-trail | 禾境子站｜文章內頁
+/activities | 精選活動
+/activities/poolside-night-swim | 精選活動｜池畔夜泳與星空
+/activities/dongshan-river-cycling | 精選活動｜冬山河騎單車
+/activities/meihua-lake-morning-walk | 精選活動｜梅花湖晨間環湖
+/activities/sanxing-scallion-farm | 精選活動｜三星蔥田：拔蔥、做蔥油餅
+/activities/luodong-night-market | 精選活動｜羅東夜市散步地圖
+/activities/villa-game-night | 精選活動｜包棟夜：KTV、撞球與麻將
+/dining | 餐飲服務
+/dining/field-view-breakfast | 餐飲服務｜田野早餐
+/dining/poolside-bbq | 餐飲服務｜池畔烤肉
+/dining/private-chef-dinner | 餐飲服務｜管家私廚晚宴
+/dining/evening-whisky-bar | 餐飲服務｜微醺夜：威士忌與精釀
+/services | 服務項目
+/services/butler-hosting | 服務項目｜管家式接待
+/services/pet-friendly-stay | 服務項目｜毛孩友善
+/services/family-friendly | 服務項目｜親子友善
+/services/celebration-setup | 服務項目｜慶生與求婚佈置
+/services/shuttle-service | 服務項目｜車站接駁與包車
+/services/in-villa-entertainment | 服務項目｜包棟娛樂設施
+/journal | 旅遊專欄
+/journal/yilan-slow-weekend | 旅遊專欄｜宜蘭慢週末：冬山田園的兩天一夜
+/journal/travel-with-grandparents | 旅遊專欄｜帶長輩出遊，為什麼我們推薦包棟
+/journal/rainy-day-in-yilan | 旅遊專欄｜宜蘭下雨天，其實很好玩
+/journal/pets-weekend-in-yilan | 旅遊專欄｜帶毛孩來宜蘭：兩天的友善地圖
+/journal/yilan-breakfast-map | 旅遊專欄｜冬山・羅東早餐地圖
+/journal/private-dinner-at-the-villa | 旅遊專欄｜在民宿的餐桌上，吃一桌宜蘭
+/news | 慢域消息
+/news/2026-winter-weekday-offer | 慢域消息｜冬季平日包棟 85 折
+/news/member-free-upgrade | 慢域消息｜慢域會員：包棟免費升等
+/news/pet-friendly-rooms | 慢域消息｜毛孩友善客房正式開放
+/news/hejing-ridge-2027 | 慢域消息｜禾境
+/brand | 品牌介紹
+/brand/brand-story | 品牌介紹｜讓世界住進台灣在地的美好
+/brand/how-we-choose | 品牌介紹｜我們的選宿標準
+/brand/our-team | 品牌介紹｜30 年飯店團隊
+/experience | 慢域體驗
+/contact | 聯絡我們
+/privacy | 隱私政策

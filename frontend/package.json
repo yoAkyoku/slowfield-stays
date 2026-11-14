@@ -1,0 +1,31 @@
+{
+  "name": "slowfield-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "dev:memory": "next dev -p 3000",
+    "dev:port": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "test": "node --experimental-strip-types --import ./tests/tsResolve.mjs --test \"tests/**/*.test.mts\""
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.23",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.21",
+    "@types/node": "^20.14.10",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.5.23",
+    "typescript": "^5.5.3"
+  }
+}

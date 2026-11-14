@@ -1,0 +1,14 @@
+/* 表單聯絡 — stacked contact / request / message cells in the inbox table. */
+.admin-shell .inq-cell { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.admin-shell .inq-cell__title { font-size: var(--a-fs); font-weight: 600; color: var(--a-text); line-height: 1.35; }
+.admin-shell .inq-cell__line {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: var(--a-fs-xs); color: var(--a-text-2); word-break: break-all;
+}
+.admin-shell .inq-cell__line svg { flex: none; width: 13px; height: 13px; color: var(--a-text-3); }
+.admin-shell .inq-cell__message {
+  margin: 0; max-width: 320px;
+  font-size: var(--a-fs-sm); color: var(--a-text-2);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.admin-shell .inq-cell__nowrap { white-space: nowrap; font-size: var(--a-fs-sm); }

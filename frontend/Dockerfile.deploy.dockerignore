@@ -1,0 +1,34 @@
+# Named `Dockerfile.deploy.dockerignore` because that is the name Docker reads:
+# BuildKit looks for `<dockerfile>.dockerignore` beside the Dockerfile and falls
+# back to `.dockerignore`. This file was called `.dockerignore.deploy`, which
+# matches neither, so every rule below was inert and `frontend/.dockerignore`
+# applied instead — and that one excludes `.next`, which is the entire payload
+# Dockerfile.deploy copies. Building this image from a repository checkout
+# therefore failed on `.next/static: not found`. (Deploys from the tarball were
+# unaffected: the bundle ships no ignore file at all, so Docker applied none.)
+#
+# Build context for Dockerfile.deploy, which copies a build made on the
+# developer's machine rather than building inside the image — the server cannot
+# reach the npm registry reliably.
+#
+# The difference from .dockerignore is .next. That file excludes it, correctly:
+# the normal Dockerfile builds from source, so a stale .next would only slow the
+# context transfer. Here .next IS the payload, and excluding it makes the COPY
+# lines fail with ".next/static: not found".
+.env*
+.git
+.gitignore
+
+# The project's own dependencies are not needed — but the standalone build
+# carries its own minimal node_modules and that IS needed at runtime. Negated
+# explicitly rather than relying on whether a bare pattern matches nested
+# paths: getting that wrong builds an image that only fails once it runs.
+node_modules
+!.next/standalone/node_modules
+
+.next/cache
+out
+build
+*.log
+.turbo
+coverage

@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:port"],
+      "cwd": "${workspaceFolder}/frontend",
+      "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "frontend-qa",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "-p", "3012"],
+      "cwd": "${workspaceFolder}/frontend",
+      "port": 3012,
+      "env": {
+        "NEXT_PUBLIC_API_URL": "http://localhost:8012/api/v1",
+        "INTERNAL_API_URL": "http://localhost:8012/api/v1",
+        "STORAGE_PROXY_ORIGIN": "http://localhost:8012",
+        "NEXT_PUBLIC_APP_ENV": "local",
+        "NODE_OPTIONS": "--use-system-ca"
+      }
+    }
+  ]
+}

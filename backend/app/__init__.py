@@ -1,0 +1,2 @@
+"""Slowfield Stays backend application."""
+

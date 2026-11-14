@@ -1,0 +1,45 @@
+/* Stays editor: nested item cards, the recovered-draft notice, sidebar card
+   headings and the HeroImageField layout (also used by the site editor). */
+
+/* Repeated item (room, FAQ, gallery image) nested inside a section Card. */
+.admin-shell .stay-sub-card {
+  background: var(--a-surface-2);
+  box-shadow: none;
+}
+.admin-shell .stay-sub-card > .a-card__head {
+  padding: 10px 16px;
+}
+.admin-shell .stay-sub-card > .a-card__body {
+  padding: 16px;
+}
+
+/* The editor grid places every direct child in a column; the notice spans both. */
+.admin-shell .stay-editor > .stay-editor-notice {
+  grid-column: 1 / -1;
+}
+
+/* Narrow sidebar cards: keep the title and its badge on one row. */
+.admin-shell .se-sidebar .a-card__heading {
+  flex: 1 1 0;
+}
+
+/* HeroImageField: URL field + buttons sit in the right-hand column of the
+   legacy .hero-image-field grid (preview image on the left). */
+.admin-shell .hero-image-field > .hero-image-field-url {
+  grid-column: 2;
+  grid-row: 1;
+}
+.admin-shell .hero-image-field > .hero-image-field-buttons {
+  align-items: center;
+}
+@media (max-width: 640px) {
+  .admin-shell .hero-image-field > .hero-image-field-url {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+/* The site-hero editor lays the field out as a column instead of a grid. */
+.admin-shell .site-hero-item-body .hero-image-field > .hero-image-field-url {
+  grid-column: auto;
+  grid-row: auto;
+}

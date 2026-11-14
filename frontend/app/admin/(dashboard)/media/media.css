@@ -1,0 +1,89 @@
+/* 媒體庫 — asset grid / list cards, bulk bar and the upload dropzone + file list.
+   Page chrome, filters, toggles and dialogs are the shared kit (app/admin/ui). */
+
+/* Bulk bar */
+.admin-shell .ml-bulk {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 8px 14px; min-height: 48px;
+  background: var(--a-surface); border: 1px solid var(--a-border); border-radius: var(--a-radius-lg);
+}
+.admin-shell .ml-bulk__count { font-size: var(--a-fs-sm); color: var(--a-text-2); }
+.admin-shell .ml-bulk .a-btn { margin-left: auto; }
+
+/* Grid */
+.admin-shell .ml-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.admin-shell .ml-card {
+  position: relative; display: flex; flex-direction: column; min-width: 0; overflow: hidden;
+  background: var(--a-surface); border: 1px solid var(--a-border); border-radius: var(--a-radius-lg);
+  box-shadow: var(--a-shadow-sm); transition: box-shadow 120ms ease, border-color 120ms ease;
+}
+.admin-shell .ml-card:hover { border-color: var(--a-border-strong); box-shadow: var(--a-shadow); }
+.admin-shell .ml-card > img,
+.admin-shell .ml-card > .ml-empty { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: var(--a-surface-3); display: block; }
+
+/* List */
+.admin-shell .ml-list { display: flex; flex-direction: column; gap: 10px; }
+.admin-shell .ml-row {
+  position: relative; display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 16px; align-items: center;
+  padding-right: 14px; overflow: hidden;
+  background: var(--a-surface); border: 1px solid var(--a-border); border-radius: var(--a-radius-lg); box-shadow: var(--a-shadow-sm);
+}
+.admin-shell .ml-row > img,
+.admin-shell .ml-row > .ml-empty { width: 120px; height: 120px; object-fit: cover; background: var(--a-surface-3); display: block; }
+.admin-shell .ml-row > .ml-actions { border-top: 0; padding: 0; }
+
+.admin-shell .ml-empty { display: grid; place-items: center; color: var(--a-text-3); }
+.admin-shell .ml-meta { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; min-width: 0; flex: 1; }
+.admin-shell .ml-meta strong { font-size: var(--a-fs-sm); font-weight: 600; color: var(--a-text); overflow-wrap: anywhere; }
+.admin-shell .ml-meta span { font-size: var(--a-fs-xs); color: var(--a-text-3); }
+.admin-shell .ml-meta code {
+  font-family: var(--a-font-mono); font-size: 11px; color: var(--a-text-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.admin-shell .ml-actions {
+  display: flex; align-items: center; gap: 4px; padding: 8px 10px;
+  border-top: 1px solid var(--a-border);
+}
+.admin-shell .ml-actions > .a-btn:first-child { margin-right: auto; }
+
+.admin-shell .ml-more { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: var(--a-fs-sm); color: var(--a-text-2); }
+
+/* Delete dialog body */
+.admin-shell .ml-usage-note { margin: 0; font-size: var(--a-fs-sm); color: var(--a-text-2); }
+.admin-shell .ml-usage-warning ul { margin: 6px 0 0; padding-left: 18px; }
+
+.admin-shell .ml-dropzone {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  min-height: 140px; padding: 20px; text-align: center; cursor: pointer;
+  font-size: var(--a-fs-sm); color: var(--a-text-2);
+  background: var(--a-surface-2); border: 1.5px dashed var(--a-border-strong); border-radius: var(--a-radius-lg);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.admin-shell .ml-dropzone:hover,
+.admin-shell .ml-dropzone.is-dragover { border-color: var(--a-brand); background: var(--a-brand-soft); color: var(--a-brand); }
+.admin-shell .ml-files { display: flex; flex-direction: column; border: 1px solid var(--a-border); border-radius: var(--a-radius); }
+.admin-shell .ml-file { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 8px; align-items: center; padding: 8px 10px; }
+.admin-shell .ml-file + .ml-file { border-top: 1px solid var(--a-border); }
+.admin-shell .ml-file__info { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: var(--a-fs-sm); }
+.admin-shell .ml-file__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-shell .ml-file__size { flex: none; font-size: var(--a-fs-xs); color: var(--a-text-3); }
+.admin-shell .ml-file__error { grid-column: 1 / -1; font-size: var(--a-fs-xs); color: var(--a-danger); }
+.admin-shell .ml-file .a-progress { grid-column: 1 / -1; }
+.admin-shell .ml-file__ok { color: var(--a-success); flex: none; }
+.admin-shell .ml-file__bad { color: var(--a-danger); flex: none; }
+
+/* Floating "uploading…" pill while the dialog is minimised */
+.admin-shell .ml-pill {
+  position: fixed; right: 24px; bottom: 24px; z-index: 900;
+  display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px;
+  font: inherit; font-size: var(--a-fs-sm); font-weight: 600; color: #fff; cursor: pointer;
+  background: var(--a-brand); border: 0; border-radius: 999px; box-shadow: var(--a-shadow-lg);
+}
+.admin-shell .ml-pill__bar { width: 80px; height: 4px; border-radius: 999px; background: rgba(255, 255, 255, 0.25); overflow: hidden; }
+.admin-shell .ml-pill__bar > span { display: block; height: 100%; background: #fff; }
+
+@media (max-width: 760px) {
+  .admin-shell .ml-row { grid-template-columns: 96px minmax(0, 1fr); padding-right: 0; }
+  .admin-shell .ml-row > img, .admin-shell .ml-row > .ml-empty { width: 96px; height: 96px; }
+  .admin-shell .ml-row > .ml-actions { grid-column: 1 / -1; padding: 8px 10px; border-top: 1px solid var(--a-border); }
+}

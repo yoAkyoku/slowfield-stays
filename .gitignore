@@ -1,0 +1,120 @@
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.egg-info/
+build/
+dist/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+
+# Local uploads / generated storage
+backend/storage/
+storage/
+uploads/
+
+# Database / Docker local data
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql
+postgres-data/
+pgdata/
+.docker-data/
+
+# Test / cache output
+.cache/
+tmp/
+temp/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database and media backups written by scripts/backup.sh. They contain
+# subscriber addresses, password hashes and the encrypted SMTP credentials —
+# never in git, and never in the deploy bundle.
+backups/
+
+# Release bundles, decks and reports — build outputs and client deliverables,
+# not source. Several are 100 MB+.
+*.tar.gz
+*.tar.gz.sha256
+*.zip
+*.zip.sha256
+*.pptx
+*.pdf
+deploy.tar.gz*
+
+# Local QA / scratch output
+.pnpm-store/
+/artifacts/
+/verify-shots/
+backend/seed_media/
+
+# Raw client photos and design source files (rights belong to the client)
+/素材/
+/素材暫存/
+
+# Claude Code local state (worktrees, launch configs)
+.claude/worktrees/
+
+# Site walkthrough videos (generated)
+/recordings/
+
+# walkthrough-video working files
+scripts/walkthrough-video/node_modules/
+scripts/walkthrough-video/shots-*/
+scripts/walkthrough-video/*-state.json
+
+# showcase seed: generated media map
+scripts/showcase/.child-media.json
+
+# Former client material: contract photos, site plan, branded design mockups
+/參考資料/
+/UI/
