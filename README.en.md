@@ -8,6 +8,8 @@ A multi-site website and CMS for a boutique-stay brand. It has a brand site, a s
 
 > The brand, villas, addresses and contacts are all fictional, and every photo is AI-generated ([image credits](docs/showcase/IMAGE_CREDITS.md)).
 
+There is no live site. Watch the walkthrough videos: [public site (51 pages, about 4 minutes)](docs/videos/front-walkthrough.mp4) · [admin (40 pages, about 2.5 minutes)](docs/videos/admin-walkthrough.mp4)
+
 ---
 
 ## Public site

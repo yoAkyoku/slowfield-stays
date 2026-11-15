@@ -8,6 +8,8 @@
 
 > 品牌、民宿、地址與聯絡方式都是虛構的；所有照片皆由 AI 生成（[圖片來源](docs/showcase/IMAGE_CREDITS.md)）。
 
+沒有線上站台，請看導覽影片：[前台（51 頁，約 4 分鐘）](docs/videos/front-walkthrough.mp4) · [後台（40 頁，約 2 分半）](docs/videos/admin-walkthrough.mp4)
+
 ---
 
 ## 前台
