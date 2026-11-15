@@ -44,7 +44,7 @@ export default function StayRelatedContent({
                 return (
                   <Link key={page.id} href={buildContentHref(page)} className="content-card">
                     {page.cover_image_url && (
-                      <div className="content-card-image">
+                      <div className="content-card-media">
                         <img src={page.cover_image_url} alt={cardTitle} loading="lazy" />
                       </div>
                     )}
