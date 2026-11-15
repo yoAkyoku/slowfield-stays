@@ -74,9 +74,13 @@ export default function LeafletMap({ markers, height = 460, locale = "zh" }: { m
         };
       }
 
-      const icon = L.divIcon({
+      /* One icon per marker, carrying the place name beside the dot. A map of
+         several places with identical unlabelled dots made the visitor hover
+         each one to find out which was which; the name is escaped like every
+         other string that reaches this markup. */
+      const pinIcon = (name: string) => L.divIcon({
         className: "leaflet-pin",
-        html: "<span></span>",
+        html: `<span></span>${name ? `<b class="leaflet-pin-label">${esc(name)}</b>` : ""}`,
         iconSize: [18, 18],
         iconAnchor: [9, 9],
         popupAnchor: [0, -12],
@@ -84,7 +88,7 @@ export default function LeafletMap({ markers, height = 460, locale = "zh" }: { m
 
       const pts: [number, number][] = [];
       for (const m of valid) {
-        const mk = L.marker([m.lat, m.lng], { icon }).addTo(map);
+        const mk = L.marker([m.lat, m.lng], { icon: pinIcon(m.name || "") }).addTo(map);
         // The divIcon marker is a focusable role="button" with no text, so it
         // reached the keyboard as an unnamed control. Name it after the place.
         const markerEl = mk.getElement();
@@ -121,7 +125,8 @@ export default function LeafletMap({ markers, height = 460, locale = "zh" }: { m
       }
 
       if (pts.length === 1) map.setView(pts[0], 14);
-      else if (pts.length > 1) map.fitBounds(pts, { padding: [42, 42] });
+      // Extra room on the right: each pin's name label hangs off that side.
+      else if (pts.length > 1) map.fitBounds(pts, { paddingTopLeft: [42, 42], paddingBottomRight: [190, 42] });
       else map.setView([24.65, 121.78], 11); // Yilan fallback
 
       // Plain wheel scrolls the page; Ctrl/⌘ + wheel zooms the map (cursor-centred).

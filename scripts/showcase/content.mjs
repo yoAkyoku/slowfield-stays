@@ -100,7 +100,7 @@ export const STAYS = [
       { question: "附近有停車位嗎？", answer: "館外提供 10 格免費戶外停車位。" },
     ],
     house_rules: ["包棟單棟標準入住 12 人，加床上限 16 人（每人加 NT$1,300）", "雙棟最多 32 人", "22:00 後請降低戶外音量，尊重鄰里安寧", "室內全面禁菸"],
-    location: { address: "宜蘭縣冬山鄉禾風路 1 號", city: "宜蘭縣", town: "冬山鄉" },
+    location: { address: "宜蘭縣冬山鄉禾風路 1 號", city: "宜蘭縣", town: "冬山鄉", lat: 24.6335, lng: 121.7785 },
     status: "published",
     en: {
       name: "Hejing Villa",
@@ -123,7 +123,7 @@ export const STAYS = [
     amenities: ["柴燒暖爐", "茶席", "觀星露台", "手作早餐"],
     facilities: ["手作早餐", "茶席體驗"],
     room_types: [{ name: "山居雙人房", price: 6800, capacity: 2, description: "木造雙人房，窗外是茶園。" }],
-    location: { address: "南投縣埔里鎮", city: "南投縣", town: "埔里鎮" },
+    location: { address: "南投縣埔里鎮", city: "南投縣", town: "埔里鎮", lat: 23.9925, lng: 120.9905 },
     status: "needs-ai",
     en: { name: "Moon Mist Villa", summary: "A two-room timber retreat in Puli's misty tea hills." },
   },
@@ -142,7 +142,7 @@ export const STAYS = [
     amenities: ["海景落地窗", "獨木舟", "戶外淋浴", "烤肉區"],
     facilities: ["海景早餐"],
     room_types: [{ name: "海景包棟", price: 12800, capacity: 8, description: "三房兩廳，每間房都看得到海。" }],
-    location: { address: "花蓮縣豐濱鄉", city: "花蓮縣", town: "豐濱鄉" },
+    location: { address: "花蓮縣豐濱鄉", city: "花蓮縣", town: "豐濱鄉", lat: 23.5975, lng: 121.5215 },
     status: "needs-ai",
     en: { name: "Reef House", summary: "A white villa on Hualien's Fengbin coast with its own reef." },
   },
@@ -405,6 +405,14 @@ export const HOME_BLOCKS = [
     },
   },
   {
+    id: "news", type: "articles", enabled: true,
+    config: {
+      variant: "news", content_type: "news", limit: 3,
+      eyebrow: L("最新消息", "Latest news"),
+      title: L("這一季的慢域", "This season at Slowfield"),
+    },
+  },
+  {
     id: "gallery", type: "gallery", enabled: true,
     config: {
       eyebrow: L("空間一瞥", "A look inside"),
@@ -412,7 +420,15 @@ export const HOME_BLOCKS = [
       images: ["real:pool_wide", "real:living_white", "real:breakfast_spread", "real:bath_tub", "real:pool_night", "real:rice_field_walk"],
     },
   },
-  { id: "articles", type: "articles", enabled: true, config: { variant: "feature" } },
+  {
+    id: "map", type: "map", enabled: true,
+    config: {
+      mode: "stays", height: "tall",
+      eyebrow: L("在哪裡", "Where we are"),
+      heading: L("三個地方，三種風景", "Three places, three landscapes"),
+      caption: L("稻田邊的禾境、茶園裡的月霧山居、海岸第一排的礁岸之家。點選地圖上的標誌看每一間。", "Hejing by the paddies, Moon Mist in the tea hills, Reef House on the coast. Select a marker to see each one."),
+    },
+  },
   {
     id: "pathways", type: "pathways", enabled: true,
     config: {
@@ -424,6 +440,25 @@ export const HOME_BLOCKS = [
         { title: L("精選活動", "Activities"), description: L("騎車、環湖、拔蔥，都在半小時內。", "Cycling, lake walks and scallion farms, all within half an hour."), href: "/activities", image: "ai:dongshan_river_cycling" },
         { title: L("旅遊專欄", "Journal"), description: L("我們自己走過的宜蘭路線。", "Yilan routes we have walked ourselves."), href: "/journal", image: "real:couple_field" },
         { title: L("慢域體驗", "Experience"), description: L("從第一則訊息到退房的每一步。", "Every step from the first message to check-out."), href: "/experience", image: "real:brand_wall" },
+      ],
+    },
+  },
+  {
+    id: "journal", type: "articles", enabled: true,
+    config: { variant: "feature", content_type: "journal", limit: 3 },
+  },
+  {
+    id: "faq", type: "faq_accordion", enabled: true,
+    config: {
+      eyebrow: L("常見問題", "FAQ"),
+      title: L("訂房前，大家最常問的事", "What guests ask before booking"),
+      items: [
+        { question: L("怎麼訂房？需要先付款嗎？", "How do I book? Do I pay up front?"), answer: L("送出日期與人數後，專人會在一天內以 Email 或 LINE 回覆可訂狀況與報價。確認後才需支付訂金，網站上不會直接扣款。", "Send your dates and group size. A person replies within a day with availability and a quote. A deposit is only due once you confirm; nothing is charged on the site.") },
+        { question: L("包棟最少、最多可以住幾個人？", "How many people can stay?"), answer: L("禾境可接待 6 至 32 人；月霧山居適合 2 至 4 人；礁岸之家適合 4 至 8 人。每間都是一次只接待一組客人。", "Hejing takes 6 to 32 guests, Moon Mist 2 to 4, and Reef House 4 to 8. Each house hosts one group at a time.") },
+        { question: L("可以帶寵物嗎？", "Can I bring my pet?"), answer: L("禾境設有毛孩友善客房，備有睡墊與餐碗，請在詢問時告知體型與數量。其他兩間目前不開放寵物入住。", "Hejing has pet-friendly rooms with beds and bowls; tell us the size and number when you enquire. The other two houses do not take pets yet.") },
+        { question: L("有提供餐點嗎？", "Are meals included?"), answer: L("每間都含早餐。禾境另可加訂池畔烤肉、火鍋與管家私廚晚宴，請在入住三天前預約。", "Breakfast is included everywhere. At Hejing you can add a poolside BBQ, hotpot or a private-chef dinner, booked three days ahead.") },
+        { question: L("入住與退房時間？", "When are check-in and check-out?"), answer: L("入住為下午 3 點後，退房為上午 11 點前。需要提早寄放行李或延後退房，可以先和管家確認。", "Check-in is from 3 pm and check-out by 11 am. Ask the host about early luggage drop or a late check-out.") },
+        { question: L("取消或改期怎麼計算？", "What if I need to cancel or move dates?"), answer: L("入住 14 天前可免費改期一次；取消依距離入住的天數退還訂金，詳細比例會寫在報價信中。遇颱風等不可抗力可全額保留或退款。", "You can move dates once for free up to 14 days before arrival. Refunds depend on how close the stay is, and the quote spells out the scale. Typhoons and similar events are fully refundable or transferable.") },
       ],
     },
   },

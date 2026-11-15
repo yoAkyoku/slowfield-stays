@@ -17,19 +17,23 @@ A multi-site website and CMS for a boutique-stay brand. It has a brand site, a s
 <table>
 <tr>
 <td width="50%"><img src="docs/screenshots/front-02-home-stays.jpg" alt="Search and featured stays"><br><sub>Search and featured stays</sub></td>
-<td width="50%"><img src="docs/screenshots/front-04-home-pathways.jpg" alt="Four ways in"><br><sub>Four ways in</sub></td>
+<td width="50%"><img src="docs/screenshots/front-03-home-about.jpg" alt="About the brand"><br><sub>About the brand</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/front-11-home-news.jpg" alt="Latest news"><br><sub>Latest news</sub></td>
+<td><img src="docs/screenshots/front-12-home-map.jpg" alt="Map with a marker for each stay"><br><sub>Map with a marker for each stay</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/front-04-home-pathways.jpg" alt="Four ways in"><br><sub>Four ways in</sub></td>
+<td><img src="docs/screenshots/front-13-home-faq.jpg" alt="FAQ"><br><sub>FAQ</sub></td>
 </tr>
 <tr>
 <td><img src="docs/screenshots/front-05-stays.jpg" alt="Stays"><br><sub>Stays</sub></td>
 <td><img src="docs/screenshots/front-06-stay-detail.jpg" alt="Stay detail"><br><sub>Stay detail</sub></td>
 </tr>
 <tr>
-<td><img src="docs/screenshots/front-07-villa-site.jpg" alt="Villa site"><br><sub>Villa site: its own nav, pages and theme</sub></td>
+<td><img src="docs/screenshots/front-07-villa-site.jpg" alt="Villa site: its own nav, pages and theme"><br><sub>Villa site: its own nav, pages and theme</sub></td>
 <td><img src="docs/screenshots/front-08-villa-pricing.jpg" alt="Rooms and pricing"><br><sub>Rooms and pricing</sub></td>
-</tr>
-<tr>
-<td><img src="docs/screenshots/front-03-home-about.jpg" alt="About the brand"><br><sub>About the brand</sub></td>
-<td><img src="docs/screenshots/front-10-dining.jpg" alt="Dining"><br><sub>Dining</sub></td>
 </tr>
 </table>
 

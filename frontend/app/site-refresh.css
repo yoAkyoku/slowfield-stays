@@ -347,7 +347,7 @@
 .site-home .home-pathways-section { grid-template-columns: minmax(0, 1fr); }
 .site-home .home-pathways-intro {
   position: static;
-  text-align: center;
+  text-align: var(--r-title-align, center);
   max-width: 720px;
   margin-inline: auto;
 }
@@ -491,3 +491,189 @@ html:not([lang^="zh"]) :is(.hero h1, .property-hero-banner-title, .content-index
 html:not([lang^="zh"]) :is(.hero p, .content-index-hero p, .contact-hero p, .stays-index-hero p, .property-hero-banner-content p) {
   letter-spacing: 0.02em;
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   12. Homepage grid: one set of edges, one heading style, one rhythm
+
+   Measured before this section existed: section headings were a mix of left
+   and centred, in four sizes (44 / 46 / 47.5 / 50.4px); the search card, the
+   map and the closing picture each had their own width; two sections had no
+   top padding; and the FAQ's eyebrow sat left of its centred title.
+
+   The rules: every block's content runs gutter to gutter; every section
+   heading is centred, the same size, the same distance above its content;
+   every section has the same vertical padding; every card grid shares one gap,
+   one corner and one picture ratio.
+   ════════════════════════════════════════════════════════════════════════ */
+.site-home {
+  --rf-pad-y: clamp(56px, 6.2vw, 108px);
+  --rf-head-gap: clamp(30px, 3.4vw, 56px);
+  --rf-grid-gap: clamp(18px, 2vw, 30px);
+}
+
+/* Rhythm */
+.site-home > .home-block > :is(.section, .block-about, .property-map, .property-faq, .editorial-feature) {
+  padding-top: var(--block-pad-y, var(--rf-pad-y));
+  padding-bottom: var(--block-pad-y, var(--rf-pad-y));
+  border-top: 0;
+}
+.site-home > .home-block > :is(.section, .property-map, .property-faq, .editorial-feature) {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: var(--block-pad-x, var(--gutter));
+  padding-right: var(--block-pad-x, var(--gutter));
+}
+.site-home > .home-block { border-top: 0; }
+.site-home > .home-block::before, .site-home > .home-block::after { content: none; }
+
+/* Two quiet bands so nine sections do not read as one long sheet. */
+.site-home > .home-block:has(> .home-news-section),
+.site-home > .home-block:has(> .property-faq) {
+  background: #efe9dd;
+}
+
+/* Headings: centred eyebrow with a rule each side, then the title. */
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: var(--r-title-align, center);
+  gap: 14px;
+  margin: 0 auto var(--rf-head-gap);
+  max-width: 820px;
+  position: static;
+}
+.site-home .section-header > div { display: contents; }
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro, .property-map, .property-faq, .editorial-feature) > .eyebrow,
+.site-home .section-header .eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  text-align: var(--r-eyebrow-align, center);
+}
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro, .property-map, .property-faq, .editorial-feature) .eyebrow::before,
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro, .property-map, .property-faq, .editorial-feature) .eyebrow::after {
+  content: "";
+  flex: 0 0 36px;
+  width: 36px;
+  height: 1px;
+  background: var(--accent, var(--rf-bronze));
+}
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro, .block-about, .property-map, .property-faq, .editorial-feature) h2 {
+  font-size: var(--r-title-size, var(--type-h2-size, clamp(28px, 3.1vw, 46px)));
+  line-height: 1.3;
+  letter-spacing: 0.05em;
+  margin: 0;
+  text-align: var(--r-title-align, center);
+}
+.site-home .block-about h2 { text-align: var(--r-title-align, left); margin-bottom: clamp(18px, 2vw, 28px); }
+.site-home .block-about .eyebrow { margin-bottom: 16px; }
+.site-home :is(.property-map, .property-faq) > .eyebrow { margin-bottom: 14px; }
+.site-home :is(.property-map, .property-faq) > h2 { margin-bottom: var(--rf-head-gap); }
+.site-home .home-pathways-intro p { margin: 0; }
+/* "View all" sits under the title, centred, instead of floating at the right. */
+.site-home .section-header > a {
+  order: 3;
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+}
+
+/* Card grids: stays and news share a gap, a corner and a 4:3 picture. */
+.site-home :is(.home-collection--grid, .home-news-grid) { gap: var(--rf-grid-gap); }
+.site-home .home-news-card {
+  border: 0;
+  border-radius: var(--rf-radius);
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(23, 32, 26, 0.06), 0 22px 50px -38px rgba(23, 32, 26, 0.4);
+  transition: transform 0.6s var(--rf-ease), box-shadow 0.6s var(--rf-ease);
+}
+.site-home .home-news-card:hover { transform: translateY(-8px); box-shadow: var(--rf-shadow); }
+.site-home .home-news-img,
+.site-home .home-collection--grid .stay-card-media { aspect-ratio: 4 / 3; }
+.site-home .home-showcase-foot { margin-top: var(--rf-head-gap); text-align: center; }
+
+/* About: the split runs gutter to gutter like everything else. */
+.site-home > .home-block > .block-about {
+  padding-left: var(--block-pad-x, var(--gutter));
+  padding-right: var(--block-pad-x, var(--gutter));
+}
+.site-home .block-about--has-image > * { padding-left: 0; padding-right: 0; }
+
+/* Gallery, map and the closing picture all take the full measure. */
+.site-home .home-gallery-grid { border-radius: var(--rf-radius); overflow: hidden; }
+.site-home .property-map-frame {
+  width: 100%;
+  max-width: none;
+  border-radius: var(--rf-radius);
+  overflow: hidden;
+  box-shadow: var(--rf-shadow);
+}
+.site-home .property-map-meta { margin-top: 22px; justify-content: center; text-align: var(--r-body-align, center); }
+.site-home .property-map-meta p { max-width: 720px; margin: 0 auto; }
+.site-home .editorial-feature-media { width: 100%; max-width: none; margin-left: 0; margin-right: 0; }
+.site-home .editorial-feature-media img { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; display: block; }
+
+/* Search card: same edges as the sections below it. */
+@media (min-width: 1024px) {
+  .site-home .home-stays-search-wrap { width: calc(100% - 2 * var(--gutter)); }
+}
+
+/* FAQ: one centred column, questions set like headings. */
+.site-home .property-faq .stay-faq-accordion { max-width: 920px; margin: 0 auto; }
+.site-home .property-faq .stay-faq-item {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 18px 40px -34px rgba(23, 32, 26, 0.45);
+}
+.site-home .property-faq .stay-faq-question {
+  padding-top: 22px;
+  padding-bottom: 22px;
+  font-family: var(--r-body-font, var(--font-title));
+  font-size: var(--r-body-size, clamp(17px, 1.35vw, 20px));
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .site-home .home-news-grid { grid-template-columns: minmax(0, 1fr); }
+  .site-home .editorial-feature-media img { aspect-ratio: 4 / 3; }
+}
+
+/* ── 13. Map markers and remaining homepage fixes ──────────────────────── */
+/* Each marker carries its place name, so a map of several stays reads at a
+   glance instead of one hover at a time. */
+.leaflet-pin { overflow: visible; }
+.leaflet-pin span { width: 20px; height: 20px; background: var(--rf-forest); border-width: 4px; }
+.leaflet-pin-label {
+  position: absolute;
+  left: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--rf-ink);
+  font: 600 13px/1 var(--font-ui);
+  letter-spacing: 0.04em;
+  box-shadow: 0 10px 24px -10px rgba(23, 32, 26, 0.55);
+  pointer-events: none;
+}
+.site-home .property-map-frame,
+.site-home .property-map-leaflet-wrap { max-width: none; width: 100%; margin-inline: 0; }
+
+/* The gallery section zeroed its own top padding; it keeps the shared rhythm. */
+.site-home > .home-block > .section.home-gallery-section { padding-top: var(--block-pad-y, var(--rf-pad-y)); }
+
+/* Pathway cards: portrait, so four across still show their photographs. */
+.site-home .home-pathways-section .home-pathway-card.has-image { aspect-ratio: 3 / 4; min-height: 0; }
+@media (max-width: 1023px) {
+  .site-home .home-pathways-section .home-pathway-card.has-image { aspect-ratio: 4 / 3; }
+}
+
+/* About: the photograph is as tall as the copy beside it. */
+.site-home .block-about--has-image { align-items: stretch; }
+.site-home .block-about--has-image .block-about-copy { align-self: center; }

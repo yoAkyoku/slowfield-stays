@@ -17,19 +17,23 @@
 <table>
 <tr>
 <td width="50%"><img src="docs/screenshots/front-02-home-stays.jpg" alt="住宿搜尋與精選住宿"><br><sub>住宿搜尋與精選住宿</sub></td>
-<td width="50%"><img src="docs/screenshots/front-04-home-pathways.jpg" alt="四個旅行入口"><br><sub>四個旅行入口</sub></td>
+<td width="50%"><img src="docs/screenshots/front-03-home-about.jpg" alt="關於慢域"><br><sub>關於慢域</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/front-11-home-news.jpg" alt="最新消息"><br><sub>最新消息</sub></td>
+<td><img src="docs/screenshots/front-12-home-map.jpg" alt="多標誌地圖：三間住宿的位置"><br><sub>多標誌地圖：三間住宿的位置</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/front-04-home-pathways.jpg" alt="四個旅行入口"><br><sub>四個旅行入口</sub></td>
+<td><img src="docs/screenshots/front-13-home-faq.jpg" alt="常見問題"><br><sub>常見問題</sub></td>
 </tr>
 <tr>
 <td><img src="docs/screenshots/front-05-stays.jpg" alt="住宿總覽"><br><sub>住宿總覽</sub></td>
 <td><img src="docs/screenshots/front-06-stay-detail.jpg" alt="住宿介紹"><br><sub>住宿介紹</sub></td>
 </tr>
 <tr>
-<td><img src="docs/screenshots/front-07-villa-site.jpg" alt="民宿子站"><br><sub>民宿子站：自己的導覽、頁面與配色</sub></td>
+<td><img src="docs/screenshots/front-07-villa-site.jpg" alt="民宿子站：自己的導覽、頁面與配色"><br><sub>民宿子站：自己的導覽、頁面與配色</sub></td>
 <td><img src="docs/screenshots/front-08-villa-pricing.jpg" alt="房型與價格"><br><sub>房型與價格</sub></td>
-</tr>
-<tr>
-<td><img src="docs/screenshots/front-03-home-about.jpg" alt="關於慢域"><br><sub>關於慢域</sub></td>
-<td><img src="docs/screenshots/front-10-dining.jpg" alt="餐飲服務"><br><sub>餐飲服務</sub></td>
 </tr>
 </table>
 
