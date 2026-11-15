@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { AI, AI_DIR, ALIAS, VILLA } from "./photos.mjs";
-import { BANNERS, CHILD_BANNERS, CHILD_ROOMS, CONTACT, CONTACT_PAGE, EXPERIENCE, HOME_BLOCKS, PAGES, SECTION_HEROES, STAYS } from "./content.mjs";
+import { BANNERS, BRAND_PAGE, CHILD_BANNERS, CHILD_ROOMS, CONTACT, CONTACT_PAGE, NAV_PAGES, EXPERIENCE, HOME_BLOCKS, PAGES, SECTION_HEROES, STAYS } from "./content.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const API = process.env.SHOWCASE_API || "http://localhost:8012/api/v1";
@@ -266,6 +266,10 @@ async function seedSiteContact() {
   }).filter((b) => b.type !== "gallery" || b.config.images.length >= 3);
   const [contactPage] = await resolveBlocks([{ type: "page", ...CONTACT_PAGE }]);
   delete contactPage.type;
+  const [brandPage] = await resolveBlocks([{ type: "page", ...BRAND_PAGE }]);
+  delete brandPage.type;
+  const basePages = removedPages(s.settings?.pages);
+  const navPages = Object.fromEntries(Object.entries(NAV_PAGES).map(([key, cfg]) => [key, { ...(basePages[key] ?? {}), ...cfg }]));
   const heroes = {};
   for (const [type, ref] of Object.entries(SECTION_HEROES)) { const url = await src(ref); if (url) heroes[`hero_${type}`] = url; }
   await call("PUT", "/admin/sites/1", {
@@ -276,7 +280,7 @@ async function seedSiteContact() {
       seo_title: "慢域旅宿 Slowfield Stays｜精選台灣包棟與設計民宿",
       seo_description: "由 30 年飯店團隊經營的精品民宿品牌。宜蘭冬山禾境泳池包棟、田野早餐、管家式接待。",
       parent_site_id: null, template_site_id: s.template_site_id, is_template: s.is_template, template_version: s.template_version,
-      settings: { ...(s.settings ?? {}), ...heroes, homepage: { ...(s.settings?.homepage ?? {}), blocks }, contact_phone: CONTACT.phone, contact_address: CONTACT.address.zh, pages: { ...removedPages(s.settings?.pages), contact: { ...(s.settings?.pages?.contact ?? {}), ...contactPage } } },
+      settings: { ...(s.settings ?? {}), ...heroes, homepage: { ...(s.settings?.homepage ?? {}), blocks }, contact_phone: CONTACT.phone, contact_address: CONTACT.address.zh, pages: { ...basePages, ...navPages, contact: { ...(basePages.contact ?? {}), ...NAV_PAGES.contact, ...contactPage }, brand: { ...(basePages.brand ?? {}), ...brandPage } } },
     },
   });
   console.log("✓ brand site name, SEO and contact; removed " + REMOVED_PAGES.join(", "));

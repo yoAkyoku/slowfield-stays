@@ -25,7 +25,11 @@ A multi-site website and CMS for a boutique-stay brand. It has a brand site, a s
 </tr>
 <tr>
 <td><img src="docs/screenshots/front-04-home-pathways.jpg" alt="Four ways in"><br><sub>Four ways in</sub></td>
-<td><img src="docs/screenshots/front-13-home-faq.jpg" alt="FAQ"><br><sub>FAQ</sub></td>
+<td><img src="docs/screenshots/front-16-home-gallery.jpg" alt="Photo wall"><br><sub>Photo wall</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/front-14-brand.jpg" alt="Brand page"><br><sub>Brand page</sub></td>
+<td><img src="docs/screenshots/front-15-contact.jpg" alt="Contact: enquiry form beside the newsletter"><br><sub>Contact: enquiry form beside the newsletter</sub></td>
 </tr>
 <tr>
 <td><img src="docs/screenshots/front-05-stays.jpg" alt="Stays"><br><sub>Stays</sub></td>

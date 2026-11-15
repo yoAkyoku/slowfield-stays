@@ -46,9 +46,6 @@
 /news/pet-friendly-rooms | 慢域消息｜毛孩友善客房正式開放
 /news/hejing-ridge-2027 | 慢域消息｜禾境
 /brand | 品牌介紹
-/brand/brand-story | 品牌介紹｜讓世界住進台灣在地的美好
-/brand/how-we-choose | 品牌介紹｜我們的選宿標準
-/brand/our-team | 品牌介紹｜30 年飯店團隊
 /experience | 慢域體驗
 /contact | 聯絡我們
 /privacy | 隱私政策

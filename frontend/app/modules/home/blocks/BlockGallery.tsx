@@ -8,6 +8,8 @@ export type BlockGalleryConfig = {
   images?: Array<string | { url?: string; caption?: unknown }>;
   eyebrow?: string | Record<string, string>;
   title?: string | Record<string, string>;
+  /** "wall" = every photo at once in equal tiles; default is the carousel. */
+  display?: "carousel" | "wall";
 };
 
 export default function BlockGallery({ locale, config }: { locale: Locale; config?: BlockGalleryConfig }) {
@@ -41,6 +43,7 @@ export default function BlockGallery({ locale, config }: { locale: Locale; confi
       images={images}
       eyebrow={eyebrowT(c, locale, h.galleryEyebrow)}
       title={cfgT(c, "title", locale, h.galleryTitle)}
+      display={c.display === "wall" ? "wall" : "carousel"}
     />
   );
 }

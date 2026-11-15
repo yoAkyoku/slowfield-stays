@@ -282,8 +282,9 @@ test("並排時圖片填滿欄高 is gone from 相片拼貼牆, where ticking it
 
 test("排版, 欄數 and 卡片比例 all disappear together on 相片拼貼牆", () => {
   // The guard is what makes this form honest about which settings it can honour;
-  // 填滿欄高 was the one that had escaped it.
-  assert.deepEqual(fieldLabels(renderGalleryForm({ images: [] }, false)), ["眉批（選填）", "標題（選填）"]);
+  // 填滿欄高 was the one that had escaped it. 顯示方式 (大圖輪播 / 小圖牆) is the
+  // one setting this block does honour, so it is the only one listed.
+  assert.deepEqual(fieldLabels(renderGalleryForm({ images: [] }, false)), ["顯示方式", "眉批（選填）", "標題（選填）"]);
 });
 
 test("欄數 is offered on every layout that reads it", () => {

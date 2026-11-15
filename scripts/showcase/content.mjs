@@ -347,25 +347,6 @@ export const PAGES = [
     en: { title: "Hejing Ridge: coming 2027", summary: "The second Hejing villa is in planning." },
   },
 
-  // 品牌介紹
-  {
-    content_type: "brand", slug: "brand-story", title: "讓世界住進台灣在地的美好", cover: "real:brand_wall",
-    summary: "慢域旅宿由擁有 30 年飯店經驗的團隊創立，以飯店級服務與在地生活美學，經營值得再回來的民宿。",
-    blocks: [rt("b1", zhen("我們是誰", "Who we are"), zhen("慢域旅宿 Slowfield Stays 由擁有 30 年飯店管理經驗的團隊創立，專注於精品民宿的品牌經營與營運。\n\n我們相信，一間好民宿不只是房間漂亮，而是從訂房的第一則訊息開始，每個細節都有人用心照顧。", "A team with 30 years in hotels, running boutique stays with hotel-grade care.")), rt("b1b", zhen("跟著靈魂，放慢", "Slow down"), zhen("我們把這句話寫在禾境的牆上：跟著靈魂，放慢，讓世界跟得上你。", "Written on our wall: follow your soul, slow down, let the world catch up."))],
-    en: { title: "Bringing Taiwan's quiet best to every stay", summary: "A team with 30 years in hotels, running stays worth returning to." },
-  },
-  {
-    content_type: "brand", slug: "how-we-choose", title: "我們的選宿標準", cover: "real:exterior_sign",
-    summary: "慢域的每一間房子，都要通過這五個問題。",
-    blocks: [rt("b2", zhen("五個問題", "Five questions"), zhen("一、這裡安靜嗎？\n二、建築有自己的個性嗎？\n三、一群人住得舒服嗎？\n四、在地有值得推薦的事嗎？\n五、我們會想帶家人來住嗎？\n\n五題都是「是」，才會成為慢域的一員。", "Is it quiet? Does it have character? Is it comfortable for a group? Is there something local worth sharing? Would we bring our own family?"))],
-    en: { title: "How we choose", summary: "Five questions every Select stay must pass." },
-  },
-  {
-    content_type: "brand", slug: "our-team", title: "30 年飯店團隊", cover: "real:rice_field_walk",
-    summary: "從五星飯店到田野民宿，我們把飯店的服務流程帶進每一間房子。",
-    blocks: [rt("b3", zhen("把飯店的細節帶回家", "Hotel habits, villa scale"), zhen("我們的團隊來自國際連鎖飯店的客務、房務與餐飲部門。民宿的規模小，但床單的平整度、浴室的清潔標準與入住流程，我們都照飯店的規矩來。", "Our people come from international hotel chains; small scale, hotel standards."))],
-    en: { title: "A 30-year hotel team", summary: "Hotel service habits brought to every villa." },
-  },
 ];
 
 /* Experience page (慢域體驗) body */
@@ -417,6 +398,7 @@ export const HOME_BLOCKS = [
     config: {
       eyebrow: L("空間一瞥", "A look inside"),
       title: L("光、水，與一整片稻田", "Light, water and a field of rice"),
+      display: "wall",
       images: ["real:pool_wide", "real:living_white", "real:breakfast_spread", "real:bath_tub", "real:pool_night", "real:rice_field_walk"],
     },
   },
@@ -486,6 +468,109 @@ export const SECTION_HEROES = {
   experience: "real:living_white",
 };
 
+/** 品牌介紹 is a single page: who we are, how we choose, the team, then the
+ *  houses. It used to be an index of three short articles, which made a
+ *  visitor click three times to read one story. */
+export const BRAND_PAGE = {
+  hero_image: "real:exterior_field",
+  hero_height: "medium",
+  hero_title: L("品牌介紹", "About Slowfield"),
+  hero_subtitle: L("讓世界住進台灣在地的美好。", "Bringing Taiwan's quiet best to every stay."),
+  hero_title_color: "#ffffff",
+  hero_subtitle_color: "#ffffff",
+  show_cms_list: false,
+  nav_pinned: true,
+  sort_order: 10,
+  blocks: [
+    {
+      id: "brand-who", type: "about", enabled: true,
+      config: {
+        image_position: "right",
+        images: ["real:brand_wall"],
+        eyebrow: L("我們是誰", "Who we are"),
+        title: L("跟著靈魂，放慢，\n讓世界跟得上你。", "Follow your soul, slow down,\nlet the world catch up."),
+        body: L(
+          "慢域旅宿 Slowfield Stays 由擁有 30 年飯店管理經驗的團隊創立，專注於精品民宿的品牌經營與營運。\n\n我們相信，一間好民宿不只是房間漂亮，而是從訂房的第一則訊息開始，每個細節都有人用心照顧。",
+          "Slowfield Stays was founded by a team with 30 years in hotel management, and runs a small collection of boutique stays.\n\nA good stay is more than a handsome room. Someone looks after every detail, starting with your first message.",
+        ),
+      },
+    },
+    {
+      id: "brand-standards", type: "feature_list", enabled: true,
+      config: {
+        layout: "grid",
+        eyebrow: L("選宿標準", "How we choose"),
+        heading: L("每一間房子，都要通過這五個問題", "Five questions every house must pass"),
+        items: [
+          { icon: "icon:leaf", label: L("這裡安靜嗎？", "Is it quiet?"), detail: L("夜裡聽得到蟲鳴，聽不到車聲。", "Crickets at night, no traffic.") },
+          { icon: "icon:house", label: L("建築有自己的個性嗎？", "Does it have character?"), detail: L("不是複製的樣品屋。", "Not a copy of a show home.") },
+          { icon: "icon:sofa", label: L("一群人住得舒服嗎？", "Is it comfortable for a group?"), detail: L("餐桌夠長，浴室夠多。", "A long table and enough bathrooms.") },
+          { icon: "icon:pin", label: L("在地有值得推薦的事嗎？", "Is there something local to share?"), detail: L("走路或騎車就到得了。", "Within a walk or a bike ride.") },
+          { icon: "icon:bed", label: L("我們會帶家人來住嗎？", "Would we bring our own family?"), detail: L("五題都是「是」，才會成為慢域的一員。", "Five yeses, or it is not a Slowfield stay.") },
+        ],
+      },
+    },
+    {
+      id: "brand-rows", type: "alternating", enabled: true,
+      config: {
+        eyebrow: L("我們怎麼做", "How we work"),
+        heading: L("把飯店的細節，帶進每一間房子", "Hotel habits at villa scale"),
+        items: [
+          {
+            image: "real:rice_field_walk",
+            eyebrow: L("TEAM", "TEAM"),
+            title: L("30 年飯店團隊", "A 30-year hotel team"),
+            body: L("我們的團隊來自國際連鎖飯店的客務、房務與餐飲部門。民宿的規模小，但床單的平整度、浴室的清潔標準與入住流程，我們都照飯店的規矩來。", "Our people come from front office, housekeeping and dining at international hotels. The houses are small, and the standards are the hotel's."),
+          },
+          {
+            image: "real:breakfast_spread",
+            eyebrow: L("SERVICE", "SERVICE"),
+            title: L("管家式接待", "A host for every stay"),
+            body: L("從抵達前的行程建議、入住時的導覽，到退房後的失物協尋，都由同一位管家負責。你不必重複說明需求。", "One host handles your stay from pre-arrival planning to check-out, so you never explain twice."),
+          },
+          {
+            image: "real:pool_wide",
+            eyebrow: L("PRIVACY", "PRIVACY"),
+            title: L("整棟只屬於你們", "The whole house is yours"),
+            body: L("每一間慢域的房子一次只接待一組客人。泳池、客廳與廚房不必和陌生人共用。", "Every Slowfield house hosts one group at a time. The pool, lounge and kitchen are yours alone."),
+          },
+        ],
+      },
+    },
+    {
+      id: "brand-stays", type: "stays", enabled: true,
+      config: {
+        eyebrow: L("慢域的房子", "Our houses"),
+        title: L("三個地方，三種風景", "Three places, three landscapes"),
+      },
+    },
+    {
+      id: "brand-cta", type: "editorial", enabled: true,
+      config: {
+        image: "real:exterior_dusk",
+        eyebrow: L("下一步", "Next"),
+        title: L("想住哪一間？告訴我們。", "Tell us which house you have in mind."),
+        body: L("留下日期與人數，由專人在一天內回覆。", "Leave your dates and group size. A person replies within a day."),
+        cta_label: L("聯絡我們", "Contact us"),
+        cta_href: "/contact",
+      },
+    },
+  ],
+};
+
+/** Which pages sit in the top bar, and in what order. The bundled default pins
+ *  four; a brand site with nine pages reads as if most of them were missing. */
+export const NAV_PAGES = {
+  stays: { nav_pinned: true, sort_order: 20 },
+  experience: { nav_pinned: true, sort_order: 30 },
+  activity: { nav_pinned: true, sort_order: 40 },
+  journal: { nav_pinned: true, sort_order: 50 },
+  news: { nav_pinned: true, sort_order: 60 },
+  dining: { nav_pinned: false, sort_order: 70 },
+  service: { nav_pinned: false, sort_order: 80 },
+  contact: { nav_pinned: true, sort_order: 90 },
+};
+
 /** 聯絡我們 on the brand site: a hero, the enquiry form, then how to reach us. */
 export const CONTACT_PAGE = {
   hero_image: "real:brand_wall",
@@ -498,10 +583,23 @@ export const CONTACT_PAGE = {
     {
       id: "contact-form", type: "contact_form", enabled: true,
       config: {
-        layout: "split",
+        // Stacked, and paired with the newsletter block that follows: the two
+        // forms share one row, enquiry on the left and subscription beside it.
+        layout: "stacked",
+        _pairNext: true,
         eyebrow: L("詢問", "Enquiry"),
         title: L("想住哪一間？", "Which house would you like?"),
-        subtitle: L("留下日期、人數與想知道的事，我們會以 Email 或 LINE 回覆。", "Leave your dates, group size and questions. We reply by email or LINE."),
+        subtitle: L("留下日期、人數與想知道的事，我們會以 Email 或 LINE 回覆。服務時間：每日 09:00–21:00。", "Leave your dates, group size and questions. We reply by email or LINE, daily 09:00–21:00."),
+      },
+    },
+    {
+      id: "contact-newsletter", type: "newsletter", enabled: true,
+      config: {
+        eyebrow: L("電子報", "Newsletter"),
+        title: L("訂閱慢域電子報", "Subscribe to the newsletter"),
+        body: L("當季住宿、優惠與旅行靈感，偶爾寄到你的信箱。", "Seasonal stays, offers and travel ideas, sent now and then."),
+        submit_label: L("訂閱電子報", "Subscribe"),
+        show_icon: true,
       },
     },
     {
@@ -512,10 +610,7 @@ export const CONTACT_PAGE = {
         phone: CONTACT.phone, email: CONTACT.email, line: CONTACT.line,
         address: CONTACT.address,
         map_embed: '<iframe src="https://www.google.com/maps?q=%E5%AE%9C%E8%98%AD%E7%B8%A3%E5%86%AC%E5%B1%B1%E9%84%89&output=embed"></iframe>',
-        directions: L(
-          "服務時間：每日 09:00–21:00。\n自駕：國道五號羅東交流道下，約 10 分鐘。\n火車：羅東站下車，轉乘計程車約 10 分鐘。",
-          "Open daily 09:00–21:00.\nBy car: 10 minutes from the Luodong exit of Freeway 5.\nBy rail: 10 minutes by taxi from Luodong Station.",
-        ),
+        directions: L("", ""),
       },
     },
   ],

@@ -25,7 +25,11 @@
 </tr>
 <tr>
 <td><img src="docs/screenshots/front-04-home-pathways.jpg" alt="四個旅行入口"><br><sub>四個旅行入口</sub></td>
-<td><img src="docs/screenshots/front-13-home-faq.jpg" alt="常見問題"><br><sub>常見問題</sub></td>
+<td><img src="docs/screenshots/front-16-home-gallery.jpg" alt="相片牆"><br><sub>相片牆</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/front-14-brand.jpg" alt="品牌介紹單頁"><br><sub>品牌介紹單頁</sub></td>
+<td><img src="docs/screenshots/front-15-contact.jpg" alt="聯絡我們：詢問表單與電子報"><br><sub>聯絡我們：詢問表單與電子報</sub></td>
 </tr>
 <tr>
 <td><img src="docs/screenshots/front-05-stays.jpg" alt="住宿總覽"><br><sub>住宿總覽</sub></td>

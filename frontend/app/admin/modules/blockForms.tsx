@@ -2071,6 +2071,28 @@ export function GalleryConfigForm({
           <HeadingInput value={getVal(c, "caption", editLocale)} onChange={v => onChange(setVal(c, "caption", editLocale, v))} />
         </Field>
       )}
+      {/* 相片拼貼牆 only: one large photo at a time, or every photo at once. */}
+      {!showLayoutOptions && (
+        <Field label={zh ? "顯示方式" : "Display"}>
+          <div className="hpb-variant-pick" role="radiogroup" onKeyDown={radioGroupKeys} aria-label={zh ? "顯示方式" : "Display"}>
+            {(["carousel", "wall"] as const).map(mode => {
+              const current = c.display === "wall" ? "wall" : "carousel";
+              return (
+                <button
+                  key={mode}
+                  type="button"
+                  role="radio"
+                  aria-checked={current === mode}
+                  className={`hpb-variant-pick__btn${current === mode ? " is-active" : ""}`}
+                  onClick={() => onChange({ ...c, display: mode })}
+                >
+                  {mode === "wall" ? (zh ? "小圖牆" : "Photo wall") : (zh ? "大圖輪播" : "Large carousel")}
+                </button>
+              );
+            })}
+          </div>
+        </Field>
+      )}
       {/* The cap belongs to 相片拼貼牆 only. HomePhotoGallery slices to 8, so its
           entries 9 and up were uploaded, saved and never drawn. 圖片組 shares this
           form and its renderer (BlockImageGallery) has no cap at all, so the same

@@ -375,8 +375,8 @@
 .site-home .article-feature-img img { filter: none; }
 
 /* Closing section: centred like its heading, with a real button. */
-.site-home .editorial-feature { align-items: center; }
-.site-home .editorial-feature .block-about-cta {
+:is(.site-home, .content-index) .editorial-feature { align-items: center; }
+:is(.site-home, .content-index) .editorial-feature .block-about-cta {
   align-self: var(--r-cta-self, center);
   margin-top: clamp(26px, 3vw, 40px);
   padding: 17px 40px;
@@ -387,13 +387,13 @@
   letter-spacing: 0.14em;
   transition: transform 0.3s var(--rf-ease), box-shadow 0.3s var(--rf-ease), background 0.3s ease;
 }
-.site-home .editorial-feature .block-about-cta::after { content: none; }
-.site-home .editorial-feature .block-about-cta:hover {
+:is(.site-home, .content-index) .editorial-feature .block-about-cta::after { content: none; }
+:is(.site-home, .content-index) .editorial-feature .block-about-cta:hover {
   transform: translateY(-3px);
   background: var(--rf-ink);
   box-shadow: 0 22px 44px -20px rgba(23, 32, 26, 0.7);
 }
-.site-home .editorial-feature-media { border-radius: var(--rf-radius); overflow: hidden; box-shadow: var(--rf-shadow); }
+:is(.site-home, .content-index) .editorial-feature-media { border-radius: var(--rf-radius); overflow: hidden; box-shadow: var(--rf-shadow); }
 
 /* ── 11. Inner-page and villa-site heroes with a photo ─────────────────── */
 /* Same idea as the homepage hero: shade only where the words are. */
@@ -677,3 +677,143 @@ html:not([lang^="zh"]) :is(.hero p, .content-index-hero p, .contact-hero p, .sta
 /* About: the photograph is as tall as the copy beside it. */
 .site-home .block-about--has-image { align-items: stretch; }
 .site-home .block-about--has-image .block-about-copy { align-self: center; }
+
+/* About, stacked (below the 1200px split): words first, photograph after.
+   Every other block on the page opens with its heading; with the photograph
+   on top it read as the tail of the block above. The paddings swap with the
+   order so the outer edges still follow 上下留白 and the gap between the two
+   halves stays small. */
+@media (max-width: 1199px) {
+  .site-home .block-about--has-image .block-about-media { order: 0; }
+  .site-home .block-about--has-image { row-gap: 0; }
+}
+@media (min-width: 901px) and (max-width: 1199px) {
+  .site-home .block-about--has-image .block-about-copy {
+    padding-top: var(--about-pad-y);
+    padding-bottom: clamp(20px, 3vw, 32px);
+  }
+  .site-home .block-about--has-image .block-about-media {
+    padding-top: 0;
+    padding-bottom: var(--about-pad-y);
+  }
+}
+@media (max-width: 900px) {
+  .site-home .block-about--has-image .block-about-copy {
+    padding-top: var(--block-pad-y, clamp(24px, 5vw, 40px));
+    padding-bottom: clamp(24px, 5vw, 40px);
+  }
+  .site-home .block-about--has-image .block-about-media {
+    padding-top: 0;
+    padding-bottom: var(--block-pad-y, clamp(24px, 5vw, 40px));
+  }
+}
+
+/* Gallery as a wall: six equal 4:3 tiles on the page grid instead of one
+   photograph filling the screen. The staggered lead tile is switched off so
+   every tile shares the stay and news cards' proportions. */
+.site-home .home-gallery-grid.home-gallery-wall {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  gap: var(--rf-grid-gap);
+  border-radius: 0;
+  overflow: visible;
+}
+.site-home .home-gallery-wall .home-gallery-item {
+  grid-row: auto;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--rf-radius);
+}
+@media (max-width: 900px) {
+  .site-home .home-gallery-grid.home-gallery-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+}
+
+/* Fewer screen-filling pictures. Stacked, the about photograph is a 16:9 band
+   rather than a full-width 4:3; the closing picture is a shallow band too. */
+@media (max-width: 1199px) {
+  .site-home .block-about--has-image .block-about-carousel,
+  .site-home .block-about--has-image:not(.block-about--collage) .block-about-image {
+    aspect-ratio: 16 / 9;
+    max-height: 420px;
+  }
+}
+:is(.site-home, .content-index) .editorial-feature-media img { width: 100%; aspect-ratio: 3 / 1; max-height: 420px; object-fit: cover; display: block; }
+@media (max-width: 900px) {
+  :is(.site-home, .content-index) .editorial-feature-media img { aspect-ratio: 16 / 9; }
+}
+
+/* ── 14. Contact page ──────────────────────────────────────────────────
+   The enquiry form and the newsletter sit in one row as two cards of the same
+   height: the form takes the wider column, the subscription the narrower. */
+.contact-page .property-block-pair {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  gap: clamp(18px, 2vw, 30px);
+  align-items: stretch;
+}
+.contact-page .property-block-pair > * { display: flex; flex-direction: column; min-width: 0; }
+.contact-page .property-block-pair > * > * { flex: 1 1 auto; }
+.contact-page .property-block-pair .page-block-contact-form {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding-top: clamp(28px, 3.4vw, 52px);
+  padding-bottom: clamp(28px, 3.4vw, 52px);
+  padding-left: var(--block-pad-x, clamp(22px, 3.4vw, 52px));
+  padding-right: var(--block-pad-x, clamp(22px, 3.4vw, 52px));
+}
+.contact-page .property-block-pair .block-newsletter {
+  display: flex;
+  align-items: center;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-top: clamp(28px, 3.4vw, 52px);
+  padding-bottom: clamp(28px, 3.4vw, 52px);
+  padding-left: clamp(22px, 3vw, 44px);
+  padding-right: clamp(22px, 3vw, 44px);
+}
+.contact-page .property-block-pair .block-newsletter-inner {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 26px;
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .contact-page .property-block-pair { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Contact details: one row of four with room for each value on a single line.
+   The row used to wrap three-and-one, and the address broke onto two lines. */
+@media (min-width: 1100px) {
+  .contact-page .page-block-contact-info { flex-wrap: nowrap; }
+  .contact-page .page-block-contact-info .contact-item {
+    flex: 1 1 auto;
+    padding-left: clamp(18px, 2vw, 30px);
+    padding-right: clamp(18px, 2vw, 30px);
+  }
+}
+@media (min-width: 721px) and (max-width: 1099px) {
+  .contact-page .page-block-contact-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .contact-page .page-block-contact-info .contact-item:nth-child(odd)::before { content: none; }
+  .contact-page .page-block-contact-info .contact-item:nth-child(n + 3) { border-top: 1px solid var(--line); }
+}
+@media (min-width: 900px) {
+  .contact-page .page-block-contact-info .contact-item :is(a, p) { white-space: nowrap; }
+}
+
+/* 特色亮點 with exactly five cards: five across, not four and an orphan. */
+@media (min-width: 1100px) {
+  .block-about-features.is-grid:has(> :nth-child(5):last-child) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+/* In the narrow column the icon sits above the copy, so the copy keeps the
+   card's whole width. */
+.contact-page .property-block-pair .block-newsletter-head { flex-direction: column; align-items: flex-start; gap: 18px; }
+
+/* Stacked, the single track must be allowed to shrink: a bare 1fr takes the
+   carousel's intrinsic width as its minimum, and on a phone the copy and the
+   photograph both ran off the right edge. */
+@media (max-width: 1199px) {
+  .site-home .block-about--has-image { grid-template-columns: minmax(0, 1fr); }
+  .site-home .block-about--has-image > * { min-width: 0; }
+}
