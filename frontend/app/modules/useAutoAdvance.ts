@@ -22,12 +22,16 @@ import { useCallback, useEffect, useRef } from "react";
  *
  * `advance` is read through a ref so a caller can pass an inline closure over
  * fresh state without restarting the interval on every render.
+ *
+ * `restartKey` restarts the countdown whenever it changes. A carousel passes
+ * its current slide, so a slide reached by hand gets the full delay instead of
+ * whatever was left of the previous one's.
  */
-export default function useAutoAdvance(
+export default function useAutoAdvance<E extends HTMLElement = HTMLDivElement>(
   advance: () => void,
-  { count, delay = 3000, enabled = true }: { count: number; delay?: number; enabled?: boolean },
+  { count, delay = 3000, enabled = true, restartKey }: { count: number; delay?: number; enabled?: boolean; restartKey?: unknown },
 ) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<E | null>(null);
   const advanceRef = useRef(advance);
   advanceRef.current = advance;
 
@@ -108,6 +112,12 @@ export default function useAutoAdvance(
       document.removeEventListener("visibilitychange", visibility);
     };
   }, [count, delay, enabled, hold, start, stop]);
+
+  useEffect(() => {
+    if (timerRef.current == null) return;
+    stop();
+    start();
+  }, [restartKey, start, stop]);
 
   return containerRef;
 }

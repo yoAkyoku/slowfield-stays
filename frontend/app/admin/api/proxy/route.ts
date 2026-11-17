@@ -10,13 +10,12 @@
 
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { SERVER_API_URL as API_URL } from "../../../modules/apiBase";
 
 export const runtime = "nodejs";
 
 // Leave one MiB for multipart boundaries and field headers around a 100 MB file.
 const MAX_MULTIPART_REQUEST_BYTES = 101 * 1024 * 1024;
-
-const API_URL = process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
 // ---------------------------------------------------------------------------
 // Security: path allowlist prevents SSRF / path traversal

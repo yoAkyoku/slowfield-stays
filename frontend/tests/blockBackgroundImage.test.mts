@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readCode } from "./readCode";
+import { readCode, readEditorSurface } from "./readCode";
 import { jsxTags } from "./sourceEval";
 import { blockStyle } from "../app/modules/blockStyle.ts";
 
@@ -21,6 +21,7 @@ import { blockStyle } from "../app/modules/blockStyle.ts";
 const IMG = "/storage/media/47d05fa1e7ac4ddf8eec41faf1b34aa7.webp";
 const HOME_EDITOR = "app/admin/(dashboard)/homepage/HomepageBlockEditor.tsx";
 const PAGE_EDITOR = "app/admin/(dashboard)/sites/[id]/pages/[pageKey]/PropertyBlockEditor.tsx";
+const INSPECTOR = "app/admin/modules/BlockStyleInspector.tsx";
 
 test("a picture reaches the block as a covering background", () => {
   const s = blockStyle({ _bgImage: IMG });
@@ -105,12 +106,12 @@ test("a self-painting block gets no picture, on the same terms as the colour", (
 
 test("both editors offer the field, and both withhold it from a self-painting block", () => {
   for (const [name, path] of [["homepage", HOME_EDITOR], ["site page", PAGE_EDITOR]] as Array<[string, string]>) {
-    const src = readCode(path);
+    const src = readEditorSurface(path);
     assert.ok(
       src.includes("<BlockBackgroundImage"),
       `the ${name} editor no longer offers 背景圖片 — the key would be unreachable from the CMS`,
     );
-    const tag = jsxTags(path).find((t) => t.tag === "BlockBackgroundImage");
+    const tag = [path, INSPECTOR].flatMap((p) => jsxTags(p)).find((t) => t.tag === "BlockBackgroundImage");
     assert.ok(tag, `${name}: BlockBackgroundImage is mentioned but not rendered`);
     assert.equal(
       tag.attrs.get("value"),
@@ -139,8 +140,9 @@ test("clearing the field removes the key rather than storing an empty string", (
   const src = readCode("app/admin/modules/BlockBackgroundImage.tsx");
   assert.match(src, /onChange\(next \|\| undefined\)/, "an emptied 背景圖片 now stores \"\"");
   for (const path of [HOME_EDITOR, PAGE_EDITOR]) {
-    const at = readCode(path).indexOf("<BlockBackgroundImage");
-    const tag = readCode(path).slice(at, at + 600);
+    const surface = readEditorSurface(path);
+    const at = surface.indexOf("<BlockBackgroundImage");
+    const tag = surface.slice(at, at + 600);
     assert.match(tag, /const \{ _bgImage, \.\.\.rest \}/, `${path}: clearing 背景圖片 leaves the key behind`);
   }
 });

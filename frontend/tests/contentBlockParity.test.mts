@@ -10,6 +10,7 @@ import * as faqSchema from "../app/modules/faqSchema.ts";
 import * as socialLinks from "../app/modules/socialLinks.ts";
 import * as safeCss from "../app/modules/safeCss.ts";
 import * as unknownBlock from "../app/modules/unknownBlock.ts";
+import { sharedModule } from "./sharedModules.mts";
 
 /**
  * A block drawn on a group content page shows what the same block shows on a
@@ -53,7 +54,11 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   }).outputText;
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
-    if (!(id in imports)) throw new Error(`${file}: no stub for import "${id}"`);
+    if (!(id in imports)) {
+      const shared = sharedModule(file, id);
+      if (shared) return shared;
+      throw new Error(`${file}: no stub for import "${id}"`);
+    }
     return imports[id];
   };
   new Function("exports", "require", "module", "__h", "__FRAGMENT", js)(

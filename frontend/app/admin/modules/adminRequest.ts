@@ -2,8 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-const API_URL = process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+import { SERVER_API_URL as API_URL } from "../../modules/apiBase";
 
 export type AdminResult = { ok: true; message?: string } | { message: string; ok: false };
 
@@ -116,19 +115,3 @@ export async function authJsonRequest(path: string, body: Record<string, unknown
   return resultFromResponse(response, fallback);
 }
 
-
-export async function adminFormRequest(path: string, formData: FormData, method = "POST", fallback = "Request failed") {
-  const token = (await cookies()).get("admin-token")?.value;
-  if (!token) redirect("/admin/login");
-  const siteSlug = await currentSiteSlug();
-  const separator = path.includes("?") ? "&" : "?";
-  const response = await fetch(`${API_URL}/admin${path}${separator}site=${encodeURIComponent(siteSlug)}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "X-Site-Slug": siteSlug
-    },
-    body: formData
-  });
-  return resultFromResponse(response, fallback);
-}

@@ -1,3 +1,4 @@
+import { labelLadder } from "./tr";
 /**
  * The site's CMS categories: what each one is called, and what order they sit in.
  *
@@ -85,14 +86,7 @@ export function pageLabel(
 ): string {
   const def = ROOT_PAGE_DEFAULTS[key];
   const bundled = def ? (locale === "zh" ? def[0] : def[1]) : "";
-  if (cfgLabel && typeof cfgLabel === "object" && !Array.isArray(cfgLabel)) {
-    const l = cfgLabel as Record<string, string>;
-    return l[locale] || bundled || l.zh || l.en || key;
-  }
-  // A plain string is one name the client chose for both languages; taking the
-  // bundled default over it would override an explicit decision.
-  if (typeof cfgLabel === "string" && cfgLabel) return cfgLabel;
-  return bundled || key;
+  return labelLadder(cfgLabel, locale === "en" ? "en" : "zh", bundled, key);
 }
 
 export type ContentTypeEntry = {

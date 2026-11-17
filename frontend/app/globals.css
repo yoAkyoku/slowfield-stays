@@ -14182,10 +14182,6 @@ figcaption {
 
 /* ── The editing panel ── */
 
-@keyframes se-sheet-in {
-  from { transform: translateX(18px); opacity: 0; }
-  to   { transform: none; opacity: 1; }
-}
 
 /* The editor inside supplies its own legend; the panel bar already named it. */
 

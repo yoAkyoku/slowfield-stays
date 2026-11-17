@@ -6,6 +6,7 @@ import ts from "typescript";
 import * as tr from "../app/modules/tr.ts";
 import * as safeHtml from "../app/modules/safeHtml.ts";
 import * as media from "../app/modules/media.ts";
+import { sharedModule } from "./sharedModules.mts";
 
 /**
  * "Nobody implemented this" and "the config is empty" look identical on the
@@ -42,7 +43,11 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   }).outputText;
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
-    if (!(id in imports)) throw new Error(`${file}: no stub for import "${id}"`);
+    if (!(id in imports)) {
+      const shared = sharedModule(file, id);
+      if (shared) return shared;
+      throw new Error(`${file}: no stub for import "${id}"`);
+    }
     return imports[id];
   };
   new Function("exports", "require", "module", "__h", "__FRAGMENT", js)(

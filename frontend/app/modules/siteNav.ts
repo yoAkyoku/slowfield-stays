@@ -1,3 +1,4 @@
+import { labelLadder } from "./tr";
 /**
  * The group site's main navigation: which pages appear, what they are called,
  * what order they sit in, and which of them are pinned to the top bar.
@@ -149,23 +150,7 @@ export function buildNavLinks(
     const cfgLabel = cfg?.label;
     const def = DEFAULT_LABELS[key];
     const bundled = def ? (locale === "zh" ? def[0] : def[1]) : "";
-    let label: string;
-    if (cfgLabel && typeof cfgLabel === "object" && !Array.isArray(cfgLabel)) {
-      const l = cfgLabel as Record<string, string>;
-      // The bundled label comes before the other language: page management
-      // saves an object as soon as either field is touched, so a page whose
-      // Chinese label was renamed and whose English was left blank put 精選住宿
-      // in the English nav even though "Stays" was sitting right there in
-      // DEFAULT_LABELS. Borrowing the other language stays as the last resort,
-      // for custom keys that have no bundled label at all.
-      label = l[locale] || bundled || l.zh || l.en || key;
-    } else if (typeof cfgLabel === "string") {
-      // A plain string is one label the admin chose for both languages; taking
-      // the bundled default over it would override an explicit decision.
-      label = cfgLabel;
-    } else {
-      label = bundled || key;
-    }
+    const label = labelLadder(cfgLabel, locale === "en" ? "en" : "zh", bundled, key);
 
     // Resolve group
     const cfgGroup = cfg?.nav_group;

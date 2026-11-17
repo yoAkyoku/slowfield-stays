@@ -1,5 +1,5 @@
 import type { Locale } from "../../i18n";
-import { cfgT } from "../../tr";
+import { cfgT, pickT } from "../../tr";
 
 export default function BlockTable({ locale, config }: { locale: Locale; config: Record<string, unknown> }) {
   const zh = locale === "zh";
@@ -8,13 +8,8 @@ export default function BlockTable({ locale, config }: { locale: Locale; config:
   const notes = cfgT(config, "notes", locale);
 
   // Resolve a cell that may be a plain string or a bilingual { zh, en } object.
-  const cellText = (cell: unknown): string => {
-    if (cell != null && typeof cell === "object" && !Array.isArray(cell)) {
-      const o = cell as Record<string, string>;
-      return o[locale] || o.zh || o.en || "";
-    }
-    return String(cell ?? "");
-  };
+  // Numbers are kept: a price column may hold 3200 rather than "3200".
+  const cellText = (cell: unknown): string => (typeof cell === "number" ? String(cell) : pickT(cell, locale));
 
   let columns: Record<string, unknown>[] = Array.isArray(config.columns)
     ? (config.columns as Record<string, unknown>[])

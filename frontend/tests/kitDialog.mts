@@ -43,7 +43,11 @@ export function assertKitDialogContract(): void {
   const ref = options?.match(/trapFocus\s*:\s*([A-Za-z_$][\w$]*)/)?.[1];
   assert.ok(ref, "the kit Dialog calls useOverlay without trapFocus");
   assert.equal(modal[0].attrs.get("ref"), ref, "the kit Dialog traps a ref that is not its aria-modal panel");
-  assert.match(src, /if \(!open\) return null;/, "the kit Dialog renders while closed, so the hook and the panel can disagree");
+  /* Closed, it renders nothing — or, with keepMounted, its layer is not
+     displayed, so nothing in it can be seen, focused or tabbed to while the
+     hook is off. */
+  assert.match(src, /if \(!open && !keepMounted\) return null;/, "the kit Dialog renders while closed, so the hook and the panel can disagree");
+  assert.match(src, /style=\{open \? undefined : \{ display: "none" \}\}/, "a kept-mounted closed Dialog is still displayed");
   assert.ok(
     modal[0].fullText.includes("onClick={onClose}") && /aria-label=\{closeLabel\}/.test(modal[0].fullText),
     "the kit Dialog lost its labelled close button inside the trapped panel",

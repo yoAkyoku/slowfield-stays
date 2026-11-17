@@ -5,10 +5,7 @@ import { Button, Callout, Dialog, DialogActions, Stack } from "../../ui";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAdminSiteSlug } from "../../modules/AdminSiteContext";
-
-function proxyUrl(apiPath: string, site: string) {
-  return `/admin/api/proxy?path=${encodeURIComponent(apiPath)}&site=${encodeURIComponent(site)}`;
-}
+import { adminProxyUrl as proxyUrl } from "../../../modules/apiBase";
 
 type Usage = { kind: string; id: number; title: string };
 

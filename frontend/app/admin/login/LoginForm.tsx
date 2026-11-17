@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { loginAction } from "../modules/authActions";
 import { Button, Callout, Field, Input, buttonClass } from "../ui";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+import { PUBLIC_API_URL as API_URL } from "../../modules/apiBase";
 
 type LoginLabels = {
   loginBack: string;

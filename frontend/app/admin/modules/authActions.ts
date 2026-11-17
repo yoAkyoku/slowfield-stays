@@ -2,8 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-const API_URL = process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+import { SERVER_API_URL as API_URL } from "../../modules/apiBase";
 
 export type LoginResult = { ok: true } | { ok: false; error: string };
 

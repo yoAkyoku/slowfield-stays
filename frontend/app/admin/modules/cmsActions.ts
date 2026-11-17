@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { adminJsonDataRequest, adminJsonRequest, type AdminResult } from "./adminRequest";
 import { actionRedirect, bulkDeleteResult, stampedRedirect } from "./adminUtils";
 
@@ -178,18 +177,6 @@ export async function createContentTagAction(formData: FormData) {
   const returnTo = safeReturnTo(String(formData.get("return_to") ?? ""), "/admin/cms/tags");
   if (!result.ok) actionRedirect(result, returnTo);
   actionRedirect(result, returnTo, "Tag created");
-}
-
-export async function updateContentTagAction(id: string, formData: FormData) {
-  const result = await adminJsonRequest(`/cms/tags/${id}`, tagPayload(formData), "PUT");
-  const returnTo = safeReturnTo(String(formData.get("return_to") ?? ""), "/admin/cms/tags");
-  actionRedirect(result, returnTo, "Tag saved");
-}
-
-export async function updateContentTagStatusAction(id: string, status: string, formData: FormData) {
-  const result = await adminJsonRequest(`/cms/tags/${id}/status`, { status }, "PATCH");
-  const returnTo = safeReturnTo(String(formData.get("return_to") ?? ""), "/admin/cms/tags");
-  actionRedirect(result, returnTo, status === "archived" ? "Tag archived" : "Tag restored");
 }
 
 export async function updatePageStatusAction(id: string, status: string) {

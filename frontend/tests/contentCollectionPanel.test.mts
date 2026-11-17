@@ -13,6 +13,7 @@ import * as alternatingRows from "../app/admin/modules/alternatingRows.ts";
 import * as aboutImages from "../app/modules/home/blocks/aboutImages.ts";
 import * as contentFilter from "../app/modules/contentFilter.ts";
 import * as siteContentTypes from "../app/admin/modules/siteContentTypes.ts";
+import { sharedModule } from "./sharedModules.mts";
 
 /**
  * 內容集合's settings panel — the audit of it, held in place.
@@ -64,7 +65,11 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
     if (id === "next/link") return { default: (p: Record<string, unknown>) => h("a", p, p.children) };
-    if (!(id in imports)) throw new Error(`${file}: no stub for import "${id}"`);
+    if (!(id in imports)) {
+      const shared = sharedModule(file, id);
+      if (shared) return shared;
+      throw new Error(`${file}: no stub for import "${id}"`);
+    }
     return imports[id];
   };
   new Function("exports", "require", "module", "__h", "__FRAGMENT", js)(

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Locale } from "../../i18n";
 import { swipeDirection, swipePoint, type SwipePoint } from "../../swipe";
+import { SLIDE_DURATION_MS } from "../../slideTiming";
+import useAutoAdvance from "../../useAutoAdvance";
 
 export default function AboutImageCarousel({
   images,
@@ -14,7 +16,6 @@ export default function AboutImageCarousel({
   locale: Locale;
 }) {
   const [current, setCurrent] = useState(0);
-  const [hovered, setHovered] = useState(false);
   const touchStart = useRef<SwipePoint | null>(null);
   const count = images.length;
 
@@ -26,24 +27,21 @@ export default function AboutImageCarousel({
     setCurrent((index) => Math.min(index, Math.max(0, count - 1)));
   }, [count]);
 
-  useEffect(() => {
-    if (count <= 1 || hovered) return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
-    const timer = window.setTimeout(() => setCurrent((index) => (index + 1) % count), 6500);
-    return () => window.clearTimeout(timer);
-  }, [count, current, hovered]);
+  const autoRef = useAutoAdvance(() => setCurrent((index) => (index + 1) % count), {
+    count,
+    delay: SLIDE_DURATION_MS,
+    restartKey: current,
+  });
 
   if (!count) return null;
 
   return (
     <div
+      ref={autoRef}
       className="block-about-image block-about-carousel"
       role="region"
       aria-roledescription={locale === "zh" ? "圖片輪播" : "carousel"}
       aria-label={locale === "zh" ? `${title}圖片` : `${title} photos`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       onTouchStart={(event) => {
         touchStart.current = swipePoint(event.touches[0]);
       }}

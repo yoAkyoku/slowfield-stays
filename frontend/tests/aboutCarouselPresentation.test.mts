@@ -6,7 +6,7 @@ test("About image carousel keeps auto-advance and touch navigation without an ov
   const source = readCode("app/modules/home/blocks/AboutImageCarousel.tsx");
 
   assert.doesNotMatch(source, /block-about-carousel__controls/);
-  assert.match(source, /window\.setTimeout\([\s\S]*?6500/);
+  assert.match(source, /useAutoAdvance\([\s\S]*?delay: SLIDE_DURATION_MS/);
   assert.match(source, /onTouchStart=/);
   assert.match(source, /onTouchEnd=/);
 });

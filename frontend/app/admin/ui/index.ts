@@ -13,7 +13,7 @@ export { Card, Grid, Page, PageHeader, Stack, Toolbar } from "./Layout";
 export { ActionTile, Badge, Callout, DescriptionList, ListRow, ListRows, Progress, StatCard, Tabs } from "./Display";
 export type { TabItem, Tone } from "./Display";
 export { Check, Field, FormActions, FormGrid, FormSection, Input, SearchInput, Select, Textarea } from "./Form";
-export { CellTitle, Checklist, Chips, Disclosure, InputGroup, RowActions, Segmented, TableFrame } from "./Controls";
+export { CellTitle, Chips, Disclosure, InputGroup, RowActions, Segmented, TableFrame } from "./Controls";
 export type { SegmentedOption } from "./Controls";
 export { Dialog, DialogActions } from "./Dialog";
 export { cx } from "./cx";

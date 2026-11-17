@@ -7,6 +7,7 @@ import type { Locale } from "../../i18n";
 import { cardTagsT, cfgT, trs , eyebrowT, tagsT} from "../../tr";
 import { contentFilterTags, hasContentFilterTag } from "../../contentFilter";
 import ViewAllFooter from "../ViewAllFooter";
+import { ArticleCard } from "../../content/cards";
 
 export type BlockArticlesConfig = {
   limit?: number;
@@ -166,24 +167,14 @@ export default async function BlockArticles({ locale, config }: { locale: Locale
             const articleTitle = trs(article, "title", locale);
             const articleSummary = trs(article, "summary", locale);
             return (
-              <Link href={buildContentHref(article)} className="article-card" key={article.id}>
-                {article.cover_image_url && (
-                  <div className="article-card-img">
-                    <img src={article.cover_image_url} alt={articleTitle} loading="lazy" />
-                  </div>
-                )}
-                <div className="article-card-body">
-                  {cardTagsT(article, locale).length > 0 && (
-                    <div className="tags tags--lead">
-                      {cardTagsT(article, locale).map((tag) => (
-                        <span className="tag" key={tag}>{tag}</span>
-                      ))}
-                    </div>
-                  )}
-                  <h3>{articleTitle}</h3>
-                  {articleSummary && <p>{articleSummary}</p>}
-                </div>
-              </Link>
+              <ArticleCard
+                key={article.id}
+                href={buildContentHref(article)}
+                title={articleTitle}
+                summary={articleSummary}
+                cover={article.cover_image_url}
+                tags={cardTagsT(article, locale)}
+              />
             );
           })}
         </div>

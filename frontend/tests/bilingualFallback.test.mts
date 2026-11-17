@@ -83,15 +83,24 @@ test("the booking CTA borrows across locales and keeps a per-locale default", ()
  * only ever filled in Chinese with a blank/`about` heading. It now borrows the
  * other language before giving up, using `||` so a blank string falls through.
  */
-test("a page label borrows the other language before falling back to the key", () => {
+/* Villa pages follow the same ladder as the brand site (labelLadder in tr.ts):
+   this locale, then the bundled name, then the other language, then the key.
+   The villa copy used to borrow the other language before the bundled name, so a
+   page renamed in Chinese only showed Chinese in the English nav. */
+test("a page label prefers the bundled name to the other language", () => {
   const pages = { about: { label: { zh: "關於品牌" } } };
   assert.equal(pageLabel("about", pages, "zh"), "關於品牌");
-  assert.equal(pageLabel("about", pages, "en"), "關於品牌", "the key is a last resort, not a translation");
+  assert.equal(pageLabel("about", pages, "en"), "About", "the bundled English name beats the Chinese label");
 });
 
-test("a page label falls through an empty string to the other locale, then its system name", () => {
+test("a custom page label borrows the other language before falling back to the key", () => {
+  const pages = { retreat: { label: { zh: "靜修" } } };
+  assert.equal(pageLabel("retreat", pages, "en"), "靜修", "the key is a last resort, not a translation");
+});
+
+test("a page label falls through an empty string to the bundled name", () => {
   const pages = { about: { label: { en: "", zh: "關於品牌" } } };
-  assert.equal(pageLabel("about", pages, "en"), "關於品牌", "an empty en must not win over a populated zh");
+  assert.equal(pageLabel("about", pages, "en"), "About", "an empty en takes the bundled name");
   assert.equal(pageLabel("space", { space: { label: {} } }, "en"), "Space");
 });
 

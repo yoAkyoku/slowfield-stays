@@ -14,6 +14,7 @@ import StayRelatedContent from "./StayRelatedContent";
 import MapEmbed from "../MapEmbed";
 import { getCurrentSite, getPagesByIds, getPropertySites } from "../api";
 import { stayLocationLabel } from "../stayLocations";
+import { formatPrice } from "../apiBase";
 
 /**
  * The stay detail page, everything below fetching the stay itself.
@@ -71,7 +72,7 @@ export default async function StayDetailView({ stay }: { stay: Stay }) {
             name: amenity,
             value: true
           })),
-          priceRange: `TWD ${stay.base_price.toLocaleString()}+`
+          priceRange: formatPrice(stay.base_price, { from: true })
         }}
       />
       <section className="stay-detail-hero">
@@ -107,7 +108,7 @@ export default async function StayDetailView({ stay }: { stay: Stay }) {
         <div className="stay-decision-strip" aria-label={copy.stays.quickFacts}>
           <div>
             <span>{copy.stays.priceLabel}</span>
-            <strong>TWD {stay.base_price.toLocaleString()}+</strong>
+            <strong>{formatPrice(stay.base_price, { from: true })}</strong>
           </div>
           <div>
             <span>{copy.stays.capacityLabel}</span>
@@ -264,7 +265,7 @@ export default async function StayDetailView({ stay }: { stay: Stay }) {
       <aside className="stay-mobile-inquiry-bar" aria-label={copy.stays.inquiry}>
         <div>
           <span>{copy.stays.from}</span>
-          <strong>TWD {stay.base_price.toLocaleString()}+</strong>
+          <strong>{formatPrice(stay.base_price, { from: true })}</strong>
           <small>
             {copy.stays.upTo} {stay.max_guests} {copy.stays.guestsUnit}
           </small>

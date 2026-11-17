@@ -252,3 +252,22 @@ export function splitSelectorList(list: string): string[] {
   out.push(cur);
   return out.map((x) => x.trim().split(/\s+/).filter(Boolean).join(" ")).filter(Boolean);
 }
+
+/**
+ * What a block editor puts on screen: its own file plus the shared panels it
+ * renders. The brand homepage editor and the villa page editor used to carry
+ * their own copies of the config switch and the style inspector; both now
+ * render the same BlockConfigForm and BlockStyleInspector, so "does this editor
+ * offer control X" is a question about the editor and those components
+ * together. A shared panel only counts if the editor actually renders it.
+ */
+const EDITOR_PANELS: Array<[tag: string, path: string]> = [
+  ["<BlockStyleInspector", "app/admin/modules/BlockStyleInspector.tsx"],
+  ["<BlockConfigForm", "app/admin/modules/BlockConfigForm.tsx"],
+];
+
+export function readEditorSurface(path: string): string {
+  const own = readCode(path);
+  const panels = EDITOR_PANELS.filter(([tag]) => own.includes(tag)).map(([, p]) => readCode(p));
+  return [own, ...panels].join("\n");
+}

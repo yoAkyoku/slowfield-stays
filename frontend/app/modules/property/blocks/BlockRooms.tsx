@@ -3,7 +3,7 @@
 import { useState } from "react";
 import useAutoAdvance from "../../useAutoAdvance";
 import type { Locale } from "../../i18n";
-import { cfgT , eyebrowT} from "../../tr";
+import { cfgT, eyebrowT, pickT } from "../../tr";
 import { Lightbox, type LightboxImage } from "../LightboxGallery";
 
 type BiText = string | Record<string, string> | undefined;
@@ -15,11 +15,7 @@ type RoomItem = {
   specs?: Spec[];
 };
 
-function bi(v: BiText, locale: string): string {
-  if (!v) return "";
-  if (typeof v === "string") return v;
-  return v[locale] || v.zh || v.en || "";
-}
+const bi = (v: BiText, locale: string): string => pickT(v, locale === "en" ? "en" : "zh");
 
 function toImages(raw: unknown): LightboxImage[] {
   if (!Array.isArray(raw)) return [];

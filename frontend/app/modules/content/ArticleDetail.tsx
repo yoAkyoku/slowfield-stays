@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { Page } from "../api";
 import type { Locale } from "../i18n";
-import { trs } from "../tr";
+import { pickT, trs } from "../tr";
 import ContentBlockRenderer from "./ContentBlockRenderer";
 import ShareButtons from "./ShareButtons";
 import CardCover from "./CardCover";
@@ -58,8 +58,7 @@ export default function ArticleDetail({
   const blocks = (() => {
     const first = rawBlocks[0] as unknown as { type?: string; text?: unknown; config?: Record<string, unknown> } | undefined;
     if (!first) return rawBlocks;
-    const resolve = (v: unknown) =>
-      typeof v === "string" ? v : v && typeof v === "object" ? ((v as Record<string, string>)[locale] || (v as Record<string, string>).zh || (v as Record<string, string>).en || "") : "";
+    const resolve = (v: unknown) => pickT(v, locale);
     const norm = (s: string) => s.replace(/\s+/g, " ").trim();
     const titleN = norm(title);
     // A leading heading echoes the title when it equals it, or when the title is

@@ -4,10 +4,9 @@ import { cache } from "react";
 import { type Banner, type Stay } from "../../modules/api";
 import { ADMIN_DATA_DIGEST, ADMIN_FORBIDDEN_DIGEST, ADMIN_SITE_MISSING_DIGEST } from "./adminErrorDigests";
 import { collectAllPages } from "./adminPagePagination";
+import { SERVER_API_URL as API_URL } from "../../modules/apiBase";
 
 export { ADMIN_DATA_DIGEST, ADMIN_FORBIDDEN_DIGEST, ADMIN_SITE_MISSING_DIGEST };
-
-const API_URL = process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 
 async function currentSiteSlug() {
   return (await cookies()).get("admin-site")?.value ?? "slowfield";
@@ -471,11 +470,6 @@ export async function getNewsletterCampaign(id: number) {
   /* Fallback: backend may not have single-campaign endpoint yet */
   const all = await getNewsletterCampaigns();
   return all.find((c) => c.id === id) ?? null;
-}
-
-export function getAdminMedia(limit?: number, skip = 0) {
-  const query = limit ? `?limit=${limit}&skip=${skip}` : "";
-  return adminFetch<AdminMedia[]>(`/media${query}`, []);
 }
 
 export function getAdminMediaSummary() {

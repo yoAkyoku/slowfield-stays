@@ -81,7 +81,13 @@ function articleCard() {
   assert.ok(start > -1, "the article card branch is gone — renamed?");
   const end = src.indexOf('if (layout === "magazine"', start);
   assert.ok(end > start, "could not find the end of the article card branch");
-  return src.slice(start, end);
+  const branch = src.slice(start, end);
+  /* The card itself is the shared ArticleCard; the branch hands it the tags.
+     Read both, so "the card prints the tags" still means the tags it is given. */
+  assert.match(branch, /<ArticleCard[\s\S]*?tags=\{tags\}/, "the article branch no longer hands its tags to ArticleCard");
+  const cards = readFileSync("app/modules/content/cards.tsx", "utf8");
+  const card = cards.slice(cards.indexOf("export function ArticleCard"));
+  return branch + "\n" + card;
 }
 
 test("the index card prints the article's selected card labels", () => {

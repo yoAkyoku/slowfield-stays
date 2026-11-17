@@ -243,7 +243,6 @@ export async function buildMetadata({
   const url = absoluteUrl(canonical, site) ?? absoluteUrl(path, site);
   const imageUrl = safeImageUrl(image, site) ?? safeImageUrl(defaultOgImage(site), site);
 
-
   return {
     title: resolvedTitle,
     description: resolvedDescription,
@@ -286,15 +285,6 @@ export function siteUrl(path = "/", site?: Pick<PublicSite, "domain">) {
   return absoluteUrl(path, site) ?? siteOrigin(site);
 }
 
-export function organizationJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: SITE_NAME,
-    url: SITE_URL
-  };
-}
-
 export function siteOrganizationJsonLd(site: PublicSite) {
   return {
     "@context": "https://schema.org",
@@ -302,20 +292,6 @@ export function siteOrganizationJsonLd(site: PublicSite) {
     name: site.name,
     url: siteUrl("/", site),
     email: site.contact_config?.email || undefined
-  };
-}
-
-export function websiteJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: SITE_NAME,
-    url: SITE_URL,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${SITE_URL}/stays?destination={search_term_string}`,
-      "query-input": "required name=search_term_string"
-    }
   };
 }
 

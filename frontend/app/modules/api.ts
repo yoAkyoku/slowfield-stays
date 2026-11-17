@@ -3,7 +3,7 @@ import { withPublicRequestScope } from "./publicRequestScope";
 import { isPubliclyVisibleVilla } from "./siteVisibility";
 import { isAdminPreview } from "./adminPreview";
 import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "./fontPresets";
-
+import { SERVER_API_URL as API_URL } from "./apiBase";
 
 export type Banner = {
   id: number;
@@ -125,7 +125,6 @@ export type PublicSite = {
   parent_site_id?: number | null;
 };
 
-const API_URL = process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 const STRICT_PUBLIC_API = process.env.NEXT_PUBLIC_APP_ENV === "production";
 
 export class PublicApiError extends Error {
@@ -234,10 +233,6 @@ export function getStaySearchOptions() {
 
 export function getStay(slug: string) {
   return apiFetch<Stay | null>(`/stays/${slug}`, null);
-}
-
-export function getPage(slug: string) {
-  return apiFetch<Page | null>(`/cms/pages/${slug}`, null);
 }
 
 /**

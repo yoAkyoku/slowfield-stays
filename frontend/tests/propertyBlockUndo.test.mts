@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { callArguments, compileDeclarations, jsxTags } from "./sourceEval";
+import { makeBlockId } from "../app/admin/modules/blockEditorUtils.ts";
 import {
   type History,
   canRedo,
@@ -66,8 +67,8 @@ function editorUnder(
 
   const built = compileDeclarations(
     EDITOR,
-    ["makeId", "toggle", "remove", "add", "updateConfig", "move", "onDrop"],
-    ["setBlocks", "blocks", "selectedId", "setSelectedId", "dragIndex", "dropIndex", "setDragIndex", "setDropIndex"],
+    ["toggle", "remove", "add", "updateConfig", "move", "onDrop"],
+    ["makeBlockId", "setBlocks", "blocks", "selectedId", "setSelectedId", "dragIndex", "dropIndex", "setDragIndex", "setDropIndex"],
   )({
     setBlocks,
     // The render's value, frozen. See above.
@@ -78,6 +79,7 @@ function editorUnder(
     dropIndex: dragging.drop,
     setDragIndex: (i: number | null) => { drag.index = i; },
     setDropIndex: (i: number | null) => { drag.drop = i; },
+    makeBlockId,
   });
 
   return {

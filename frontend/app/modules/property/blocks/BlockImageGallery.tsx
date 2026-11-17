@@ -1,5 +1,5 @@
 import type { Locale } from "../../i18n";
-import { cfgT , eyebrowT} from "../../tr";
+import { cfgT, eyebrowT, pickT } from "../../tr";
 import LightboxGallery from "../LightboxGallery";
 
 type GalleryImage = { url: string; caption?: string | Record<string, string> };
@@ -17,12 +17,6 @@ function normaliseImages(raw: unknown[]): GalleryImage[] {
       return null;
     })
     .filter((img): img is GalleryImage => img !== null && img.url !== "");
-}
-
-function resolveCaption(caption: string | Record<string, string> | undefined, locale: string): string {
-  if (!caption) return "";
-  if (typeof caption === "string") return caption;
-  return caption[locale] || caption.zh || caption.en || "";
 }
 
 export default function BlockImageGallery({ locale, config }: { locale: Locale; config: Record<string, unknown> }) {
@@ -74,7 +68,7 @@ export default function BlockImageGallery({ locale, config }: { locale: Locale; 
         collage={isScatter}
         carousel={isCarousel}
         columns={cols}
-        images={images.map((img) => ({ url: img.url, caption: resolveCaption(img.caption, locale) }))}
+        images={images.map((img) => ({ url: img.url, caption: pickT(img.caption, locale) }))}
         gridClassName={`property-image-gallery-grid${isCollage ? " property-image-gallery-grid--collage" : ""}${isCentered ? " property-image-gallery-grid--centered" : ""}`}
         gridStyle={{
           // Clamped both ends: 1 is a valid choice (one image per row) but 0 or

@@ -2321,15 +2321,16 @@ export default function SitePageEditor({
                 ? "縣市與地區不在這裡 —— 它們直接從住宿資料產生並自動去重，沒有東西可以設定。"
                 : "County and district are not here: they come from the stays and de-duplicate themselves, so there is nothing to set."}
             </p>
-            <div className="se-sheet" style={{ display: searchSheet === "search_facilities" ? undefined : "none" }} role="dialog" aria-modal="true">
-              <div className="se-sheet__scrim" onClick={() => setSearchSheet(null)} />
-              <div className="se-sheet__panel">
-                <div className="se-sheet__bar">
-                  <h3>{editLocale === "zh" ? "服務設施" : "Facilities"}</h3>
-                  <span className="se-sheet__fb">{editLocale === "zh" ? "留空 = 使用內建清單" : "Blank = built-in list"}</span>
-                  <button type="button" className="se-sheet__x" onClick={() => setSearchSheet(null)} aria-label="Close">✕</button>
-                </div>
-                <div className="se-sheet__body">
+            <Dialog
+              keepMounted
+              size="lg"
+              className="se-search-sheet"
+              open={searchSheet === "search_facilities"}
+              onClose={() => setSearchSheet(null)}
+              closeLabel={editLocale === "zh" ? "關閉" : "Close"}
+              title={editLocale === "zh" ? "服務設施" : "Facilities"}
+              description={editLocale === "zh" ? "留空 = 使用內建清單" : "Blank = built-in list"}
+            >
                   <SearchOptionsField
                     name="search_facilities"
                     initial={(site?.settings as Record<string, unknown> | undefined)?.search_facilities}
@@ -2339,18 +2340,17 @@ export default function SitePageEditor({
                     enPlaceholder="Pool"
                     addLabel={editLocale === "zh" ? "+ 新增設施" : "+ Add facility"}
                   />
-                </div>
-              </div>
-            </div>
-            <div className="se-sheet" style={{ display: searchSheet === "search_experiences" ? undefined : "none" }} role="dialog" aria-modal="true">
-              <div className="se-sheet__scrim" onClick={() => setSearchSheet(null)} />
-              <div className="se-sheet__panel">
-                <div className="se-sheet__bar">
-                  <h3>{editLocale === "zh" ? "慢域體驗" : "Select Experiences"}</h3>
-                  <span className="se-sheet__fb">{editLocale === "zh" ? "留空 = 搜尋列不顯示" : "Blank = field hidden"}</span>
-                  <button type="button" className="se-sheet__x" onClick={() => setSearchSheet(null)} aria-label="Close">✕</button>
-                </div>
-                <div className="se-sheet__body">
+            </Dialog>
+            <Dialog
+              keepMounted
+              size="lg"
+              className="se-search-sheet"
+              open={searchSheet === "search_experiences"}
+              onClose={() => setSearchSheet(null)}
+              closeLabel={editLocale === "zh" ? "關閉" : "Close"}
+              title={editLocale === "zh" ? "慢域體驗" : "Select Experiences"}
+              description={editLocale === "zh" ? "留空 = 搜尋列不顯示" : "Blank = field hidden"}
+            >
                   <SearchOptionsField
                     name="search_experiences"
                     initial={(site?.settings as Record<string, unknown> | undefined)?.search_experiences}
@@ -2360,18 +2360,17 @@ export default function SitePageEditor({
                     enPlaceholder="Local dining"
                     addLabel={editLocale === "zh" ? "+ 新增體驗" : "+ Add experience"}
                   />
-                </div>
-              </div>
-            </div>
-            <div className="se-sheet" style={{ display: searchSheet === "search_types" ? undefined : "none" }} role="dialog" aria-modal="true">
-              <div className="se-sheet__scrim" onClick={() => setSearchSheet(null)} />
-              <div className="se-sheet__panel">
-                <div className="se-sheet__bar">
-                  <h3>{editLocale === "zh" ? "民宿類型" : "Villa Types"}</h3>
-                  <span className="se-sheet__fb">{editLocale === "zh" ? "留空 = 這一欄不顯示" : "Blank = field hidden"}</span>
-                  <button type="button" className="se-sheet__x" onClick={() => setSearchSheet(null)} aria-label="Close">✕</button>
-                </div>
-                <div className="se-sheet__body">
+            </Dialog>
+            <Dialog
+              keepMounted
+              size="lg"
+              className="se-search-sheet"
+              open={searchSheet === "search_types"}
+              onClose={() => setSearchSheet(null)}
+              closeLabel={editLocale === "zh" ? "關閉" : "Close"}
+              title={editLocale === "zh" ? "民宿類型" : "Villa Types"}
+              description={editLocale === "zh" ? "留空 = 這一欄不顯示" : "Blank = field hidden"}
+            >
                   <p className="se-section-hint">
                     {editLocale === "zh"
                       ? "民宿類型是可自訂的搜尋列第三欄，例如「包棟」或「泳池 Villa」。新增後，請在住宿編輯的標籤填入相同值；留空則前台不顯示這一欄。"
@@ -2386,18 +2385,17 @@ export default function SitePageEditor({
                     enPlaceholder="Pool villa"
                     addLabel={editLocale === "zh" ? "+ 新增類型" : "+ Add type"}
                   />
-                </div>
-              </div>
-            </div>
-            <div className="se-sheet" style={{ display: searchSheet === "search_guest_ranges" ? undefined : "none" }} role="dialog" aria-modal="true">
-              <div className="se-sheet__scrim" onClick={() => setSearchSheet(null)} />
-              <div className="se-sheet__panel">
-                <div className="se-sheet__bar">
-                  <h3>{editLocale === "zh" ? "人數級距" : "Party Sizes"}</h3>
-                  <span className="se-sheet__fb">{editLocale === "zh" ? "留空 = 使用內建級距" : "Blank = built-in ranges"}</span>
-                  <button type="button" className="se-sheet__x" onClick={() => setSearchSheet(null)} aria-label="Close">✕</button>
-                </div>
-                <div className="se-sheet__body">
+            </Dialog>
+            <Dialog
+              keepMounted
+              size="lg"
+              className="se-search-sheet"
+              open={searchSheet === "search_guest_ranges"}
+              onClose={() => setSearchSheet(null)}
+              closeLabel={editLocale === "zh" ? "關閉" : "Close"}
+              title={editLocale === "zh" ? "人數級距" : "Party Sizes"}
+              description={editLocale === "zh" ? "留空 = 使用內建級距" : "Blank = built-in ranges"}
+            >
                   <GuestRangeField
                     name="search_guest_ranges"
                     initial={(site?.settings as Record<string, unknown> | undefined)?.search_guest_ranges}
@@ -2409,9 +2407,7 @@ export default function SitePageEditor({
                     })}
                     zh={editLocale === "zh"}
                   />
-                </div>
-              </div>
-            </div>
+            </Dialog>
             {/* 搜尋短詞 and 詢問類型 used to have sheets here (client: 多餘了).
                 Their stored settings are left untouched — see the null checks
                 in siteActions, which keep a value the form no longer posts. */}

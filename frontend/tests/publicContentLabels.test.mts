@@ -3,7 +3,8 @@ import test from "node:test";
 import { readCode } from "./readCode";
 test("list card fallbacks use the localized section title rather than type codes", () => {
   const src = readCode("app/modules/content/ContentListPage.tsx");
-  assert.match(src, /<span>\{copy.title\}<\/span>/);
+  // The empty cover frame and the meta line both fall back to the section title.
+  assert.match(src, /placeholder=\{copy.title\}/);
   assert.match(src, /cardTagsT\(page, locale\).join\(" \/ "\) \|\| copy.title/);
   assert.doesNotMatch(src, /<span>\{page.content_type\}/);
 });

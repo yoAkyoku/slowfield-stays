@@ -1,8 +1,8 @@
-import Link from "next/link";
 import type { Page } from "../api";
 import { buildContentHref, CONTENT_TYPE_TO_CATEGORY } from "../contentRoutes";
 import type { Locale } from "../i18n";
 import { cardTagsT, trs } from "../tr";
+import { ContentCard } from "../content/cards";
 
 const SECTION_LABELS: Record<string, { en: string; zh: string }> = {
   activity: { en: "Recommended Activities", zh: "推薦景點" },
@@ -38,26 +38,18 @@ export default function StayRelatedContent({
           <div key={ct} className="stay-related-group">
             <h3 className="stay-related-heading">{label}</h3>
             <div className="stay-related-grid">
-              {items.slice(0, 4).map((page) => {
-                const cardTitle = trs(page, "title", locale);
-                const cardSummary = trs(page, "summary", locale);
-                return (
-                  <Link key={page.id} href={buildContentHref(page)} className="content-card">
-                    {page.cover_image_url && (
-                      <div className="content-card-media">
-                        <img src={page.cover_image_url} alt={cardTitle} loading="lazy" />
-                      </div>
-                    )}
-                    <div className="content-card-body">
-                      <div className="content-card-meta">
-                        <span>{cardTagsT(page, locale)[0] || ct}</span>
-                      </div>
-                      <h4>{cardTitle}</h4>
-                      {cardSummary ? <p>{cardSummary}</p> : null}
-                    </div>
-                  </Link>
-                );
-              })}
+              {items.slice(0, 4).map((page) => (
+                <ContentCard
+                  key={page.id}
+                  heading="h4"
+                  href={buildContentHref(page)}
+                  title={trs(page, "title", locale)}
+                  summary={trs(page, "summary", locale)}
+                  cover={page.cover_image_url}
+                  meta={cardTagsT(page, locale)[0] || label}
+                  placeholder={label}
+                />
+              ))}
             </div>
           </div>
         );

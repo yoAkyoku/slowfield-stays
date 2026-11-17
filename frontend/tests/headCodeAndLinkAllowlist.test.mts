@@ -11,6 +11,7 @@ import {
   sanitizeInlineHtml,
 } from "../app/modules/safeHtml.ts";
 import { readCode } from "./readCode.mts";
+import { sharedModule } from "./sharedModules.mts";
 
 /**
  * The link and head-code allow-lists, and the three ways they used to be walked
@@ -266,7 +267,11 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   }).outputText;
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
-    if (!(id in imports)) throw new Error(`${file}: no stub for import "${id}"`);
+    if (!(id in imports)) {
+      const shared = sharedModule(file, id);
+      if (shared) return shared;
+      throw new Error(`${file}: no stub for import "${id}"`);
+    }
     return imports[id];
   };
   new Function("exports", "require", "module", "__h", "__FRAGMENT", js)(

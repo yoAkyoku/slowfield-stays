@@ -14,10 +14,7 @@ import VideoThumbnail from "../../modules/VideoThumbnail";
 import { useAdminSiteSlug } from "../../modules/AdminSiteContext";
 import { isVideoAsset, videoPosterUrl } from "../../../modules/media";
 import { formatDateTime } from "../../../modules/datetime";
-
-function proxyUrl(apiPath: string, site: string) {
-  return `/admin/api/proxy?path=${encodeURIComponent(apiPath)}&site=${encodeURIComponent(site)}`;
-}
+import { adminProxyUrl as proxyUrl } from "../../../modules/apiBase";
 
 type MediaCopy = {
   mediaSearch: string;

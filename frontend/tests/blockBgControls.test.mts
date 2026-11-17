@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readCode } from "./readCode";
+import { readCode, readEditorSurface } from "./readCode";
 import { evaluateExpression, jsxTags } from "./sourceEval";
 import { blockStyle, isBlockBgColor, paintsOwnBackground } from "../app/modules/blockStyle.ts";
 
@@ -60,7 +60,7 @@ function guardBefore(src: string, pattern: RegExp, what: string): string {
 
 for (const [where, file] of EDITORS) {
   test(`the ${where} editor offers 透明度 only where the block has a colour to fade`, () => {
-    const src = readCode(file);
+    const src = readEditorSurface(file);
     const expression = guardBefore(
       src,
       /\{([^\n]+?) && \(\n\s*<Field label=\{zh \? "透明度"/,
@@ -91,7 +91,7 @@ for (const [where, file] of EDITORS) {
   });
 
   test(`the ${where} editor says so when a typed 色碼 will not paint`, () => {
-    const src = readCode(file);
+    const src = readEditorSurface(file);
     const expression = guardBefore(
       src,
       /\{([\s\S]{0,300}?) && \(\n\s*<p style=\{\{ color: "#b3261e"/,

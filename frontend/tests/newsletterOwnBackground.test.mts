@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readCode } from "./readCode";
+import { readCode, readEditorSurface } from "./readCode";
 import { callArguments, evaluateExpression, jsxTags } from "./sourceEval";
 import { blockStyle, isBlockBgColor, paintsOwnBackground } from "../app/modules/blockStyle.ts";
 
@@ -142,7 +142,7 @@ function guardBefore(src: string, pattern: RegExp, what: string): string {
 
 for (const [where, file] of EDITORS) {
   test(`the ${where} inspector withholds 背景顏色 from a self-painting block`, () => {
-    const src = readCode(file);
+    const src = readEditorSurface(file);
     const expression = guardBefore(
       src,
       /\{([^\n]+?) && \(\n\s*<Field label=\{zh \? "背景顏色"/,
@@ -168,7 +168,7 @@ for (const [where, file] of EDITORS) {
        slider's own guard only asks whether that value is a paintable hex — so
        without this the colour control disappears and the slider that fades it
        stays, fading nothing. */
-    const src = readCode(file);
+    const src = readEditorSurface(file);
     const expression = guardBefore(
       src,
       /\{([^\n]+?) && \(\n\s*<Field label=\{zh \? "透明度"/,
@@ -206,7 +206,7 @@ for (const [where, file] of EDITORS) {
        control — readCode blanks block comments but not JSX comment expressions —
        so it read the guard as wrapping a label it does not wrap, and failed
        against correct source. */
-    const src = readCode(file);
+    const src = readEditorSurface(file);
     const PAINTERS: Array<[string, RegExp]> = [
       ["背景顏色", /^\s*\(?\s*<Field label=\{zh \? "背景顏色"/],
       ["透明度", /^\s*\(?\s*<Field label=\{zh \? "透明度"/],

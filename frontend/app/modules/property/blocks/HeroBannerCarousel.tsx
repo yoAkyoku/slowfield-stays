@@ -7,6 +7,7 @@ import type { Locale } from "../../i18n";
 import { safeCssColor } from "../../fontPresets";
 import { cssUrl } from "../../safeCss";
 import { isVideoUrl, preloadImageUrl, videoPosterUrl } from "../../media";
+import useAutoAdvance from "../../useAutoAdvance";
 
 function trsLocal(banner: Banner, key: "title" | "subtitle", locale: Locale): string {
   const t = banner.translations?.[locale]?.[key];
@@ -51,12 +52,15 @@ export default function HeroBannerCarousel({
     });
   }, [slides.length]);
 
-  useEffect(() => {
-    if (slides.length < 2) return;
-    if (isVideoUrl(slides[active]?.image_url)) return;
-    const t = window.setTimeout(() => goTo(active + 1), intervalMs);
-    return () => window.clearTimeout(t);
-  }, [active, goTo, slides, intervalMs]);
+  /* The shared timer: it holds while the hero is hovered, focused, touched,
+     off screen or in a hidden tab, and never runs for prefers-reduced-motion.
+     A video slide advances on its own `ended` instead of the image timer. */
+  const autoRef = useAutoAdvance<HTMLElement>(() => goTo(active + 1), {
+    count: slides.length,
+    delay: intervalMs,
+    enabled: !isVideoUrl(slides[active]?.image_url),
+    restartKey: active,
+  });
 
   /* Keep the first screen light: hidden carousel slides used to attach all of
      their background URLs immediately. Warm only the next still or video
@@ -87,7 +91,7 @@ export default function HeroBannerCarousel({
   const safeSubtitleColor = safeCssColor(subtitleColor);
 
   return (
-    <section className={`property-hero-banner property-hero-banner--carousel${heightKey ? ` property-hero-banner--h-${heightKey}` : ""}`} style={Object.keys(sectionStyle).length ? sectionStyle : undefined}>
+    <section ref={autoRef} className={`property-hero-banner property-hero-banner--carousel${heightKey ? ` property-hero-banner--h-${heightKey}` : ""}`} style={Object.keys(sectionStyle).length ? sectionStyle : undefined}>
       {slides.map((b, i) => (
         <div
           key={b.id}

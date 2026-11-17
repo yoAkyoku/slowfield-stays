@@ -122,28 +122,3 @@ export function InputGroup({ children, className }: { children: ReactNode; class
   return <div className={cx("a-input-group", className)}>{children}</div>;
 }
 
-/** Done / not-done list; each item may link to where it is fixed. */
-export function Checklist({ items, className }: { items: Array<{ title: ReactNode; text?: ReactNode; ok: boolean; href?: string }>; className?: string }) {
-  return (
-    <ul className={cx("a-checklist", className)}>
-      {items.map((item, i) => {
-        const body = (
-          <>
-            <span className={cx("a-checklist__mark", item.ok ? "a-tone--success" : "a-tone--warning")}>
-              {item.ok ? (
-                <svg aria-hidden="true" fill="none" height="12" stroke="currentColor" strokeLinecap="round" strokeWidth="3" viewBox="0 0 24 24" width="12"><path d="M20 6 9 17l-5-5" /></svg>
-              ) : (
-                <svg aria-hidden="true" fill="none" height="12" stroke="currentColor" strokeDasharray="3 3" strokeWidth="3" viewBox="0 0 24 24" width="12"><circle cx="12" cy="12" r="9" /></svg>
-              )}
-            </span>
-            <span>
-              <strong>{item.title}</strong>
-              {item.text ? <span className="a-checklist__text">{item.text}</span> : null}
-            </span>
-          </>
-        );
-        return <li key={i}>{item.href ? <Link href={item.href}>{body}</Link> : <div className="a-checklist__row">{body}</div>}</li>;
-      })}
-    </ul>
-  );
-}

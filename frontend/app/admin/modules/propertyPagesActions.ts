@@ -177,54 +177,6 @@ export async function updatePropertyPageAction(formData: FormData) {
 }
 
 /**
- * Save nav + booking + name_translations settings for a property site
- */
-export async function updatePropertySettingsAction(formData: FormData) {
-  const siteId = String(formData.get("_site_id") ?? "");
-  if (!siteId) stampedRedirect(`/admin/sites?error=Missing+site+ID`);
-
-  const site = await loadSite(siteId, formData.get("_site_json"));
-
-  let nav: unknown[] = [];
-  try {
-    nav = JSON.parse(String(formData.get("_nav_json") ?? "[]")) as unknown[];
-  } catch { /* keep empty */ }
-
-  let booking: Record<string, unknown> = {};
-  try {
-    booking = JSON.parse(String(formData.get("_booking_json") ?? "{}")) as Record<string, unknown>;
-  } catch { /* keep empty */ }
-
-  let nameTranslations: Record<string, string> = {};
-  try {
-    nameTranslations = JSON.parse(String(formData.get("_name_translations_json") ?? "{}")) as Record<string, string>;
-  } catch { /* keep empty */ }
-
-  let social: Record<string, string> = {};
-  try {
-    social = JSON.parse(String(formData.get("_social_json") ?? "{}")) as Record<string, string>;
-  } catch { /* keep empty */ }
-
-  const logoUrl = String(formData.get("_logo_url") ?? "");
-
-  const existingSettings = (site.settings ?? {}) as Record<string, unknown>;
-
-  const payload = buildSitePayload(site, {
-    ...existingSettings,
-    nav,
-    booking,
-    name_translations: nameTranslations,
-    logo_url: logoUrl,
-    instagram: social.instagram || "",
-    facebook: social.facebook || "",
-    line: social.line || "",
-  });
-
-  const result = await adminJsonRequest(`/sites/${siteId}`, payload, "PUT", "Settings update failed");
-  actionRedirect(result, `/admin/sites/${siteId}/settings`);
-}
-
-/**
  * Add a new custom page to site.settings.pages
  */
 export async function addPropertyPageAction(formData: FormData) {

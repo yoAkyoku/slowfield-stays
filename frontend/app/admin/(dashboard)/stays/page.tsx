@@ -18,6 +18,7 @@ import StaysTabs from "./StaysTabs";
 import StaysToolbar from "./StaysToolbar";
 import { Badge, ButtonLink, Page, PageHeader, Stack } from "../../ui";
 import { buildStayIssueRows, filterStays, normalizeStayTab, normalizeStayVisibility, stayIssueKeys, type AdminStayRecord } from "./staysConsoleData";
+import { formatPrice } from "../../../modules/apiBase";
 
 export default async function AdminStaysPage(
   props: {
@@ -326,7 +327,7 @@ export default async function AdminStaysPage(
                                 <CircleDollarSign size={14} />
                                 {copy.admin.adminBasePrice}
                               </dt>
-                              <dd>TWD {Number(stay.base_price).toLocaleString()}</dd>
+                              <dd>{formatPrice(stay.base_price)}</dd>
                             </div>
                             <div>
                               <dt>

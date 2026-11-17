@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { compileDeclarations, jsxTags } from "./sourceEval";
+import { activateOnKey as sharedActivateOnKey } from "../app/admin/modules/blockEditorUtils.ts";
 
 /**
  * Opening a block on a villa page without a mouse.
@@ -72,9 +73,8 @@ for (const { file, label } of EDITORS) {
 type KeyEvent = { key: string; preventDefault: () => void };
 
 for (const { file, label } of EDITORS) {
-  const { activateOnKey } = compileDeclarations(file, ["activateOnKey"])({}) as unknown as {
-    activateOnKey: (e: KeyEvent, run: () => void) => void;
-  };
+  // Both editors import the one activateOnKey; run that.
+  const activateOnKey = sharedActivateOnKey as (e: KeyEvent, run: () => void) => void;
 
   const press = (key: string) => {
     let ran = 0;

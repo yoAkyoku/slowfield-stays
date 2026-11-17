@@ -10,7 +10,7 @@
  *
  *  cfgT falls back across locales, so a row filled in only in English still
  *  renders on the Chinese page. */
-function anyLocale(item: Record<string, unknown>, key: string): string {
+export function anyLocale(item: Record<string, unknown>, key: string): string {
   const v = item[key];
   if (v != null && typeof v === "object" && !Array.isArray(v)) {
     const o = v as Record<string, string>;

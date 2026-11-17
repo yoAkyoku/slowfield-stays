@@ -33,6 +33,11 @@ const ARTICLES = readCode("app/modules/home/blocks/BlockArticles.tsx");
  *  that has no heading at all. */
 function levelsIn(src: string): number[] {
   const out: number[] = [];
+  /* The card is the shared ArticleCard now; its level is the `heading` prop,
+     h3 when none is given. */
+  for (const m of src.matchAll(/<ArticleCard\b([\s\S]*?)\/>/g)) {
+    out.push(Number(/heading="h([1-6])"/.exec(m[1])?.[1] ?? 3));
+  }
   const CLASS = /className="article-card-body"/g;
   for (let m = CLASS.exec(src); m; m = CLASS.exec(src)) {
     const end = src.indexOf("</Link>", m.index);

@@ -1,4 +1,5 @@
 import type { Locale } from "./i18n";
+import { pickT } from "./tr";
 
 /**
  * Consent copy, and how to resolve it in the reader's own language.
@@ -60,12 +61,7 @@ export function consentNotice(value: unknown, locale: Locale, fallback: Record<L
  * showed it. Both footers call this now, so neither can be the one that forgets.
  */
 export function footerNotice(value: unknown, locale: Locale): string {
-  if (typeof value === "string") return value;
-  if (value && typeof value === "object") {
-    const o = value as Record<string, string>;
-    return o[locale] || o.zh || o.en || "";
-  }
-  return "";
+  return pickT(value, locale);
 }
 
 /** The notice split into the paragraphs it was typed as, blank lines dropped. */

@@ -3,8 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, Callout, Field, Input } from "../ui";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+import { PUBLIC_API_URL as API_URL } from "../../modules/apiBase";
 
 type ResetLabels = {
   adminNewPassword: string;

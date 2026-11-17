@@ -5,9 +5,11 @@
 export const HERO_SLIDES = 10;
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { isVideoUrl } from "../media";
 import { swipeDirection, swipePoint, type SwipePoint } from "../swipe";
+import { SLIDE_DURATION_MS } from "../slideTiming";
+import useAutoAdvance from "../useAutoAdvance";
 
 type SlideItem = { url: string; alt: string };
 
@@ -45,20 +47,20 @@ export default function StayHeroCarousel({
     [len]
   );
 
-  // Auto-advance
-  useEffect(() => {
-    if (len <= 1) return;
-    if (isVideoUrl(slides[current]?.url)) return;
-    /* 6500, with the other two hero carousels. Three different speeds on one
-       site is what 速度好像不太一樣 was describing — this was the odd one. */
-    const id = setTimeout(() => go(1), 6500);
-    return () => clearTimeout(id);
-  }, [current, len, go, slides]);
+  /* Auto-advance at the site's one slide duration, with the shared pauses.
+     A video slide advances on its own `ended` instead of the image timer. */
+  const autoRef = useAutoAdvance(() => go(1), {
+    count: len,
+    delay: SLIDE_DURATION_MS,
+    enabled: !isVideoUrl(slides[current]?.url),
+    restartKey: current,
+  });
 
   if (slides.length === 0) return null;
 
   return (
     <div
+      ref={autoRef}
       className="stay-hero-carousel"
       onTouchStart={(e) => {
         touchRef.current = swipePoint(e.touches[0]);

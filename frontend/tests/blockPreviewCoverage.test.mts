@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { readCode } from "./readCode";
+import { readCode, readEditorSurface } from "./readCode";
 
 /**
  * Every block type the editor offers must be drawn by the renderer that will
@@ -83,7 +83,7 @@ test("a withheld type is gated, not left to render blank", () => {
 
 test("the block card shows the preview and nothing else", () => {
   for (const f of [EDITOR, "app/admin/(dashboard)/homepage/HomepageBlockEditor.tsx"]) {
-    const s = src(f);
+    const s = readEditorSurface(f);
     assert.doesNotMatch(s, /hpb-thumb__cap/, `${f} still captions the preview with the card's own title`);
     assert.doesNotMatch(s, /hpb-thumb__title/, `${f} still repeats the block title above the preview`);
     assert.match(s, /<BlockLivePreview/, `${f} lost its live preview`);

@@ -1,11 +1,10 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { buildContentHref } from "../contentRoutes";
 import type { Locale } from "../i18n";
 import { cardTagsT, trs } from "../tr";
+import { ContentCard } from "./cards";
 
 export type CardItem = {
   id: number;
@@ -43,21 +42,16 @@ export default function LoadMoreGrid({
   const itemSummary = (item: CardItem) => locale ? trs(item, "summary", locale) : (item.summary ?? "");
 
   const defaultCard = (item: CardItem, index: number) => (
-    <article className="content-card" key={item.id} style={{ "--content-index": index } as CSSProperties}>
-      <Link aria-label={itemTitle(item)} href={buildContentHref(item)}>
-        <div className="content-card-media">
-          {item.cover_image_url ? <img src={item.cover_image_url} alt={itemTitle(item)} loading="lazy" /> : <span>{item.content_type}</span>}
-        </div>
-        <div className="content-card-body">
-          <div className="content-card-meta">
-            <span>{(locale ? cardTagsT(item, locale) : (item.tags ?? [])).join(" / ") || item.content_type}</span>
-            <ArrowUpRight size={18} />
-          </div>
-          <h2>{itemTitle(item)}</h2>
-          {itemSummary(item) ? <p>{itemSummary(item)}</p> : null}
-        </div>
-      </Link>
-    </article>
+    <ContentCard
+      key={item.id}
+      index={index}
+      href={buildContentHref(item)}
+      title={itemTitle(item)}
+      summary={itemSummary(item)}
+      cover={item.cover_image_url}
+      meta={(locale ? cardTagsT(item, locale) : (item.tags ?? [])).join(" / ") || item.content_type}
+      placeholder={item.content_type}
+    />
   );
 
   const renderCard = children || defaultCard;

@@ -4,6 +4,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { readCode } from "./readCode";
 import ts from "typescript";
+import { sharedModule } from "./sharedModules.mts";
 
 /**
  * 與下一個區塊並排 works on both kinds of page.
@@ -45,7 +46,11 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   }).outputText;
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
-    if (!(id in imports)) throw new Error(`${file}: no stub for import "${id}"`);
+    if (!(id in imports)) {
+      const shared = sharedModule(file, id);
+      if (shared) return shared;
+      throw new Error(`${file}: no stub for import "${id}"`);
+    }
     return imports[id];
   };
   new Function("exports", "require", "module", "__h", "__FRAGMENT", js)(

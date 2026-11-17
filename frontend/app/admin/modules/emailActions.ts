@@ -19,16 +19,6 @@ export async function updateEmailSettingsAction(formData: FormData) {
   actionRedirect(result, "/admin/email-settings");
 }
 
-export async function testEmailSettingsAction(formData: FormData) {
-  const result = await adminJsonRequest(
-    "/email-settings/test",
-    { to_email: String(formData.get("to_email") ?? "") },
-    "POST",
-    "Email request failed"
-  );
-  actionRedirect(result, "/admin/email-settings");
-}
-
 /** Persistent inline feedback for the test form; keep the recipient for retry. */
 export async function testEmailSettingsResult(formData: FormData) {
   return adminJsonRequest("/email-settings/test", { to_email: String(formData.get("to_email") ?? "").trim() }, "POST", "Email request failed");

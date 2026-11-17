@@ -1,4 +1,5 @@
 import type { Locale } from "../i18n";
+import { labelLadder } from "../tr";
 
 export type NavItem = {
   key: string;
@@ -161,20 +162,6 @@ export function buildFooterNav(
   return opted.length ? opted : nav;
 }
 
-/** Check if a page is visible (respects both NavItem.enabled and page-level flags). */
-export function isPageVisible(
-  pageKey: string,
-  nav: NavItem[],
-  pages: Record<string, PropertyPageConfig>,
-): boolean {
-  const navItem = nav.find((item) => item.key === pageKey);
-  if (navItem && !navItem.enabled) return false;
-  return isLivePage(pages[pageKey]);
-}
-
-/** Default nav derived from default pages */
-export const DEFAULT_PROPERTY_NAV: NavItem[] = buildNavFromPages(DEFAULT_PROPERTY_PAGES);
-
 /** Resolve page label for display */
 export function pageLabel(
   pageKey: string,
@@ -184,10 +171,7 @@ export function pageLabel(
   const cfg = pages[pageKey];
   const fallback = DEFAULT_PROPERTY_PAGES[pageKey]?.label;
   const defaultName = typeof fallback === "string" ? fallback : fallback?.[locale];
-  if (!cfg?.label) return defaultName || pageKey;
-  if (typeof cfg.label === "string") return cfg.label || defaultName || pageKey;
-  const other: Locale = locale === "zh" ? "en" : "zh";
-  return cfg.label[locale] || cfg.label[other] || defaultName || pageKey;
+  return labelLadder(cfg?.label, locale, defaultName, pageKey);
 }
 
 /**

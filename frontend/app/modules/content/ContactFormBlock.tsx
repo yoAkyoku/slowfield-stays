@@ -6,8 +6,7 @@ import { stayIdFromSearch } from "../contactContext";
 import { useState } from "react";
 import type { Locale } from "../i18n";
 import { cfgT } from "../tr";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+import { PUBLIC_API_URL as API_URL } from "../apiBase";
 
 /* ── Bilingual labels ── */
 const LABELS = {

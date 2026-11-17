@@ -12,6 +12,7 @@ import * as contactContext from "../app/modules/contactContext.ts";
 import * as unknownBlock from "../app/modules/unknownBlock.ts";
 import { seoTextForLocale } from "../app/modules/seo.ts";
 import { readCode } from "./readCode.mts";
+import { sharedModule } from "./sharedModules.mts";
 
 /**
  * Fields that must mean the same thing on every kind of page, and must not
@@ -50,7 +51,11 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   }).outputText;
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
-    if (!(id in imports)) throw new Error(`${file}: no stub for import "${id}"`);
+    if (!(id in imports)) {
+      const shared = sharedModule(file, id);
+      if (shared) return shared;
+      throw new Error(`${file}: no stub for import "${id}"`);
+    }
     return imports[id];
   };
   new Function("exports", "require", "module", "__h", "__FRAGMENT", js)(

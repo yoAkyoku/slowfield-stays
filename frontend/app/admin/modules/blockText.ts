@@ -1,4 +1,5 @@
 import type { CmsContentBlock } from "./adminApi";
+import { pickT } from "../../modules/tr";
 
 /**
  * Reading text out of article blocks.
@@ -14,10 +15,7 @@ import type { CmsContentBlock } from "./adminApi";
  *  Chinese: an editor working in English typed into a card that went on showing
  *  the Chinese text, so the edit looked like it had not registered. */
 export function resolveText(val: unknown, locale?: string): string {
-  if (val != null && typeof val === "object" && !Array.isArray(val)) {
-    const obj = val as Record<string, string>;
-    return (locale ? obj[locale] : "") || obj.zh || obj.en || "";
-  }
+  if (val != null && typeof val === "object" && !Array.isArray(val)) return pickT(val, locale === "en" ? "en" : "zh");
   return String(val ?? "");
 }
 

@@ -15,6 +15,7 @@ import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { ChevronDown, ChevronUp, GripVertical, Trash2 } from "lucide-react";
 import type { AdminSite } from "./adminApi";
 import { siteContentTypesFromConfig } from "./siteContentTypes";
+import { PUBLIC_API_URL as API_URL } from "../../modules/apiBase";
 
 /** The read-only shape of the site's managed bilingual tag catalogue. */
 export type ManagedTagOption = {
@@ -124,14 +125,13 @@ import { resolveMapMode } from "../../modules/property/blocks/mapMode";
 import { useOverlay } from "../../modules/useOverlay";
 import RichTextEditor from "./RichTextEditor";
 import { Field, FieldLabel, HeadingInput, getVal, setVal } from "./blockFields";
-import { altRowRenders, altReindex } from "./alternatingRows";
+import { altRowRenders, altReindex, anyLocale } from "./alternatingRows";
 import FeatureIcon from "../../modules/property/blocks/FeatureIcon";
 import { staysVariantsFor } from "../../modules/blockStyle";
 import { FontFacePicker } from "./FontFacePicker";
 import FoldSection from "./FoldSection";
 import DeletedBadge from "./DeletedBadge";
 import { safeCssColor, safeFace, safeLength } from "../../modules/fontPresets";
-import { ROOT_PAGE_DEFAULTS, pageSort } from "../../modules/contentTypes";
 import { normaliseAboutImages } from "../../modules/home/blocks/aboutImages";
 import { contentFilterTags } from "../../modules/contentFilter";
 
@@ -225,7 +225,6 @@ export function useParentStayRooms(site: AdminSite): ParentRoom[] | null {
   useEffect(() => {
     if (!site.parent_site_id) { setRooms([]); return; }
     let alive = true;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
     fetch(`${API_URL}/stays`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : []))
       .then((data: unknown) => {
@@ -886,7 +885,6 @@ export function useMappableStays(site: AdminSite): MappableStay[] | null {
   const [stays, setStays] = useState<MappableStay[] | null>(null);
   useEffect(() => {
     let alive = true;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
     fetch(`${API_URL}/stays?site=${encodeURIComponent(site.slug)}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : []))
       .then((data: unknown) => {
@@ -1974,26 +1972,6 @@ export const FEATURE_ICON_KEYS: Array<[string, string, string]> = [
   ["mail", "信件", "Mail"],
   ["chat", "訊息", "Chat"],
 ];
-
-export function featureItemFields(zh: boolean): ItemFields {
-  return [
-    {
-      key: "icon",
-      label: zh ? "圖示" : "Icon",
-      type: "select",
-      bilingual: false,
-      // Derived from the same list the renderer draws from. Written out by hand
-      // it had drifted to six of the ten, so pin, phone, mail and chat were
-      // renderable but unreachable from this form.
-      options: [
-        { value: "", label: zh ? "（無）" : "(none)" },
-        ...FEATURE_ICON_KEYS.map(([key, zhL, enL]) => ({ value: `icon:${key}`, label: zh ? zhL : enL })),
-      ],
-    },
-    { key: "label", label: zh ? "標題" : "Title" },
-    { key: "detail", label: zh ? "說明" : "Detail" },
-  ];
-}
 
 export function GalleryConfigForm({
   c,
@@ -3150,7 +3128,6 @@ export function useParentStayAmenities(site: AdminSite): string[] | null {
   useEffect(() => {
     if (!site.parent_site_id) { setAm([]); return; }
     let alive = true;
-    const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
     fetch(`${API_URL}/stays`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : []))
       .then((data: unknown) => {
@@ -3491,15 +3468,8 @@ export function FeatureHeroConfigForm({
    fields with no number, no side, no thumbnail, and no way to move row 3 above
    row 1 except retyping both of them into each other. */
 
-/** The summary line's fallback, the same one altRowRenders applies. */
-function altRowAnyLocale(item: Record<string, unknown>, key: string): string {
-  const v = item[key];
-  if (v != null && typeof v === "object" && !Array.isArray(v)) {
-    const o = v as Record<string, string>;
-    return o.zh || o.en || Object.values(o).find((x) => Boolean(x)) || "";
-  }
-  return typeof v === "string" ? v : "";
-}
+/** The summary line's fallback is the one altRowRenders applies. */
+const altRowAnyLocale = anyLocale;
 
 function AlternatingRows({
   c, zh, editLocale, onChange,
@@ -3919,7 +3889,6 @@ function itemTags(raw: Record<string, unknown>, locale: string): string[] {
 export const _sourceCache = new Map<string, ThumbItem[]>();
 
 export async function fetchSourceItems(source: string, siteSlug: string, locale: string): Promise<ThumbItem[]> {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
   const site = encodeURIComponent(siteSlug);
   if (source === "stays") {
     const res = await fetch(`${API_URL}/stays?site=${site}`, { cache: "no-store" });
@@ -4181,7 +4150,6 @@ export function ContentTagFilterPicker({
 /* ── Block schematic thumbnail (the "piece" IS a mini front-end preview) ─ */
 
 /** Render a real photo when a url is present, otherwise a skeleton box. */
-
 
 /**
  * Pick specific entries, across every source the block draws from.
@@ -4975,136 +4943,3 @@ export function SourcesPicker({
   );
 }
 
-export function TagPicker({
-  source, siteSlug, locale, zh, managedTags = [], contentTags, options, optionValues, selected, onChange,
-}: {
-  source: string;
-  siteSlug: string;
-  locale: string;
-  zh: boolean;
-  managedTags?: ManagedTagOption[];
-  contentTags?: ManagedTagOption[];
-  /** Explicit labels for a multi-source block, where the card tag is the
-   * source category rather than an entry's own tag list. */
-  options?: string[];
-  /** Stable values paired by index with `options`; labels can change by locale. */
-  optionValues?: string[];
-  selected: string[];
-  onChange: (tags: string[]) => void;
-}) {
-  const catalogue = contentTags ?? managedTags;
-  const items = useSourceItems(source, siteSlug, locale);
-  const [open, setOpen] = useState(false);
-
-  const available = useMemo(() => {
-    if (options) {
-      const seen = new Set<string>();
-      return options
-        .map((label, index) => ({
-          label: String(label).trim(),
-          value: String(optionValues?.[index] ?? label).trim(),
-        }))
-        .filter((option) => {
-          if (!option.label || !option.value || seen.has(option.value)) return false;
-          seen.add(option.value);
-          return true;
-        });
-    }
-    const seen = new Set<string>();
-    const output: Array<{ value: string; label: string }> = [];
-    for (const item of items ?? []) {
-      for (const tag of item.tags ?? []) {
-        const value = String(tag ?? "").trim();
-        if (value && !seen.has(value)) {
-          seen.add(value);
-          output.push({ value, label: value });
-        }
-      }
-    }
-    return mergeManagedTagOptions(Array.from(seen), catalogue, locale).map((tag) => ({ value: tag, label: tag }));
-  }, [items, catalogue, locale, options, optionValues]);
-
-  const toggle = (value: string) =>
-    onChange(selected.includes(value) ? selected.filter((x) => x !== value) : [...selected, value]);
-
-  const titleId = useId();
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  /* Same story as PickerModal above: one hook instead of a second hand-rolled
-     copy that could not hear Escape unless focus happened to be inside. */
-  useOverlay(open, () => setOpen(false), { trapFocus: modalRef });
-
-  return (
-    <div className="amenity-import picker-shell picker-shell--nested">
-      <div className="amenity-import-head">
-        <FieldLabel>{zh ? "區塊標籤過濾（選填）" : "Block label filter (optional)"}</FieldLabel>
-        {selected.length > 0 && (
-          <button type="button" className="amenity-import-all" onClick={() => onChange([])}>
-            {zh ? "改回全部" : "Back to all"}
-          </button>
-        )}
-      </div>
-      <button type="button" className="bf-picker-trigger" onClick={() => setOpen(true)}>
-        {selected.length > 0
-          ? (zh ? `區塊保留 ${selected.length} 個標籤 — 點此調整` : `${selected.length} labels kept — click to edit`)
-          : (zh ? "不限制標籤（點此設定區塊過濾）…" : "No label filter (click to set one)…")}
-      </button>
-      {selected.length > 0 && (
-        <p className="hpb-field-hint" style={{ marginTop: 6 }}>
-          {selected.map((value) => available.find((option) => option.value === value)?.label ?? value).join(zh ? "、" : ", ")}
-        </p>
-      )}
-      {open && (
-        <div className="bf-modal-backdrop" onClick={() => setOpen(false)}>
-          <div
-            className="bf-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            ref={modalRef}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bf-modal-head">
-              <FieldLabel id={titleId}>
-                {zh ? `挑選區塊標籤（不勾＝全部保留）` : "Pick block labels (none ticked keeps all)"}
-              </FieldLabel>
-              <button type="button" className="bf-modal-close" aria-label={zh ? "關閉" : "Close"} onClick={() => setOpen(false)}>&times;</button>
-            </div>
-            <div className="bf-modal-body">
-              {options === undefined && items === null ? (
-                <p className="hpb-field-hint">{zh ? "載入標籤中…" : "Loading tags…"}</p>
-              ) : !available.length ? (
-                <p className="hpb-field-hint">
-                  {zh
-                    ? "這裡只做整個區塊的過濾；每篇文章要顯示哪些卡片標籤，請到文章編輯頁設定。來源目前沒有可用標籤。"
-                    : "This is only a block-wide filter. Set each article's card labels in its editor. No usable labels are available in this source yet."}
-                </p>
-              ) : (
-                <div className="amenity-checkgrid">
-                  {available.map((option) => {
-                    const on = selected.includes(option.value);
-                    const order = selected.indexOf(option.value) + 1;
-                    return (
-                      <label key={option.value} className={`amenity-checkbox${on ? " is-on" : ""}`}>
-                        <input type="checkbox" checked={on} onChange={() => toggle(option.value)} />
-                        {on && <span className="amenity-checkbox-icon" aria-hidden="true">{order}</span>}
-                        <span>{option.label}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-            <div className="bf-modal-foot">
-              <button type="button" className="amenity-import-all" onClick={() => setOpen(false)}>
-                {zh
-                  ? (selected.length ? `完成（保留 ${selected.length} 個）` : "完成（不限制）")
-                  : (selected.length ? `Done (${selected.length} kept)` : "Done (no filter)")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}

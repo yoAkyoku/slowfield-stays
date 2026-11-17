@@ -20,59 +20,27 @@ import type { AdminContentTag, AdminSite } from "../../../../../modules/adminApi
 import SubmitButton from "../../../../../modules/SubmitButton";
 import { buttonClass, Callout, Segmented } from "../../../../../ui";
 import ImageUploadInput from "../../../../homepage/ImageUploadInput";
-import BlockBackgroundImage from "../../../../../modules/BlockBackgroundImage";
 import { Field, getVal, setVal, HeadingInput } from "../../../../../modules/blockFields";
-import { PAD_PRESETS, isBlockBgColor, paintsOwnBackground } from "../../../../../../modules/blockStyle";
 import { useOverlay } from "../../../../../../modules/useOverlay";
 import FoldSection from "../../../../../modules/FoldSection";
 import UndoRedoButtons from "../../../../../modules/UndoRedoButtons";
 import { useUndoableList } from "../../../../../modules/useUndoableList";
 import { useFormDraft } from "../../../../../modules/useFormDraft";
 import { useUnsavedGuard } from "../../../../../modules/useUnsavedGuard";
-import BlockLivePreview from "../../../../../modules/BlockLivePreview";
 import type { PreviewRenderer } from "../../../../../../modules/previewRenderer";
 import { BLOCK_LABELS, BLOCK_HINTS, blockLabel, groupTitle } from "../../../../../modules/blockCatalogue";
 import {
-  AboutConfigForm,
-  AttractionsConfigForm,
-  ContactInfoConfigForm,
-  EditorialConfigForm,
-  VideoTextConfigForm,
-  FeatureHeroConfigForm,
-  AlternatingConfigForm,
-  FaqConfigForm,
-  PartnersConfigForm,
-  PathwaysConfigForm,
-  FlowConfigForm,
-  GalleryConfigForm,
-  HeroBannerConfigForm,
-  MapConfigForm,
-  ContactFormConfigForm,
-  FeatureBadgesConfigForm,
-  HouseRulesConfigForm,
-  NewsletterConfigForm,
-  OembedConfigForm,
-  StaysConfigForm,
   buildContentSources,
-  TableConfigForm,
-  RichTextConfigForm,
-  FeatureListConfigForm,
-  RoomsConfigForm,
-  SearchBarConfigForm,
-  showsVAlign,
-  RoleTypeControls,
-  radioGroupKeys,
 } from "../../../../../modules/blockForms";
 import { pairSecondIds } from "../../../../../../modules/blockPairs";
+import { BlockConfigForm, BlockThumb } from "../../../../../modules/BlockConfigForm";
+import BlockStyleInspector from "../../../../../modules/BlockStyleInspector";
+import { activateOnKey, blockHasContent, makeBlockId, type EditorBlock } from "../../../../../modules/blockEditorUtils";
 import type { ContentSource } from "../../../../../modules/blockForms";
 import { blockPurpose } from "../../../../../modules/contentVocabulary";
+import { adminProxyUrl } from "../../../../../../modules/apiBase";
 
-type Block = {
-  id: string;
-  type: string;
-  enabled: boolean;
-  config: Record<string, unknown>;
-};
+type Block = EditorBlock;
 
 /* ── Block type labels (property-specific + reusable parent blocks) ── */
 
@@ -117,43 +85,6 @@ const CHILD_SITE_HIDDEN = new Set(["search"]);
 
 const BLOCK_TYPES = Object.keys(BLOCK_LABELS);
 
-/** A block id, which is also its React list key and the handle `selectedId`
- *  holds. Six base-36 characters alone is a ~2 in 100 collision across the
- *  fifty-odd blocks a busy page accumulates, and a collision here is not a
- *  cosmetic glitch: two rows share a key, so React reuses one row's DOM for the
- *  other, and selecting either opens the same inspector while `remove` deletes
- *  whichever `filter` reaches first. The timestamp prefix makes two ids minted
- *  in different milliseconds unequal whatever the random half does — the same
- *  shape PageBlockEditor's `blockId()` already uses. */
-function makeId() {
-  return `block-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-/** Enter/Space on a `role="button"` element, which the browser only does for
- *  real buttons. The row cannot BE a button: it holds the block's thumbnail. */
-function activateOnKey(e: React.KeyboardEvent, run: () => void) {
-  if (e.key !== "Enter" && e.key !== " ") return;
-  e.preventDefault(); // Space would otherwise scroll the page
-  run();
-}
-
-/** Does deleting this block lose anything?
- *
- *  A block just added from the palette has an empty config, and prompting for
- *  that is how the prompt on a block with eight configured partners gets
- *  dismissed without being read. Same reasoning as PageBlockEditor's
- *  `blockHasContent`, over this editor's config-shaped blocks. */
-function blockHasContent(block: Block): boolean {
-  const filled = (v: unknown): boolean => {
-    if (v === null || v === undefined || v === false || v === "") return false;
-    if (typeof v === "string") return v.trim().length > 0;
-    if (Array.isArray(v)) return v.some(filled);
-    if (typeof v === "object") return Object.values(v as Record<string, unknown>).some(filled);
-    return true;
-  };
-  return Object.values(block.config ?? {}).some(filled);
-}
-
 /** Name the block being deleted, and only ask when there is something to lose.
  *
  *  「刪除此版塊？」named nothing at all, from a bar of six icon buttons where
@@ -167,119 +98,6 @@ function confirmRemove(block: Block, zh: boolean): boolean {
     zh
       ? `刪除「${name}」版塊？裡面的內容會一併移除，且無法復原。`
       : `Delete this "${name}" block? Its content goes with it and cannot be restored.`,
-  );
-}
-
-/* ── Block config form ── */
-
-function BlockConfigForm({
-  block,
-  zh,
-  editLocale,
-  onChange,
-  site,
-  contentTags,
-}: {
-  block: Block;
-  zh: boolean;
-  editLocale: string;
-  onChange: (c: Record<string, unknown>) => void;
-  site: AdminSite;
-  contentTags: AdminContentTag[];
-}) {
-  const c = block.config;
-
-  switch (block.type) {
-    // Shared with the homepage editor — PropertyPageRenderer already renders
-    // all three, so they must be editable from page management too.
-    case "hero_banner":
-      return <HeroBannerConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-
-    case "rooms":
-      return <RoomsConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} site={site} />;
-
-    case "search":
-      return <SearchBarConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-
-    case "newsletter":
-      return <NewsletterConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-
-    case "rich_text":
-      return <RichTextConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "feature_list":
-      return <FeatureListConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "image_gallery":
-      return <GalleryConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-
-    case "faq_accordion":
-      return <FaqConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "house_rules":
-      return <HouseRulesConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "contact_info":
-      return <ContactInfoConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-
-    case "map":
-      return <MapConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} site={site} />;
-    case "attractions":
-      return <AttractionsConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-
-    case "partners":
-      return <PartnersConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-
-    case "table":
-      return <TableConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "feature_badges":
-      return <FeatureBadgesConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} site={site} />;
-    case "about":
-      return <AboutConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "contact_form":
-      return <ContactFormConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} site={site} />;
-    case "oembed":
-      return <OembedConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "editorial":
-      return <EditorialConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "video_text":
-      return <VideoTextConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "feature_hero":
-      return <FeatureHeroConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "alternating":
-      return <AlternatingConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "gallery":
-      return <GalleryConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} showLayoutOptions={false} />;
-
-    case "flow":
-      return <FlowConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "pathways":
-      return <PathwaysConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} />;
-    case "stays":
-      return <StaysConfigForm c={c} zh={zh} editLocale={editLocale} onChange={onChange} contentSources={contentSourcesFor(site)} contentTags={contentTags} siteSlug={site.slug} />;
-
-    default:
-      return <p style={{ color: "var(--muted)", fontSize: 12 }}>{zh ? "此區塊類型無可編輯欄位" : "No configurable fields for this block type"}</p>;
-  }
-}
-
-/* ── Block thumbnail ── */
-
-function BlockThumb({ block, locale, siteSlug, renderer }: { block: Block; locale: string; siteSlug?: string; renderer: PreviewRenderer }) {
-  const c = block.config;
-
-  /* Nothing but the live frame. This used to print the block's eyebrow and
-     title above the preview, which repeated what the card's own header row
-     already says two lines higher and stole height from the one part of the
-     row that shows something (客戶: 內容塊不要顯示預覽以外的內容，預覽要佔滿
-     下方空間). */
-  return (
-    <div className="hpb-thumb">
-      {/* Whichever renderer will actually draw this page. Villa pages and villa
-          homepages go through PropertyPageRenderer — previewing those through
-          the homepage renderer left rooms, faq_accordion, table, contact_info,
-          contact_form, feature_badges and house_rules blank while the published
-          page rendered them. The group site's homepage is the other way round:
-          it is drawn by HomepageBlocks, so a hardcoded "property" here showed a
-          blank frame for its search bar — a block the live homepage renders. */}
-      <BlockLivePreview type={block.type} config={c} siteSlug={siteSlug} renderer={renderer} />
-    </div>
   );
 }
 
@@ -441,7 +259,7 @@ export default function PropertyBlockEditor({
     setTagsError(false);
     try {
       const res = await fetch(
-        `/admin/api/proxy?path=${encodeURIComponent("/admin/cms/pages")}&site=${encodeURIComponent(site.slug)}`,
+        adminProxyUrl("/admin/cms/pages", site.slug),
         { headers: { accept: "application/json" } },
       );
       /* A 401/403/500 used to fall through as an empty list, so the picker
@@ -570,7 +388,7 @@ export default function PropertyBlockEditor({
     if (selectedId === id) setSelectedId(null);
   };
   const add = (type: string) => {
-    const nb: Block = { id: makeId(), type, enabled: true, config: {} };
+    const nb: Block = { id: makeBlockId(), type, enabled: true, config: {} };
     setBlocks((prev) => [...prev, nb]);
     setSelectedId(nb.id);
   };
@@ -725,7 +543,7 @@ export default function PropertyBlockEditor({
   });
   useUnsavedGuard(currentSnapshot !== savedSnapshot);
 
-  if (!canWrite) return <section className="admin-card"><p>{zh ? "目前為檢視模式。更新文字、圖片與版面需要網站編輯權限。" : "View mode. Updating copy, images and layout requires site editor access."}</p>{blocks.map(block => <section key={block.id}><h3>{blockPurpose(block.type,block.config,zh,label(block.type))} {block.enabled === false ? (zh ? "（已隱藏）" : "(hidden)") : ""}</h3><BlockThumb block={block} locale={editLocale} siteSlug={site.slug} renderer={previewRenderer} /></section>)}</section>;
+  if (!canWrite) return <section className="admin-card"><p>{zh ? "目前為檢視模式。更新文字、圖片與版面需要網站編輯權限。" : "View mode. Updating copy, images and layout requires site editor access."}</p>{blocks.map(block => <section key={block.id}><h3>{blockPurpose(block.type,block.config,zh,label(block.type))} {block.enabled === false ? (zh ? "（已隱藏）" : "(hidden)") : ""}</h3><BlockThumb block={block} siteSlug={site.slug} renderer={previewRenderer} /></section>)}</section>;
 
   return (
     <form
@@ -884,7 +702,7 @@ export default function PropertyBlockEditor({
                       {block.enabled !== false ? <Eye /> : <EyeOff />}
                     </button>}
                   </div>
-                  {!reordering && <BlockThumb block={block} locale={editLocale} siteSlug={site?.slug} renderer={previewRenderer} />}
+                  {!reordering && <BlockThumb block={block} siteSlug={site?.slug} renderer={previewRenderer} />}
                 </div>
               </div>
             ))}
@@ -926,413 +744,10 @@ export default function PropertyBlockEditor({
               </div>
               <div className="hpb-insp__section">
                 <span className="hpb-insp__label">{groupTitle("content", zh)}</span>
-                <BlockConfigForm key={selected.id} block={selected} zh={zh} editLocale={editLocale} onChange={(cfg) => updateConfig(selected.id, cfg)} site={site} contentTags={contentTags} />
+                <BlockConfigForm key={selected.id} block={selected} zh={zh} editLocale={editLocale} onChange={(cfg) => updateConfig(selected.id, cfg)} site={site} contentSources={contentSourcesFor(site)} contentTags={contentTags} />
               </div>
 
-              {/* Text formatting */}
-              <FoldSection title={groupTitle("text", zh)}>
-                {selected.type === "rich_text" ? (
-                  <p style={{ fontSize: 11, color: "var(--muted)", margin: "0 0 8px" }}>
-                    {zh ? "字體大小／顏色等請用上方文字工具列（WYSIWYG）的「字級」設定。" : "Use the rich-text toolbar (font size / colour) inside the text block above."}
-                  </p>
-                ) : (
-                  <>
-                {/* Named for what it does, after it was measured doing something
-                    else. 「字體大小」 reads as "the size of the text in this block"
-                    and it is not: the options are 12–32px, an absolute figure,
-                    and a heading given one would sit at the same size as the
-                    paragraph under it. So it drives the block's BODY — copy,
-                    lists, captions, and the sub-headings inside body copy, which
-                    are 1.15em and scale with it. A title has 標題字級 in the role
-                    panel below. 行距 is a ratio and cannot flatten anything, so
-                    that one does cover the headings; saying so here is cheaper
-                    than leaving an editor to discover the difference. */}
-                <p style={{ fontSize: 11, color: "var(--muted)", margin: "0 0 8px" }}>
-                  {zh
-                    ? "基準字級只動內文（含內文裡的小標，會等比跟著）；區塊標題請用下方「標題」的字級。行距則整塊套用，標題也會跟著。"
-                    : "The base size drives body copy only (sub-headings scale with it); a block title has its own size under the 標題 role below. Line height applies to the whole block, headings included."}
-                </p>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
-                    <Field label={zh ? "基準字級" : "Base Size"}>
-                      <select
-                        value={String(selected.config._fontSize ?? "")}
-                        onChange={(e) => updateConfig(selected.id, { ...selected.config, _fontSize: e.target.value || undefined })}
-                      >
-                        <option value="">{zh ? "預設" : "Default"}</option>
-                        {["12px","13px","14px","15px","16px","18px","20px","24px","28px","32px"].map((s) => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </Field>
-                    <Field label={zh ? "行距" : "Line Height"}>
-                      <select
-                        value={String(selected.config._lineHeight ?? "")}
-                        onChange={(e) => updateConfig(selected.id, { ...selected.config, _lineHeight: e.target.value || undefined })}
-                      >
-                        <option value="">{zh ? "預設" : "Default"}</option>
-                        {["1.2","1.4","1.6","1.8","2.0"].map((s) => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </Field>
-                  </div>
-                  </>
-                )}
-                <Field label={zh ? "對齊方式" : "Text Align"}>
-                  {/* radiogroup, not four loose buttons — the same note the
-                      homepage editor carries: `is-active` is a colour with
-                      nothing behind it, so a screen reader announced four
-                      identical buttons with no way to tell which was chosen. */}
-                  <div className="hpb-variant-pick" role="radiogroup" onKeyDown={radioGroupKeys} aria-label={zh ? "對齊方式" : "Text align"}>
-                    {([
-                      ["", zh ? "預設" : "Default"],
-                      ["left", zh ? "靠左" : "Left"],
-                      ["center", zh ? "置中" : "Center"],
-                      ["right", zh ? "靠右" : "Right"],
-                    ] as [string, string][]).map(([val, lbl]) => (
-                      <button
-                        key={val}
-                        type="button"
-                        role="radio"
-                        aria-checked={(selected.config._textAlign ?? "") === val}
-                        className={`hpb-variant-pick__btn${(selected.config._textAlign ?? "") === val ? " is-active" : ""}`}
-                        onClick={() => updateConfig(selected.id, { ...selected.config, _textAlign: val || undefined })}
-                      >
-                        {lbl}
-                      </button>
-                    ))}
-                  </div>
-                </Field>
-                {/* Only side-by-side layouts have a picture to align against. */}
-                {showsVAlign(selected.type, selected.config) && (
-                  <Field label={zh ? "文字對齊圖片（垂直）" : "Text against the picture"}>
-                    <div className="hpb-variant-pick" role="radiogroup" onKeyDown={radioGroupKeys} aria-label={zh ? "文字對齊圖片" : "Text against the picture"}>
-                      {([
-                        ["", zh ? "從圖頂開始" : "From the top"],
-                        ["center", zh ? "垂直置中" : "Centred"],
-                        ["bottom", zh ? "貼齊圖底" : "To the bottom"],
-                      ] as [string, string][]).map(([val, lbl]) => (
-                        <button
-                          key={val}
-                          type="button"
-                          role="radio"
-                          aria-checked={(selected.config._textVAlign ?? "") === val}
-                          className={`hpb-variant-pick__btn${(selected.config._textVAlign ?? "") === val ? " is-active" : ""}`}
-                          onClick={() => updateConfig(selected.id, { ...selected.config, _textVAlign: val || undefined })}
-                        >
-                          {lbl}
-                        </button>
-                      ))}
-                    </div>
-                    <p className="hpb-field-hint">
-                      {zh
-                        ? "預設讓眉批貼齊圖片上緣。關於、圖文分欄、兩區塊並排三種版面用同一個設定。"
-                        : "By default the eyebrow sits on the picture's top edge, in all three side-by-side layouts."}
-                    </p>
-                  </Field>
-                )}
-                {/* Per-role overrides. Not offered on rich_text: that block's
-                    copy is styled inline by the WYSIWYG toolbar, so a role
-                    override here would be a control with nothing to act on. */}
-                {selected.type !== "rich_text" && (
-                  <RoleTypeControls
-                    c={selected.config}
-                    zh={zh}
-                    onChange={(cfg) => updateConfig(selected.id, cfg)}
-                  />
-                )}
-              </FoldSection>
-
-              {/* Section tag (anchor id) — nav links can jump here via #tag */}
-              <FoldSection title={groupTitle("anchor", zh)}>
-                <Field label={zh ? "標記名稱（導覽列可用 #標記 跳到此區塊）" : "Anchor id (nav can link via #tag)"}>
-                  <input
-                    type="text"
-                    value={String(selected.config.anchor ?? "")}
-                    onChange={(e) => {
-                      // Keep letters (incl. CJK) & digits; spaces → "-"; drop chars
-                      // that break an id / URL fragment.
-                      const raw = e.target.value.trim().replace(/\s+/g, "-").replace(/[#?&/\\%"'<>]/g, "").replace(/^-+|-+$/g, "");
-                      /* By CHARACTER, not by code unit: `slice(0, 64)` cuts an
-                         astral character (CJK Ext, an emoji) in half at the
-                         boundary and leaves a lone surrogate, which safeAnchor's
-                         negated class happily accepts and which round-trips
-                         through UTF-8 as U+FFFD. */
-                      const v = Array.from(raw).slice(0, 64).join("");
-                      updateConfig(selected.id, { ...selected.config, anchor: v || undefined });
-                    }}
-                    placeholder={zh ? "例如 about、rooms、contact" : "e.g. about, rooms, contact"}
-                    style={{ width: "100%", fontFamily: "monospace", fontSize: 12 }}
-                  />
-                </Field>
-              </FoldSection>
-
-              {/* Block spacing — one vertical value so top and bottom always match.
-
-                  Withheld entirely from a 併入上一組 block: it stacks INSIDE the
-                  second column of a pair, and blockPairs strips both padding
-                  keys off every joined block (the pair wrapper carries the one
-                  inset, or the column is inset twice). Both numbers saved and
-                  neither reached the page — the same "a control that cannot act
-                  is worse than no control" the horizontal one is hidden for
-                  below. The pair's own two blocks keep theirs: the first
-                  supplies top and left, the second bottom and right. */}
-              {selected.config._pairJoin !== true && (
-              <FoldSection title={groupTitle("spacing", zh)}>
-                {/* The vertical one only. The pair's LEFT inset comes from the
-                    first column and its RIGHT from the second, so a second
-                    column's 左右留白 is read and must stay editable; hiding the
-                    whole section made the pair's right edge unreachable and a
-                    stored value impossible to clear. */}
-                {!isPairSecond && (
-                <Field label={zh ? "上下留白" : "Vertical"}>
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <select
-                      value={selected.config._padY === undefined ? "" : String(selected.config._padY)}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (v === "") { const { _padY, ...rest } = selected.config as Record<string, unknown>; void _padY; updateConfig(selected.id, rest); }
-                        else updateConfig(selected.id, { ...selected.config, _padY: Number(v) });
-                      }}
-                      style={{ flex: 1 }}
-                    >
-                      <option value="">{zh ? "預設" : "Default"}</option>
-                      {PAD_PRESETS.map((p) => (
-                        <option key={p.value} value={p.value}>{(zh ? p.zh : p.en) + " (" + p.value + "px)"}</option>
-                      ))}
-                    </select>
-                    <input
-                      type="number" min={0} max={400} placeholder="px"
-                      /* The Field is a <label> and names only its first control,
-                         so this second one was announced as an unlabelled
-                         spinbutton — the rule this file already follows for the
-                         role colour pair. */
-                      aria-label={zh ? "上下留白（px）" : "Vertical padding (px)"}
-                      value={selected.config._padY === undefined ? "" : String(selected.config._padY)}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (v === "") { const { _padY, ...rest } = selected.config as Record<string, unknown>; void _padY; updateConfig(selected.id, rest); }
-                        else updateConfig(selected.id, { ...selected.config, _padY: Number(v) });
-                      }}
-                      style={{ width: 72 }}
-                    />
-                  </div>
-                </Field>
-                )}
-                {/* Hidden on a full-bleed block (客戶: 滿版時 左右留白就不用管).
-                    The section re-bleeds to the window there and pads with 0, so
-                    the number saved and the content still sat flush to the
-                    edges — a control that cannot act is worse than no control,
-                    which is the reason showsVAlign exists in this codebase. */}
-                {selected.config.full_bleed !== true && (
-                <Field label={zh ? "左右留白" : "Horizontal"}>
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <select
-                      value={selected.config._padX === undefined ? "" : String(selected.config._padX)}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (v === "") { const { _padX, ...rest } = selected.config as Record<string, unknown>; void _padX; updateConfig(selected.id, rest); }
-                        else updateConfig(selected.id, { ...selected.config, _padX: Number(v) });
-                      }}
-                      style={{ flex: 1 }}
-                    >
-                      <option value="">{zh ? "預設" : "Default"}</option>
-                      {PAD_PRESETS.map((p) => (
-                        <option key={p.value} value={p.value}>{(zh ? p.zh : p.en) + " (" + p.value + "px)"}</option>
-                      ))}
-                    </select>
-                    <input
-                      type="number" min={0} max={400} placeholder="px"
-                      aria-label={zh ? "左右留白（px）" : "Horizontal padding (px)"}
-                      value={selected.config._padX === undefined ? "" : String(selected.config._padX)}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (v === "") { const { _padX, ...rest } = selected.config as Record<string, unknown>; void _padX; updateConfig(selected.id, rest); }
-                        else updateConfig(selected.id, { ...selected.config, _padX: Number(v) });
-                      }}
-                      style={{ width: 72 }}
-                    />
-                  </div>
-                </Field>
-                )}
-              </FoldSection>
-              )}
-
-              {/* Background color */}
-              <FoldSection title={groupTitle("surface", zh)}>
-                {/* Withheld from a block that paints its own background — see
-                    SELF_PAINTING_BLOCK_TYPES in blockStyle. The newsletter has
-                    its own 背景顏色 field in its own form, which writes
-                    `bg_color`; offering the generic `_bgColor` here as well gave
-                    one block two colour controls that disagreed, and setting
-                    this one painted the band AND a 100vw wrapper behind it,
-                    which is also what stopped the block's own 版面寬度 →
-                    留白置中 from ever being visible. 版面寬度 below stays: that
-                    one IS this panel's to set. */}
-                {!paintsOwnBackground(selected.type) && (
-                <Field label={zh ? "背景顏色" : "Background Color"}>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <input
-                      type="color"
-                      value={String(selected.config._bgColor ?? "#ffffff")}
-                      onChange={(e) => updateConfig(selected.id, { ...selected.config, _bgColor: e.target.value })}
-                      style={{ width: 40, height: 32, cursor: "pointer", border: "1px solid var(--line)", borderRadius: 4 }}
-                    />
-                    <input
-                      type="text"
-                      value={String(selected.config._bgColor ?? "")}
-                      onChange={(e) => updateConfig(selected.id, { ...selected.config, _bgColor: e.target.value || undefined })}
-                      placeholder="#ffffff"
-                      style={{ flex: 1, fontFamily: "monospace", fontSize: 12 }}
-                    />
-                    {typeof selected.config._bgColor === "string" && selected.config._bgColor && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const { _bgColor, _bgOpacity, ...rest } = selected.config as Record<string, unknown>;
-                          updateConfig(selected.id, rest);
-                        }}
-                        style={{ border: "none", background: "none", cursor: "pointer", color: "var(--muted)", fontSize: 12, textDecoration: "underline" }}
-                      >
-                        {zh ? "清除" : "Clear"}
-                      </button>
-                    )}
-                  </div>
-                  {/* The box beside the swatch is free text, and blockStyle
-                      paints nothing at all for a value hexToRgb rejects — no
-                      colour, and no full-bleed band either. Measured on the
-                      preview route: `_bgColor: "red"` renders the block with no
-                      inline style. Said here, at the point of typing, the same
-                      way the 官方網站 field already reports an address the card
-                      will drop. */}
-                  {typeof selected.config._bgColor === "string"
-                    && selected.config._bgColor.trim() !== ""
-                    && !isBlockBgColor(selected.config._bgColor) && (
-                    <p style={{ color: "#b3261e", fontSize: 11, lineHeight: 1.5, margin: "-6px 0 10px" }}>
-                      {zh
-                        ? "色碼要寫成 #ffffff 或 #fff。照現在這樣存檔，這個區塊不會有背景色。"
-                        : "The code must be written as #ffffff or #fff. Saved as written, this block gets no background at all."}
-                    </p>
-                  )}
-                </Field>
-                )}
-                {/* Only where it can do something. blockStyle reads _bgOpacity
-                    inside the branch that needs a usable colour, so with none
-                    set the slider moved, saved a number, and changed nothing —
-                    with no error to notice. And blockStyle now refuses that
-                    branch outright for a self-painting block, so a legacy
-                    `_bgColor` left in one of those configs must not bring the
-                    slider back either. */}
-                {!paintsOwnBackground(selected.type) && isBlockBgColor(selected.config._bgColor) && (
-                <Field label={zh ? "透明度" : "Opacity"}>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={Number(selected.config._bgOpacity ?? 100)}
-                      onChange={(e) => updateConfig(selected.id, { ...selected.config, _bgOpacity: Number(e.target.value) })}
-                      style={{ flex: 1 }}
-                    />
-                    <span style={{ fontSize: 11, color: "var(--muted)", minWidth: 32, textAlign: "right" }}>
-                      {Number(selected.config._bgOpacity ?? 100)}%
-                    </span>
-                  </div>
-                </Field>
-                )}
-                {/* Withheld on the same terms as the colour: a self-painting
-                    block draws its own surface, and a picture behind it would
-                    be covered by the band it paints. */}
-                {!paintsOwnBackground(selected.type) && (
-                  <BlockBackgroundImage
-                    value={selected.config._bgImage}
-                    zh={zh}
-                    onChange={(url) => {
-                      if (url) { updateConfig(selected.id, { ...selected.config, _bgImage: url }); return; }
-                      const { _bgImage, ...rest } = selected.config as Record<string, unknown>;
-                      void _bgImage;
-                      updateConfig(selected.id, rest);
-                    }}
-                  />
-                )}
-                {/* Folded in with the background rather than kept as a
-                    collapsible section of its own: it is one switch, and it
-                    decides how far the background it sits under reaches. Two
-                    folds for one decision meant an editor could set a colour
-                    and not see the control that makes it span the window. */}
-                <div style={{ marginTop: 14 }}>
-                  <div className="hpb-insp__row-txt" style={{ marginBottom: 6 }}>
-                    {zh ? "版面寬度" : "Width"}
-                  </div>
-                <div className="hpb-variant-pick">
-                  {([
-                    [false, zh ? "留白置中" : "Contained"],
-                    [true, zh ? "滿版貼邊" : "Full bleed"],
-                  ] as [boolean, string][]).map(([val, lbl]) => (
-                    <button
-                      key={String(val)}
-                      type="button"
-                      className={`hpb-variant-pick__btn${(selected.config.full_bleed === true) === val ? " is-active" : ""}`}
-                      onClick={() => updateConfig(selected.id, { ...selected.config, full_bleed: val || undefined })}
-                    >
-                      {lbl}
-                    </button>
-                  ))}
-                  </div>
-                </div>
-              </FoldSection>
-
-              {/* Pair with next block (side-by-side) */}
-              <FoldSection title={groupTitle("pair", zh)}>
-                <Field label={zh ? "與下一區塊並排" : "Pair with next block"}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={selected.config._pairNext === true}
-                      onChange={(e) => updateConfig(selected.id, { ...selected.config, _pairNext: e.target.checked || undefined })}
-                    />
-                    <span style={{ fontSize: 12 }}>{zh ? "啟用左右並排" : "Enable side-by-side"}</span>
-                  </label>
-                </Field>
-                {selected.config._pairNext === true && (
-                  <>
-                    <Field label={zh ? "排列方向" : "Direction"}>
-                      <select
-                        value={String(selected.config._pairDirection ?? "row")}
-                        onChange={(e) => updateConfig(selected.id, { ...selected.config, _pairDirection: e.target.value === "row" ? undefined : e.target.value })}
-                      >
-                        <option value="row">{zh ? "左右並排" : "Side by side"}</option>
-                        <option value="column">{zh ? "上下並排" : "Stacked"}</option>
-                      </select>
-                    </Field>
-                    <Field label={selected.config._pairDirection === "column" ? (zh ? "交換上下位置" : "Swap top/bottom") : (zh ? "交換左右位置" : "Swap left/right")}>
-                      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          checked={selected.config._pairReverse === true}
-                          onChange={(e) => updateConfig(selected.id, { ...selected.config, _pairReverse: e.target.checked || undefined })}
-                        />
-                        <span style={{ fontSize: 12 }}>
-                          {selected.config._pairDirection === "column"
-                            ? (zh ? "此區塊移到下方" : "Move this block below")
-                            : (zh ? "此區塊移到右側" : "Move this block to right")}
-                        </span>
-                      </label>
-                    </Field>
-                  </>
-                )}
-                {/* A pair holds two columns; this puts a block into the second
-                    one rather than leaving it full width below — e.g. a feature
-                    list belonging under the text it describes. */}
-                <Field label={zh ? "併入上一組並排" : "Join the pair above"}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={selected.config._pairJoin === true}
-                      onChange={(e) => updateConfig(selected.id, { ...selected.config, _pairJoin: e.target.checked || undefined })}
-                    />
-                    <span style={{ fontSize: 12 }}>
-                      {zh ? "接在上一個區塊下方，共用同一欄" : "Stacks under the previous block, same column"}
-                    </span>
-                  </label>
-                </Field>
-              </FoldSection>
+              <BlockStyleInspector selected={selected} zh={zh} editLocale={editLocale} updateConfig={updateConfig} isPairSecond={isPairSecond} />
 
               <div className="hpb-insp__section">
                 <button

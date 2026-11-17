@@ -53,7 +53,7 @@ test("a video slide advances on ended instead of the image timer", () => {
     "app/modules/stays/StayHeroCarousel.tsx",
   ]) {
     const source = readCode(path);
-    assert.match(source, /isVideoUrl\([^)]*\).*return/, `${path} still schedules the image timer for video`);
+    assert.match(source, /isVideoUrl\([^)]*\).*return|enabled: !isVideoUrl\(/, `${path} still schedules the image timer for video`);
     assert.match(source, /onEnded=/, `${path} cannot advance when the video finishes`);
     assert.match(source, /loop=\{[^}]*length\s*<=\s*1/, `${path} loops a video forever even when another slide follows`);
   }
@@ -64,8 +64,8 @@ test("a video slide advances on ended instead of the image timer", () => {
 test("the three hero carousels run at the same speed by default", () => {
   // 客戶: 速度好像不太一樣. The detail-page hero was the odd one at 5000.
   const stay = readCode("app/modules/stays/StayHeroCarousel.tsx");
-  assert.ok(!/set(?:Interval|Timeout)\(\(\) => go\(1\), 5000\)/.test(stay), "the detail-page hero is back to 5000ms");
-  assert.match(stay, /setTimeout\(\(\) => go\(1\), 6500\)/, "the detail-page hero no longer matches the others");
+  assert.ok(!/5000/.test(stay), "the detail-page hero is back to 5000ms");
+  assert.match(stay, /delay: SLIDE_DURATION_MS/, "the detail-page hero no longer runs at the shared duration");
   // The default lives in one module both hero carousels import, so it cannot be
   // 6500 in one place and something else in another.
   assert.match(readCode("app/modules/slideTiming.ts"), /SLIDE_DURATION_MS = 6500/);

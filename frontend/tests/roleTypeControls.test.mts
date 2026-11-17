@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
+import { readEditorSurface } from "./readCode";
 import { stripTypeScriptTypes } from "node:module";
 
 /**
@@ -278,11 +279,11 @@ test("the component writes through the reducer instead of touching _type", () =>
 
 test("both editors offer it, inside the text-format section", () => {
   for (const file of [HOME_EDITOR, PAGE_EDITOR]) {
-    const s = readFileSync(file, "utf8");
+    const s = readEditorSurface(file);
 
     // Scoped to the blockForms import list rather than swept for anywhere in
     // the file: a same-named import from somewhere else is not this component.
-    const imported = /import \{([^}]*)\} from "[^"]*blockForms";/.exec(s)?.[1] ?? "";
+    const imported = [...s.matchAll(/import \{([^}]*)\} from "[^"]*blockForms";/g)].map((m) => m[1]).join(",");
     assert.ok(imported, `${file} does not import from blockForms at all`);
     assert.match(imported, /\bRoleTypeControls\b/, `${file} does not import RoleTypeControls from blockForms`);
 

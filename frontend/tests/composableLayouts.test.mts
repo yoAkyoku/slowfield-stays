@@ -5,6 +5,7 @@ import ts from "typescript";
 import { readCode, readStyles, cssRules, splitSelectorList } from "./readCode.mts";
 import { BLOCK_LABELS, BLOCK_HINTS } from "../app/admin/modules/blockCatalogue.ts";
 import * as tr from "../app/modules/tr.ts";
+import { sharedModule } from "./sharedModules.mts";
 
 /**
  * 八、內容頁版型 — the three layouts that could not be expressed before.
@@ -46,7 +47,11 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   }).outputText;
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
-    if (!(id in imports)) throw new Error(`${file}: no stub for import "${id}"`);
+    if (!(id in imports)) {
+      const shared = sharedModule(file, id);
+      if (shared) return shared;
+      throw new Error(`${file}: no stub for import "${id}"`);
+    }
     return imports[id];
   };
   new Function("exports", "require", "module", "__h", "__FRAGMENT", js)(
@@ -193,6 +198,7 @@ test("all three are registered everywhere a block has to be registered", () => {
     "app/modules/home/HomepageBlocks.tsx",
     "app/modules/property/PropertyPageRenderer.tsx",
   ];
+  const CONFIG_FORM = "app/admin/modules/BlockConfigForm.tsx";
   const EDITORS = [
     "app/admin/(dashboard)/homepage/HomepageBlockEditor.tsx",
     "app/admin/(dashboard)/sites/[id]/pages/[pageKey]/PropertyBlockEditor.tsx",
@@ -203,8 +209,10 @@ test("all three are registered everywhere a block has to be registered", () => {
     for (const file of RENDERERS) {
       assert.ok(readCode(file).includes(`case "${type}"`), `${file} cannot draw ${type}`);
     }
+    // Both editors render the one BlockConfigForm, whose table maps a type to its form.
+    assert.ok(readCode(CONFIG_FORM).includes(`${type}: form(`), `BlockConfigForm offers ${type} with no settings form`);
     for (const file of EDITORS) {
-      assert.ok(readCode(file).includes(`case "${type}"`), `${file} offers ${type} with no settings form`);
+      assert.ok(readCode(file).includes("<BlockConfigForm"), `${file} no longer renders the shared BlockConfigForm`);
     }
   }
 });

@@ -4,6 +4,7 @@ import { useId, useRef, useState } from "react";
 import { Users } from "lucide-react";
 import { bilingual } from "../tr";
 import type { Locale } from "../i18n";
+import { formatPrice } from "../apiBase";
 
 type RoomType = {
   name: string;
@@ -18,7 +19,7 @@ function RoomBody({ room, guestsUnit, locale }: { room: RoomType; guestsUnit: st
     <div className="room-row">
       <div className="room-row-head">
         <h3>{bilingual(room.name, locale)}</h3>
-        {room.price > 0 && <strong>TWD {room.price.toLocaleString()}+</strong>}
+        {room.price > 0 && <strong>{formatPrice(room.price, { from: true })}</strong>}
       </div>
       <div className="room-row-spec">
         <span><Users size={15} strokeWidth={1.7} /> {room.capacity} {guestsUnit}</span>

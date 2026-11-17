@@ -4,10 +4,7 @@ import { Pencil } from "lucide-react";
 import { Button, Dialog, DialogActions, Input } from "../../ui";
 import { useState } from "react";
 import { useAdminSiteSlug } from "../../modules/AdminSiteContext";
-
-function proxyUrl(id: number, site: string) {
-  return `/admin/api/proxy?path=${encodeURIComponent(`/admin/media/${id}`)}&site=${encodeURIComponent(site)}`;
-}
+import { adminProxyUrl } from "../../../modules/apiBase";
 
 type Labels = {
   rename: string;
@@ -40,7 +37,7 @@ export default function RenameMediaButton({
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(proxyUrl(id, site), {
+      const response = await fetch(adminProxyUrl(`/admin/media/${id}`, site), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ display_name: displayName }),

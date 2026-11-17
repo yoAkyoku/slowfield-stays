@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { buildContentHref } from "../contentRoutes";
 import type { Locale } from "../i18n";
 import { cardTagsT, tagKey, tagsT, trs } from "../tr";
-import CardCover from "./CardCover";
+import { ArticleCard } from "./cards";
 import JournalMagazineGrid from "./JournalMagazineGrid";
 import LoadMoreGrid, { type CardItem } from "./LoadMoreGrid";
 
@@ -258,32 +258,15 @@ function FacetList({
             ? cardTagsT(item as Parameters<typeof cardTagsT>[0], locale)
             : [];
           return (
-            <Link
-              href={buildContentHref(item as Parameters<typeof buildContentHref>[0], staySlug)}
-              className="article-card"
+            <ArticleCard
               key={item.id}
-            >
-              <CardCover src={item.cover_image_url ?? ""} alt={title} className="article-card-img" />
-              <div className="article-card-body">
-                {/* .tags--lead, not .article-tags: the latter is the article
-                    page's own trailing row (centred, 44px above it), which
-                    inside a card opens a gap over the title. This is the same
-                    markup the 最新消息 cards use, so the two read alike. */}
-                {tags.length > 0 && (
-                  <div className="tags tags--lead">
-                    {tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}
-                  </div>
-                )}
-                {/* h2, not h3. This card IS the section's content, and the page
-                    has nothing between its h1 and this — so a reader tabbing
-                    the heading outline went straight from level 1 to level 3
-                    and was told a level had been skipped. FeatureCard, the same
-                    card in its larger form, has always used h2. The stylesheet
-                    matches both levels so the card looks the same. */}
-                <h2>{title}</h2>
-                <p>{trs(item as Parameters<typeof trs>[0], "summary", locale)}</p>
-              </div>
-            </Link>
+              heading="h2"
+              href={buildContentHref(item as Parameters<typeof buildContentHref>[0], staySlug)}
+              title={title}
+              summary={trs(item as Parameters<typeof trs>[0], "summary", locale)}
+              cover={item.cover_image_url}
+              tags={tags}
+            />
           );
         })}
       </div>

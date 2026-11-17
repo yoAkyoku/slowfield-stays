@@ -45,11 +45,6 @@ export async function queueCampaignAction(id: number) {
   actionRedirect(result, "/admin/newsletter");
 }
 
-export async function processNewsletterAction() {
-  const result = await newsletterPost("/newsletter/process");
-  actionRedirect(result, "/admin/newsletter");
-}
-
 export async function retryFailedNewsletterAction() {
   const result = await adminJsonRequest("/newsletter/retry-failed", {}, "POST", "Newsletter request failed");
   actionRedirect(result, "/admin/newsletter?tab=send");

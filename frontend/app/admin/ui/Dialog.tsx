@@ -8,6 +8,10 @@ import { cx } from "./cx";
  * The one modal for the back office: Escape closes, focus is trapped, the page
  * behind stops scrolling (all via useOverlay), and the layer click closes it.
  * Render it conditionally or keep it mounted with `open`.
+ *
+ * `keepMounted` keeps a closed dialog's content in the page, hidden. A dialog
+ * whose fields belong to the surrounding <form> needs it: unmounted fields do
+ * not post, so closing the dialog would drop what was typed in it.
  */
 export function Dialog({
   open,
@@ -19,7 +23,8 @@ export function Dialog({
   size = "md",
   className,
   dismissible = true,
-  closeLabel = "Close"
+  closeLabel = "Close",
+  keepMounted = false
 }: {
   open: boolean;
   onClose: () => void;
@@ -34,13 +39,15 @@ export function Dialog({
   dismissible?: boolean;
   /** Accessible name of the X button; pass the localised word (關閉 / Close). */
   closeLabel?: string;
+  /** Keep the content mounted (hidden) while closed — see above. */
+  keepMounted?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
   const titleId = useId();
   useOverlay(open, onClose, { trapFocus: ref });
-  if (!open) return null;
+  if (!open && !keepMounted) return null;
   return (
-    <div className="a-dialog-layer" role="presentation" onMouseDown={(e) => { if (dismissible && e.target === e.currentTarget) onClose(); }}>
+    <div className="a-dialog-layer" role="presentation" style={open ? undefined : { display: "none" }} onMouseDown={(e) => { if (dismissible && e.target === e.currentTarget) onClose(); }}>
       <section aria-labelledby={titleId} aria-modal="true" className={cx("a-dialog", `a-dialog--${size}`, className)} ref={ref} role="dialog">
         <header className="a-dialog__head">
           <div>

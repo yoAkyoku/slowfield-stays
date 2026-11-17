@@ -6,8 +6,7 @@ import type { Locale } from "../../i18n";
 import { cfgT , eyebrowT} from "../../tr";
 import { safeCssBackground, safeCssColor } from "../../fontPresets";
 import { safeHtml } from "../../safeHtml";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+import { PUBLIC_API_URL as API_URL } from "../../apiBase";
 
 export type BlockNewsletterConfig = {
   eyebrow?: string | Record<string, string>;

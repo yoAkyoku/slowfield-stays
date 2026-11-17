@@ -128,6 +128,31 @@ export function pickT(val: unknown, locale: Locale, fallback = ""): string {
 }
 
 /**
+ * A page's name in one locale: its own label, else the name the code ships for
+ * that page, else the label's other language, else the key.
+ *
+ * The bundled name comes before the other language on purpose. Page management
+ * writes an object the moment either language field is touched, so a page
+ * renamed in Chinese with the English left blank must not put the Chinese name
+ * on the English page while its bundled English name is sitting right there.
+ * The other language is the last resort, for a custom key with no bundled name.
+ *
+ * A plain string is one name chosen for both languages and wins outright:
+ * taking the bundled default over it would override an explicit decision.
+ *
+ * The brand site, the villa sites and the navigation each used to carry their
+ * own copy of this; the villa copy borrowed the other language first.
+ */
+export function labelLadder(label: unknown, locale: Locale, bundled: string | undefined, key: string): string {
+  if (label && typeof label === "object" && !Array.isArray(label)) {
+    const l = label as Record<string, string>;
+    return l[locale] || bundled || l[locale === "zh" ? "en" : "zh"] || key;
+  }
+  if (typeof label === "string" && label) return label;
+  return bundled || key;
+}
+
+/**
  * Read a localised value from a homepage block config field.
  *
  * Supports both legacy plain-string values and new `{en, zh}` objects.

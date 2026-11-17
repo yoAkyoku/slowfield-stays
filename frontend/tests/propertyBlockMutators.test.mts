@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { compileDeclarations } from "./sourceEval";
+import { blockHasContent, makeBlockId } from "../app/admin/modules/blockEditorUtils.ts";
 
 /**
  * The villa page editor's block list, driven the way React drives it.
@@ -22,11 +23,14 @@ const FILE = "app/admin/(dashboard)/sites/[id]/pages/[pageKey]/PropertyBlockEdit
 
 type Blk = { id: string; type: string; enabled: boolean; config: Record<string, unknown> };
 
-const build = compileDeclarations(
+/* makeBlockId and blockHasContent are imported by the editor now; hand the
+   compiled declarations the real ones. */
+const compiled = compileDeclarations(
   FILE,
-  ["makeId", "blockHasContent", "confirmRemove", "toggle", "remove", "add", "updateConfig", "move", "onDrop"],
-  ["blocks", "setBlocks", "selectedId", "setSelectedId", "dragIndex", "dropIndex", "setDragIndex", "setDropIndex", "blockLabel", "confirm"],
+  ["confirmRemove", "toggle", "remove", "add", "updateConfig", "move", "onDrop"],
+  ["makeBlockId", "blockHasContent", "blocks", "setBlocks", "selectedId", "setSelectedId", "dragIndex", "dropIndex", "setDragIndex", "setDropIndex", "blockLabel", "confirm"],
 );
+const build = (ctx: Record<string, unknown>) => compiled({ makeBlockId, blockHasContent, ...ctx });
 
 function seed(): Blk[] {
   return [
@@ -68,6 +72,8 @@ function tick(
     setDropIndex: (v: number | null) => { drop = v; },
     blockLabel: (type: string, zh: boolean) => (zh ? `[${type}]` : type),
     confirm: () => true,
+    makeBlockId,
+    blockHasContent,
     ...extra,
   });
   run(m);
@@ -164,14 +170,14 @@ test("a drop with nothing being dragged leaves the list alone", () => {
    Six base-36 characters is a coin-flip collision inside a few thousand draws. */
 
 test("ids minted in bulk do not collide", () => {
-  const { makeId } = build({}) as unknown as { makeId: () => string };
+  const makeId = makeBlockId;
   const seen = new Set<string>();
   for (let i = 0; i < 20000; i += 1) seen.add(makeId());
   assert.equal(seen.size, 20000, "makeId produced a duplicate — a duplicate is a lost block");
 });
 
 test("an id carries the time it was minted, so two mints in different ms differ whatever the random half does", () => {
-  const { makeId } = build({}) as unknown as { makeId: () => string };
+  const makeId = makeBlockId;
   const id = makeId();
   const stamp = Number(id.split("-")[1]);
   assert.ok(Number.isFinite(stamp), `no timestamp in ${id}`);
@@ -216,7 +222,7 @@ test("an untouched block is deleted without a prompt", () => {
 });
 
 test("content is found however deep in the config it sits", () => {
-  const { blockHasContent } = build({}) as unknown as { blockHasContent: (b: Blk) => boolean };
+  // the shared rule the editor imports
   const of = (config: Record<string, unknown>) => blockHasContent({ id: "x", type: "t", enabled: true, config });
 
   assert.equal(of({}), false);

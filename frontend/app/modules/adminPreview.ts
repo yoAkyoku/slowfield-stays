@@ -1,7 +1,5 @@
 import { cookies } from "next/headers";
-
-const API_URL =
-  process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+import { SERVER_API_URL as API_URL } from "./apiBase";
 
 /**
  * Whether the person asking is a signed-in admin, and may therefore see a site

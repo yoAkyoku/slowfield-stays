@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useAutoAdvance from "../useAutoAdvance";
 
 /** One tile of the 相片拼貼牆. `caption` is already resolved to the reader's
  *  language by the caller — see BlockGallery. */
@@ -16,11 +17,12 @@ export default function HomePhotoGallery({ images, eyebrow, title, display = "ca
 
   const wall = display === "wall";
 
-  useEffect(() => {
-    if (wall || shown.length <= 1) return;
-    const timer = window.setTimeout(() => setIndex((current) => (current + 1) % shown.length), 6000);
-    return () => window.clearTimeout(timer);
-  }, [index, shown.length, wall]);
+  const autoRef = useAutoAdvance(() => setIndex((current) => (current + 1) % shown.length), {
+    count: shown.length,
+    delay: 6000,
+    enabled: !wall,
+    restartKey: index,
+  });
 
   if (!shown.length) return null;
 
@@ -53,6 +55,7 @@ export default function HomePhotoGallery({ images, eyebrow, title, display = "ca
         <h2>{title}</h2>
       </div>
       <div
+        ref={autoRef}
         className={`home-gallery-grid home-gallery-carousel count-${Math.min(shown.length, 6)}`}
         aria-roledescription="carousel"
         aria-label={title}

@@ -5603,70 +5603,11 @@
   padding: 10px 12px;
 }
 
-.se-sheet { position: fixed; inset: 0; z-index: 60; }
-
-.se-sheet__scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(20, 18, 14, 0.34);
-  backdrop-filter: blur(1.5px);
-}
-
-.se-sheet__panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: min(760px, 100%);
-  background: var(--paper, #f7f5ef);
-  border-left: 1px solid var(--line);
-  box-shadow: -18px 0 48px rgba(20, 18, 14, 0.14);
-  display: flex;
-  flex-direction: column;
-  animation: se-sheet-in 260ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .se-sheet__panel { animation: none; }
-}
-
-.se-sheet__bar {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--line);
-  background: #fff;
-}
-
-.se-sheet__bar h3 { margin: 0; font-size: 16px; font-weight: 600; }
-
-.se-sheet__fb {
-  font-size: 12px;
-  color: var(--muted);
-  border: 1px dashed var(--line);
-  border-radius: 8px;
-  padding: 4px 10px;
-}
-
-.se-sheet__x {
-  border: 1px solid var(--line);
-  background: #fff;
-  border-radius: 8px;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  color: var(--muted);
-  line-height: 1;
-}
-
-.se-sheet__x:hover { color: var(--ink); border-color: var(--ink); }
-
-.se-sheet__body { padding: 18px 20px 28px; overflow-y: auto; }
-
-.se-sheet__body > label > span:first-child,
-.se-sheet__body label > span:first-child:empty { display: none; }
+/* The search-option dialogs (服務設施 / 民宿類型 / 人數級距) are the kit
+   Dialog now. The editor inside supplies its own legend and the dialog title
+   already names it, so the field's own first label is not repeated. */
+.se-search-sheet .a-dialog__body > label > span:first-child,
+.se-search-sheet .a-dialog__body label > span:first-child:empty { display: none; }
 
 .so-editor {
   display: flex;

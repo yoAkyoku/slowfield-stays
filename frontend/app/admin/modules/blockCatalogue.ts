@@ -106,11 +106,6 @@ export function blockLabel(type: string, zh: boolean): string {
   return pair ? (zh ? pair[0] : pair[1]) : type;
 }
 
-export function blockHint(type: string, zh: boolean): string {
-  const pair = BLOCK_HINTS[type];
-  return pair ? (zh ? pair[0] : pair[1]) : "";
-}
-
 export function groupTitle(key: keyof typeof INSPECTOR_GROUPS, zh: boolean): string {
   const pair = INSPECTOR_GROUPS[key];
   return zh ? pair[0] : pair[1];

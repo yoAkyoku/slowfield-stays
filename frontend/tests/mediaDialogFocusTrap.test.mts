@@ -45,7 +45,6 @@ const DIALOGS: Dialog[] = [
   { file: "app/admin/(dashboard)/media/MediaUploadModal.tsx", label: "media upload" },
   { file: "app/modules/property/LightboxGallery.tsx", label: "photo lightbox" },
   { file: "app/admin/modules/blockForms.tsx", label: "block picker (PickerModal)", index: 0, setter: "setOpen" },
-  { file: "app/admin/modules/blockForms.tsx", label: "block tag picker", index: 1, setter: "setOpen" },
 ];
 
 test("media rename lets the overlay capture its trigger before moving focus", () => {

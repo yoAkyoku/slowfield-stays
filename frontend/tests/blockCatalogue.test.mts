@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readCode } from "./readCode";
+import { readCode, readEditorSurface } from "./readCode";
 import { BLOCK_LABELS, BLOCK_HINTS, INSPECTOR_GROUPS } from "../app/admin/modules/blockCatalogue.ts";
 
 /**
@@ -73,7 +73,7 @@ test("the settings groups are named from the shared list, not written out", () =
   /* The pairing group was 「區塊並列」in one editor and 「並排配對」in the other.
      Reading the title from a key rather than typing it means that cannot recur. */
   for (const file of EDITORS) {
-    const src = readCode(file);
+    const src = readEditorSurface(file);
     const literals = [...src.matchAll(/FoldSection title=\{zh \? "([^"]+)"/g)].map((m) => m[1]);
     /* Page- and site-level folds (SEO, media library, page hero, nav link) are
        not per-block settings and keep their own titles — only the block
@@ -99,7 +99,7 @@ test("the full-bleed switch sits with the background it affects", () => {
      could pick a background colour and never see the control that decides
      whether it spans the window. */
   for (const file of EDITORS) {
-    const src = readCode(file);
+    const src = readEditorSurface(file);
     assert.ok(
       !src.includes('FoldSection title={zh ? "滿版'),
       `${file} gave the full-bleed switch its own fold again`,
@@ -155,7 +155,7 @@ test("the two editors offer the same inspector controls", () => {
   for (const key of ["_fontSize", "_lineHeight", "_textAlign", "_padY", "_bgColor", "full_bleed"]) {
     for (const file of EDITORS) {
       assert.ok(
-        readCode(file).includes(`${key}:`),
+        readEditorSurface(file).includes(`${key}:`),
         `${file} has no control for ${key}, which the other editor offers and every renderer reads`,
       );
     }

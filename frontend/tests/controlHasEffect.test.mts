@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { readCode, readStyles, cssRules } from "./readCode";
+import { readCode, readEditorSurface, readStyles, cssRules } from "./readCode";
 import { showsVAlign } from "../app/admin/modules/blockVAlign.ts";
 
 /**
@@ -395,7 +395,7 @@ test("the vertical alignment control is offered only where a picture sits beside
     "app/admin/(dashboard)/sites/[id]/pages/[pageKey]/PropertyBlockEditor.tsx",
   ]) {
     assert.match(
-      readCode(file),
+      readEditorSurface(file),
       /showsVAlign\(selected\.type, selected\.config\)/,
       `${file} offers the control without checking the block's own config`,
     );

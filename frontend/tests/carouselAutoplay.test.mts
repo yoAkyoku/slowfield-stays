@@ -19,6 +19,10 @@ const CAROUSELS = [
   "app/modules/stays/StayShowcaseCard.tsx",
   "app/modules/property/blocks/BlockRooms.tsx",
   "app/modules/content/ScrollRail.tsx",
+  "app/modules/property/blocks/HeroBannerCarousel.tsx",
+  "app/modules/stays/StayHeroCarousel.tsx",
+  "app/modules/home/HomePhotoGallery.tsx",
+  "app/modules/home/blocks/AboutImageCarousel.tsx",
 ];
 
 for (const file of CAROUSELS) {

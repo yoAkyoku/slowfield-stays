@@ -8,12 +8,9 @@ import MediaUploadRequirements from "../../modules/MediaUploadRequirements";
 import VideoThumbnail from "../../modules/VideoThumbnail";
 import MediaPickerThumbnail, { type MediaPickerAsset } from "../../modules/MediaPickerThumbnail";
 import { Button, buttonClass, Dialog, Field, Input, SearchInput, Stack } from "../../ui";
+import { adminProxyUrl as proxyUrl } from "../../../modules/apiBase";
 
 type MediaAsset = MediaPickerAsset;
-
-function proxyUrl(apiPath: string, site: string) {
-  return `/admin/api/proxy?path=${encodeURIComponent(apiPath)}&site=${encodeURIComponent(site)}`;
-}
 
 export default function ImageUploadInput({
   value,

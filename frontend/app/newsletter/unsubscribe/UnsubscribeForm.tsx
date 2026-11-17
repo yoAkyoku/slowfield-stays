@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { publicUiText } from "../../modules/i18n";
+import { PUBLIC_API_URL as API_URL } from "../../modules/apiBase";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 type UnsubscribeCopy = ReturnType<typeof publicUiText>["unsubscribe"];
 
 export default function UnsubscribeForm({ copy, token }: { copy: UnsubscribeCopy; token: string }) {

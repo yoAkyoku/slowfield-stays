@@ -1,11 +1,9 @@
-import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
-import type { CSSProperties } from "react";
 import { getCurrentSite, getPages } from "../api";
 import { buildContentHref } from "../contentRoutes";
 import { getLocale, publicUiText } from "../i18n";
 import { cssUrl } from "../safeCss";
 import { cardTagsT, trs } from "../tr";
+import { ContentCard } from "./cards";
 
 export default async function ContentListPage({
   contentType,
@@ -39,27 +37,18 @@ export default async function ContentListPage({
       </section>
       {pages.length ? (
         <section className="content-card-grid" aria-label={copy.title}>
-          {pages.map((page, index) => {
-            const cardTitle = trs(page, "title", locale);
-            const cardSummary = trs(page, "summary", locale);
-            return (
-              <article className="content-card" key={page.id} style={{ "--content-index": index } as CSSProperties}>
-                <Link aria-label={cardTitle} href={buildContentHref(page)}>
-                  <div className="content-card-media">
-                    {page.cover_image_url ? <img src={page.cover_image_url} alt={cardTitle} loading="lazy" /> : <span>{copy.title}</span>}
-                  </div>
-                  <div className="content-card-body">
-                    <div className="content-card-meta">
-                      <span>{cardTagsT(page, locale).join(" / ") || copy.title}</span>
-                      <ArrowUpRight size={18} />
-                    </div>
-                    <h2>{cardTitle}</h2>
-                    {cardSummary ? <p>{cardSummary}</p> : null}
-                  </div>
-                </Link>
-              </article>
-            );
-          })}
+          {pages.map((page, index) => (
+            <ContentCard
+              key={page.id}
+              index={index}
+              href={buildContentHref(page)}
+              title={trs(page, "title", locale)}
+              summary={trs(page, "summary", locale)}
+              cover={page.cover_image_url}
+              meta={cardTagsT(page, locale).join(" / ") || copy.title}
+              placeholder={copy.title}
+            />
+          ))}
         </section>
       ) : (
         <section className="content-empty">
