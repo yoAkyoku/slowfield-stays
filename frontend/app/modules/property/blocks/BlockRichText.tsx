@@ -5,6 +5,7 @@ import { cfgT , eyebrowT} from "../../tr";
 import { safeHtml, sanitizeRichHtml } from "../../safeHtml";
 import { safeCssColor } from "../../fontPresets";
 import FeatureIcon from "./FeatureIcon";
+import SectionHeading from "../../SectionHeading";
 
 // Body authored in the WYSIWYG editor contains real HTML tags; plain-text bodies
 // (legacy / pasted) contain none and go through the line-based auto-list parser.
@@ -130,8 +131,7 @@ export default function BlockRichText({ locale, config }: { locale: Locale; conf
 
   const textContent = (
     <>
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      {heading && <h2 style={headingStyle}>{heading}</h2>}
+      <SectionHeading eyebrow={eyebrow} title={heading} headingStyle={headingStyle} />
       {centered && heading && <div className="property-rich-text-divider" aria-hidden="true" />}
       {body && HTML_RE.test(body) && (
         <div className={bodyClass} style={bodyStyle} dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(body) }} />

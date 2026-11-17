@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, EB_Garamond, Fraunces, Marcellus, Noto_Sans_TC, Noto_Serif_TC, Pinyon_Script, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import "./site-refresh.css";
 import { getLocale } from "./modules/i18n";
 
 const displayFont = Cormorant_Garamond({

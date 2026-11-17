@@ -18,7 +18,7 @@ import SafeForm from "../../../modules/SafeForm";
 import { useFormDraft } from "../../../modules/useFormDraft";
 import { formSnapshot, useUnsavedGuard } from "../../../modules/useUnsavedGuard";
 import SubmitButton from "../../../modules/SubmitButton";
-import { Badge, Callout, Card, CellTitle, Dialog, DialogActions, Field, Input, ListRow, ListRows, Progress, RowActions, Segmented, Select, Stack, TableFrame, buttonClass } from "../../../ui";
+import { Badge, Callout, Card, CellTitle, Dialog, DialogActions, Field, Input, ListRow, ListRows, Progress, RowActions, Segmented, Select, Stack, TableFrame, buttonClass, useConfirm } from "../../../ui";
 import AdminFlash from "../../../modules/AdminFlash";
 import HeroImageField from "../../stays/HeroImageField";
 import ConfirmSubmitButton from "../../../modules/ConfirmSubmitButton";
@@ -184,6 +184,7 @@ export default function SitePageEditor({
   flash,
   returnTo = "/admin/sites",
 }: SitePageEditorProps) {
+  const { ask, tell } = useConfirm();
   const canDeleteSite = profile.permissions?.includes("*") || profile.permissions?.includes("sites:write") || false;
   /* head_code / body_code / ads_code become executable code on this site's
      public pages, which share an origin with /admin — so they are the owner's
@@ -1425,11 +1426,9 @@ export default function SitePageEditor({
                                 className={buttonClass({ variant: "danger-ghost", size: "sm" })}
                                 disabled={false}
                                 onClick={async () => {
-                                  if (!window.confirm(
-                                    editLocale === "zh"
+                                  if (!(await ask({ tone: "danger", title: editLocale === "zh"
                                       ? `從此網站刪除「${a.name}」嗎？\n（使用者帳戶會保留在「系統 → 帳號權限」中。）`
-                                      : `Delete "${a.name}" from this site?\n(The user account stays in System → Users.)`
-                                  )) return;
+                                      : `Delete "${a.name}" from this site?\n(The user account stays in System → Users.)` }))) return;
                                   try {
                                     await removeSiteUserAction(siteId, String(a.id));
                                     router.refresh();
@@ -1566,7 +1565,7 @@ export default function SitePageEditor({
                       disabled={!editingAccountId && (!accountForm.user_id || availableUsers.length === 0)}
                       onClick={async () => {
                         if (!editingAccountId && !accountForm.user_id) {
-                          alert(editLocale === "zh" ? "請選擇一位使用者" : "Please pick a user");
+                          await tell({ title: editLocale === "zh" ? "請選擇一位使用者" : "Please pick a user" });
                           return;
                         }
                         // 關閉 modal 後再 await — server action 透過 throw NEXT_REDIRECT 觸發
@@ -1853,11 +1852,9 @@ export default function SitePageEditor({
                             type="button"
                             className={buttonClass({ variant: "danger-ghost", size: "sm" })}
                             onClick={async () => {
-                              if (!window.confirm(
-                                editLocale === "zh"
+                              if (!(await ask({ tone: "danger", title: editLocale === "zh"
                                   ? `確認刪除「${page.name}」嗎？此操作會立即生效。`
-                                  : `Delete "${page.name}"? This takes effect immediately.`
-                              )) return;
+                                  : `Delete "${page.name}"? This takes effect immediately.` }))) return;
                               // Remove from local state immediately
                               setPages(pages.filter(p => p.id !== page.id));
                               // Persist deletion via server action
@@ -1983,7 +1980,7 @@ export default function SitePageEditor({
 
                           // Validate slug format
                           if (slugChanged && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(newSlug)) {
-                            alert(editLocale === "zh" ? "Slug 僅允許小寫英文、數字和連字號" : "Slug must be lowercase letters, numbers, and hyphens only");
+                            await tell({ title: editLocale === "zh" ? "Slug 僅允許小寫英文、數字和連字號" : "Slug must be lowercase letters, numbers, and hyphens only" });
                             return;
                           }
 
@@ -1991,7 +1988,7 @@ export default function SitePageEditor({
                           if (slugChanged) {
                             const existingKeys = new Set(pages.map((p) => p.type));
                             if (existingKeys.has(newSlug)) {
-                              alert(editLocale === "zh" ? `Slug「${newSlug}」已被其他頁面使用` : `Slug "${newSlug}" is already used by another page`);
+                              await tell({ title: editLocale === "zh" ? `Slug「${newSlug}」已被其他頁面使用` : `Slug "${newSlug}" is already used by another page` });
                               return;
                             }
                           }

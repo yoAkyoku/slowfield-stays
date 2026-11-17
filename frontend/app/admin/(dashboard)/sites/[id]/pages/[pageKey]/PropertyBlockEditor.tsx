@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import type { AdminContentTag, AdminSite } from "../../../../../modules/adminApi";
 import SubmitButton from "../../../../../modules/SubmitButton";
-import { buttonClass, Callout, Segmented } from "../../../../../ui";
+import { buttonClass, Callout, Segmented, useConfirm } from "../../../../../ui";
 import ImageUploadInput from "../../../../homepage/ImageUploadInput";
 import { Field, getVal, setVal, HeadingInput } from "../../../../../modules/blockFields";
 import { useOverlay } from "../../../../../../modules/useOverlay";
@@ -39,6 +39,7 @@ import { activateOnKey, blockHasContent, makeBlockId, type EditorBlock } from ".
 import type { ContentSource } from "../../../../../modules/blockForms";
 import { blockPurpose } from "../../../../../modules/contentVocabulary";
 import { adminProxyUrl } from "../../../../../../modules/apiBase";
+import type { AskOptions } from "../../../../../ui/Confirm";
 
 type Block = EditorBlock;
 
@@ -91,14 +92,15 @@ const BLOCK_TYPES = Object.keys(BLOCK_LABELS);
  *  the row under the cursor is not necessarily the one the author has in mind —
  *  so the dialog could not be used to check the aim, which is the only thing it
  *  is for. There is no undo here. */
-function confirmRemove(block: Block, zh: boolean): boolean {
+async function confirmRemove(block: Block, zh: boolean, ask: (o: AskOptions) => Promise<boolean>): Promise<boolean> {
   if (!blockHasContent(block)) return true;
   const name = blockLabel(block.type, zh);
-  return confirm(
-    zh
+  return ask({
+    tone: "danger",
+    title: zh
       ? `刪除「${name}」版塊？裡面的內容會一併移除，且無法復原。`
       : `Delete this "${name}" block? Its content goes with it and cannot be restored.`,
-  );
+  });
 }
 
 type SubTab = { label: Record<string, string>; tag: Record<string, string> };
@@ -192,6 +194,7 @@ export default function PropertyBlockEditor({
    *  useFormDraft, which is what puts the work back. */
   saveFailed?: boolean;
 }) {
+  const { ask } = useConfirm();
   const zh = locale === "zh";
   /* The group site's homepage is the one page reached through this editor that
      the front end does NOT draw with PropertyPageRenderer — app/(site)/page.tsx
@@ -753,7 +756,7 @@ export default function PropertyBlockEditor({
                 <button
                   type="button"
                   className="hpb-insp__delete"
-                  onClick={() => { if (confirmRemove(selected, zh)) remove(selected.id); }}
+                  onClick={async () => { if (await confirmRemove(selected, zh, ask)) remove(selected.id); }}
                 >
                   <Trash2 /> {zh ? "刪除此版塊" : "Remove block"}
                 </button>

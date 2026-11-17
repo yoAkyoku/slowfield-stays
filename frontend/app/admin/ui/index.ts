@@ -16,4 +16,6 @@ export { Check, Field, FormActions, FormGrid, FormSection, Input, SearchInput, S
 export { CellTitle, Chips, Disclosure, InputGroup, RowActions, Segmented, TableFrame } from "./Controls";
 export type { SegmentedOption } from "./Controls";
 export { Dialog, DialogActions } from "./Dialog";
+export { ConfirmProvider, useConfirm } from "./Confirm";
+export type { AskOptions } from "./Confirm";
 export { cx } from "./cx";

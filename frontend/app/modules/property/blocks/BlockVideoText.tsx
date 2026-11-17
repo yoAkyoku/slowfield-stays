@@ -3,6 +3,7 @@ import type { Locale } from "../../i18n";
 import { cfgT, eyebrowT } from "../../tr";
 import { isSafeUrl } from "../../safeHtml";
 import { OembedMedia } from "./BlockOembed";
+import SectionHeading from "../../SectionHeading";
 
 /**
  * 影片＋文字 (客戶, 八、內容頁版型).
@@ -51,8 +52,7 @@ export default async function BlockVideoText({
 
   const copy = (
     <>
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      {title && <h2>{title}</h2>}
+      <SectionHeading eyebrow={eyebrow} title={title} />
       {body && (
         <div className="property-rich-text-body">
           <p>{body}</p>

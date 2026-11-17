@@ -3,6 +3,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import { readCode } from "./readCode";
 import { BLOCK_LABELS } from "../app/admin/modules/blockCatalogue.ts";
+import { drawnTypes } from "./blockTypes.mts";
 
 /**
  * The site-network page editor draws every page it edits with one renderer —
@@ -27,8 +28,13 @@ const EDITOR = readFileSync(
 const HOME_RENDERER = readCode("app/modules/home/HomepageBlocks.tsx");
 const PROP_RENDERER = readCode("app/modules/property/PropertyPageRenderer.tsx");
 
+/* The types a renderer draws: its own table plus the shared one (see blockTypes.mts). */
+const HOME_FILE = "app/modules/home/HomepageBlocks.tsx";
+const PROP_FILE = "app/modules/property/PropertyPageRenderer.tsx";
+const PAGE_FILE = "app/modules/content/PageBlocks.tsx";
 function caseTypes(source: string): Set<string> {
-  return new Set([...source.matchAll(/case "([a-z_]+)"/g)].map((m) => m[1]));
+  const file = source === HOME_RENDERER ? HOME_FILE : source === PROP_RENDERER ? PROP_FILE : PAGE_FILE;
+  return drawnTypes(file);
 }
 
 test("the preview renderer is chosen, not hardcoded", () => {

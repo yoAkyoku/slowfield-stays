@@ -5,6 +5,7 @@ import LeafletMap, { type MapMarker } from "./LeafletMap";
 import MapEmbed from "../../MapEmbed";
 import { googleMapEmbedSrc } from "../../safeHtml";
 import { resolveMapMode } from "./mapMode";
+import SectionHeading from "../../SectionHeading";
 
 /**
  * Map block. Three modes:
@@ -119,8 +120,7 @@ export default async function BlockMap({ locale, config }: { locale: Locale; con
 
   return (
     <section className="property-map section">
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      {heading && <h2>{heading}</h2>}
+      <SectionHeading eyebrow={eyebrow} title={heading} />
       {usePins ? (
         <div className="property-map-frame">
           <LeafletMap markers={markers} height={heightPx} locale={locale} />

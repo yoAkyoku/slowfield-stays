@@ -12,6 +12,7 @@ import AdminTopbarLabel from "../modules/AdminTopbarLabel";
 import ScrollToTopFab from "../../modules/ScrollToTopFab";
 import { AdminSiteProvider } from "../modules/AdminSiteContext";
 import DialogScrollLock from "../modules/DialogScrollLock";
+import { ConfirmProvider } from "../ui/Confirm";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
@@ -87,8 +88,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </header>
         <AdminSiteProvider slug={validSlug} permissions={permissions}>
-          <AdminAccessNotice permissions={permissions} zh={zh} siteName={sites.find((site) => site.slug === validSlug)?.name ?? validSlug} />
-          {children}
+          <ConfirmProvider locale={locale}>
+            <AdminAccessNotice permissions={permissions} zh={zh} siteName={sites.find((site) => site.slug === validSlug)?.name ?? validSlug} />
+            {children}
+          </ConfirmProvider>
         </AdminSiteProvider>
         <ScrollToTopFab />
       </div>

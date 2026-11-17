@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readCode, readEditorSurface, readStyles, cssRules } from "./readCode";
 import { showsVAlign } from "../app/admin/modules/blockVAlign.ts";
+import { drawing } from "./blockTypes.mts";
 
 /**
  * A control is offered only where the renderer reads it.
@@ -557,8 +558,8 @@ test("the fields the renderers read all have somewhere to be typed", () => {
     "app/modules/property/PropertyPageRenderer.tsx",
   ]) {
     assert.match(
-      readCode(file),
-      /case "table":\s*(?:el =|return)\s*<BlockTable\b/,
+      drawing(file, "table") ?? "",
+      /^<BlockTable\b/,
       `${file} draws the table block itself again rather than through BlockTable`,
     );
   }
@@ -715,9 +716,10 @@ test("交通聯繫 版型 says what each renderer draws, not just the villa one"
   const pageBlocks = readCode("app/modules/content/PageBlocks.tsx");
   assert.match(
     pageBlocks,
-    /cfg\.layout === "classic"\s*\?\s*<BlockContactInfo/,
+    /cfg\.layout === "classic"\s*\?\s*SHARED_BLOCKS\.contact_info\(c\)/,
     "the group renderer routes 版型 differently now — re-read what each value draws",
   );
+  assert.match(drawing("app/modules/property/PropertyPageRenderer.tsx", "contact_info") ?? "", /^<BlockContactInfo\b/, "經典 is no longer the villa component");
   const local = region(pageBlocks, "function ContactInfo({", "export default function PageBlocks");
   assert.ok(local.includes("page-block-contact-info"), "the group renderer no longer draws the labelled block");
   assert.ok(local.includes("contact-item"), "the group renderer no longer draws labelled rows");

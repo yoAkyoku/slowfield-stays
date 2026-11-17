@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Locale } from "../../i18n";
 import { cfgT , eyebrowT} from "../../tr";
 import { isSafeUrl } from "../../safeHtml";
+import SectionHeading from "../../SectionHeading";
 
 export type Destination = {
   name: string | Record<string, string>;
@@ -29,8 +30,7 @@ export default function BlockDestinations({ locale, config }: { locale: Locale; 
     <section className="section">
       <div className="section-header">
         <div>
-          {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-          <h2>{title}</h2>
+          <SectionHeading eyebrow={eyebrow} title={title} />
         </div>
       </div>
       <div className="destinations-grid">

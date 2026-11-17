@@ -1,40 +1,13 @@
 import { lineUrl, mapsUrl } from "../socialLinks";
-import type { CSSProperties } from "react";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
-import { cssUrl } from "../safeCss";
-import BlockWrapper from "../BlockWrapper";
 import { renderWithPairs } from "../blockPairs";
 import { googleMapEmbedSrc, mapSrcForLocale } from "../safeHtml";
 import type { Locale } from "../i18n";
-import BlockFlow from "../home/blocks/BlockFlow";
-import BlockStays from "../home/blocks/BlockStays";
-import BlockGallery from "../home/blocks/BlockGallery";
-import BlockPathways from "../home/blocks/BlockPathways";
-import BlockEditorial from "../home/blocks/BlockEditorial";
-import BlockAbout from "../home/blocks/BlockAbout";
-import BlockFeatureList from "../property/blocks/BlockFeatureList";
-import BlockImageGallery from "../property/blocks/BlockImageGallery";
-import BlockRichText from "../property/blocks/BlockRichText";
-import BlockOembed from "../property/blocks/BlockOembed";
-import BlockVideoText from "../property/blocks/BlockVideoText";
-import BlockFeatureHero from "../property/blocks/BlockFeatureHero";
-import BlockAlternating from "../property/blocks/BlockAlternating";
-import ContactFormBlock from "./ContactFormBlock";
-import BlockNewsletter from "../home/blocks/BlockNewsletter";
-import BlockSearchBar from "../home/blocks/BlockSearchBar";
 import ContactOffices from "./ContactOffices";
-import BlockContactInfo from "../property/blocks/BlockContactInfo";
-import BlockHeroBanner from "../property/blocks/BlockHeroBanner";
-import BlockRooms from "../property/blocks/BlockRooms";
-import BlockMap from "../property/blocks/BlockMap";
-import BlockAttractions from "../property/blocks/BlockAttractions";
-import BlockPartners from "../property/blocks/BlockPartners";
-import BlockFeatureBadges from "../property/blocks/BlockFeatureBadges";
-import BlockFaqAccordion from "../property/blocks/BlockFaqAccordion";
-import BlockHouseRules from "../property/blocks/BlockHouseRules";
-import BlockTable from "../property/blocks/BlockTable";
 import { cfgT, eyebrowT } from "../tr";
 import { reportUnknownBlock } from "../unknownBlock";
+import { renderBlockType, SHARED_BLOCKS } from "../blockRegistry";
+import SectionHeading from "../SectionHeading";
 
 export type PageBlock = {
   id: string;
@@ -124,8 +97,7 @@ function ContactInfo({ config, locale, siteLine }: { config: Record<string, unkn
   const showPrimary = config.show_primary !== false;
   return (
     <section className="page-block page-block-contact">
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      {title && <h2>{title}</h2>}
+      <SectionHeading eyebrow={eyebrow} title={title} />
       {/* One labelled row — icon, what it is, then the value — rather than
           three bare lines of text. Without the labels a phone number and an
           address just stack up as anonymous strings, and the row is the shape
@@ -214,106 +186,14 @@ export default function PageBlocks({ blocks, locale, siteLine, siteSlug }: { blo
     <>
       {renderWithPairs<PageBlock>({
         blocks,
-        render: (block, cfg) => {
-          let el: React.ReactNode;
-          switch (block.type) {
-            /* Shared homepage blocks */
-            case "flow":
-              el = <BlockFlow key={block.id} locale={locale} config={cfg} />; break;
-            case "stays":
-              el = <BlockStays key={block.id} locale={locale} config={cfg} />; break;
-            case "gallery":
-              el = <BlockGallery key={block.id} locale={locale} config={cfg} />; break;
-            case "pathways":
-              el = <BlockPathways key={block.id} locale={locale} config={cfg} />; break;
-            case "editorial":
-              el = <BlockEditorial key={block.id} locale={locale} config={cfg} />; break;
-            case "about":
-              el = <BlockAbout key={block.id} locale={locale} config={cfg} />; break;
-            /* Property-specific blocks */
-            /* Was a local HeroBanner that read `config.image`/`image_url`. The
-               editor writes `images` (a carousel), plus height and the two
-               colour pickers — none of which that stub read, so a hero block on
-               a site page rendered with no background image and default
-               everything. The shared component reads all of them. */
-            case "hero_banner":
-              el = <BlockHeroBanner key={block.id} locale={locale} config={cfg} />; break;
-            /* Offered by the page-type palette and previewed with the property
-               renderer, so these looked fine in the admin and then rendered
-               nothing at all on a live site page. */
-            case "rooms":
-              el = <BlockRooms key={block.id} locale={locale} config={cfg} />; break;
-            case "map":
-              el = <BlockMap key={block.id} locale={locale} config={cfg} />; break;
-            case "attractions":
-              el = <BlockAttractions key={block.id} locale={locale} config={cfg} />; break;
-            case "partners":
-              el = <BlockPartners key={block.id} locale={locale} config={cfg} />; break;
-            case "rich_text":
-              // Shared with the property renderer — see BlockRichText for the
-              // sanitiser (this used to be the one rich-text path on the public
-              // site with no sanitiser at all) and the heading/eyebrow/split-image
-              // support this local copy never had.
-              el = <BlockRichText key={block.id} locale={locale} config={cfg} />; break;
-            case "feature_list":
-              el = <BlockFeatureList key={block.id} locale={locale as Locale} config={cfg} />; break;
-            case "image_gallery":
-              // Shared with the property renderer — brings the carousel/collage/
-              // centered layouts (incl. the single-image carousel treatment) that
-              // this local copy never had.
-              el = <BlockImageGallery key={block.id} locale={locale} config={cfg} />; break;
-            /* Shared with the property renderer — see the note above the
-               contact block for the six ways the local copies of these three
-               had drifted from it. */
-            case "faq_accordion":
-              el = <BlockFaqAccordion key={block.id} locale={locale} config={cfg} />; break;
-            case "house_rules":
-              el = <BlockHouseRules key={block.id} locale={locale} config={cfg} />; break;
-            case "table":
-              el = <BlockTable key={block.id} locale={locale} config={cfg} />; break;
-            /* 版型 (卡片／經典) was implemented only in BlockContactInfo, so on a
-               group content page the select did nothing. Rather than write the
-               classic layout a second time, hand the block to the component
-               that already draws it; 卡片 keeps this page's own treatment,
-               which is what /contact is designed around. */
-            case "contact_info":
-              el = cfg.layout === "classic"
-                ? <BlockContactInfo key={block.id} config={cfg} locale={locale as Locale} siteLine={siteLine} siteSlug={siteSlug} />
-                : <ContactInfo key={block.id} config={cfg} locale={locale} siteLine={siteLine} />;
-              break;
-            case "feature_badges":
-              el = <BlockFeatureBadges key={block.id} config={cfg} locale={locale as Locale} />; break;
-            case "oembed":
-              el = <BlockOembed key={block.id} locale={locale} config={cfg} />; break;
-            case "video_text":
-              el = <BlockVideoText key={block.id} locale={locale} config={cfg} />; break;
-            case "feature_hero":
-              el = <BlockFeatureHero key={block.id} locale={locale} config={cfg} />; break;
-            case "alternating":
-              el = <BlockAlternating key={block.id} locale={locale} config={cfg} />; break;
-            case "contact_form":
-              el = <ContactFormBlock key={block.id} config={cfg} locale={locale} siteLine={siteLine} />; break;
-            /* The subscribe band. The homepage and the property renderer both
-               had this block; the site-page renderer did not, so a managed page
-               — 聯絡我們 above all — could not carry a subscribe form at all and
-               the contact route had to hard-code one. */
-            /* The palette offers 住宿搜尋列 on every group page, and this
-               renderer had no case for it — so on /brand, /journal and the rest
-               it fell to reportUnknownBlock and the section came out empty.
-               Worse than silent: the editor previews a content page through the
-               PROPERTY renderer, which does have this case, so the block looked
-               right in the admin and was blank in public.
-               BlockSearchBar fetches the catalogue itself and needs nothing
-               from the page. */
-            case "search":
-              el = <BlockSearchBar key={block.id} locale={locale} config={cfg} />; break;
-            case "newsletter":
-              el = <BlockNewsletter key={block.id} locale={locale} config={cfg} siteSlug={siteSlug} />; break;
-            default:
-              el = reportUnknownBlock("PageBlocks", block.type);
-          }
-          return el;
-        },
+        render: (block, cfg) => renderBlockType(block.type, { key: block.id, locale, cfg, siteSlug, siteLine }, {
+          /* 版型 (卡片／經典): 經典 is the villa component, which the shared table
+             already draws; 卡片 is this page's own treatment, which /contact is
+             designed around. */
+          contact_info: (c) => (c.cfg.layout === "classic"
+            ? SHARED_BLOCKS.contact_info(c)
+            : <ContactInfo key={c.key} config={c.cfg} locale={c.locale} siteLine={c.siteLine} />),
+        }) ?? reportUnknownBlock("PageBlocks", block.type),
       })}
     </>
   );

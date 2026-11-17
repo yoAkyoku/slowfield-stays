@@ -1,6 +1,7 @@
 import type { Locale } from "../../i18n";
 import { cfgT, eyebrowT } from "../../tr";
 import FeatureIcon from "./FeatureIcon";
+import SectionHeading from "../../SectionHeading";
 
 /**
  * 特色亮點清單 — split out of the rich-text block (client: 特色亮點移出來，做成
@@ -41,8 +42,7 @@ export default function BlockFeatureList({ locale, config }: { locale: Locale; c
       {(eyebrow || heading) && (
         <div className="section-header">
           <div>
-            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-            {heading && <h2>{heading}</h2>}
+            <SectionHeading eyebrow={eyebrow} title={heading} />
           </div>
         </div>
       )}

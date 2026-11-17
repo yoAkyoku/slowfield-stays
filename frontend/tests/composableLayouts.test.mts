@@ -6,6 +6,7 @@ import { readCode, readStyles, cssRules, splitSelectorList } from "./readCode.mt
 import { BLOCK_LABELS, BLOCK_HINTS } from "../app/admin/modules/blockCatalogue.ts";
 import * as tr from "../app/modules/tr.ts";
 import { sharedModule } from "./sharedModules.mts";
+import { drawnTypes } from "./blockTypes.mts";
 
 /**
  * 八、內容頁版型 — the three layouts that could not be expressed before.
@@ -48,7 +49,7 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
     if (!(id in imports)) {
-      const shared = sharedModule(file, id);
+      const shared = sharedModule(file, id, (p, remap) => compile(p, remap(imports)));
       if (shared) return shared;
       throw new Error(`${file}: no stub for import "${id}"`);
     }
@@ -207,7 +208,7 @@ test("all three are registered everywhere a block has to be registered", () => {
     assert.ok(BLOCK_LABELS[type], `${type} is not in the palette catalogue`);
     assert.ok(BLOCK_HINTS[type], `${type} has no palette hint`);
     for (const file of RENDERERS) {
-      assert.ok(readCode(file).includes(`case "${type}"`), `${file} cannot draw ${type}`);
+      assert.ok(drawnTypes(file).has(type), `${file} cannot draw ${type}`);
     }
     // Both editors render the one BlockConfigForm, whose table maps a type to its form.
     assert.ok(readCode(CONFIG_FORM).includes(`${type}: form(`), `BlockConfigForm offers ${type} with no settings form`);
@@ -288,6 +289,8 @@ function headings(node: unknown): string[] {
   const walk = (n: unknown): void => {
     if (Array.isArray(n)) { n.forEach(walk); return; }
     if (!isEl(n)) return;
+    // A child component (SectionHeading) renders its own headings.
+    if (typeof n.type === "function") { walk((n.type as (p: unknown) => unknown)(n.props)); return; }
     if (typeof n.type === "string" && /^h[1-6]$/.test(n.type)) out.push(n.type);
     walk(n.props.children);
   };

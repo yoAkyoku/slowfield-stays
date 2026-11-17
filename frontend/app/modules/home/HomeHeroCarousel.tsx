@@ -329,7 +329,7 @@ export default function HomeHeroCarousel({
         );
       })}
       <div
-        /* Remounted per slide so the copy's entrance animation (site-refresh.css)
+        /* Remounted per slide so the copy's entrance animation (globals.css, site refresh layer)
            plays for each banner, not only the first. */
         key={active?.id ?? index}
         className={`hero-content${textShadow ? ` hero-copy--shadow-${textShadow}` : ""}${textBg ? " hero-copy--background" : ""}`}

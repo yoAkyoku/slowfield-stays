@@ -52,7 +52,7 @@ function heroGradientRules(): string[] {
 /**
  * One scrim is allowed back, and only one.
  *
- * The showcase redesign (app/site-refresh.css) puts white display type over
+ * The showcase redesign (the site refresh layer at the end of app/globals.css) puts white display type over
  * every section photo, which the measurements above say does not read without
  * help. So that file paints a single shared scrim — a pool of shade behind the
  * copy, not the old top-and-bottom wash that missed the text — and it steps

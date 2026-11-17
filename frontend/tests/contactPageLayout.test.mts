@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { existsSync, readFileSync } from "node:fs";
 import { readStyles, readCode, cssRules, splitSelectorList } from "./readCode";
+import { drawing, drawnTypes } from "./blockTypes.mts";
 
 /**
  * 聯絡我們 is edited from the page editor like every other managed page.
@@ -81,9 +82,9 @@ test("managed pages can carry the subscribe block", () => {
   // site-page renderer did not, so 聯絡我們 could not be given a subscribe form
   // from the page editor even though the editor offered the block. Composing
   // the contact page out of blocks depends on this case existing.
-  const src = readFileSync(BLOCKS, "utf8");
-  assert.match(src, /case "newsletter":/, "the newsletter block is unrenderable again");
-  assert.ok(src.includes("siteSlug={siteSlug}"), "subscriptions would land on the wrong site");
+  assert.ok(drawnTypes(BLOCKS).has("newsletter"), "the newsletter block is unrenderable again");
+  assert.match(drawing(BLOCKS, "newsletter") ?? "", /siteSlug=\{c\.siteSlug\}/, "the newsletter block is drawn without its site");
+  assert.match(readFileSync(BLOCKS, "utf8"), /renderBlockType\(block\.type, \{[^}]*\bsiteSlug\b/, "subscriptions would land on the wrong site");
 });
 
 test("the built-in subscribe is suppressed once a block provides it", () => {

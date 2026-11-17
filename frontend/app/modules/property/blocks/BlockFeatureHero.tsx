@@ -1,5 +1,6 @@
 import type { Locale } from "../../i18n";
 import { cfgT, eyebrowT } from "../../tr";
+import SectionHeading from "../../SectionHeading";
 
 /**
  * 主題大圖＋下方小項目 (客戶, 八、內容頁版型).
@@ -59,8 +60,7 @@ export default function BlockFeatureHero({
           <img src={image} alt="" loading="lazy" />
         </figure>
       )}
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      {title && <h2>{title}</h2>}
+      <SectionHeading eyebrow={eyebrow} title={title} />
       {body && (
         <div className="property-rich-text-body">
           <p>{body}</p>

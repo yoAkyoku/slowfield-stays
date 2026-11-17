@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import type { AdminContentTag, AdminSite } from "../../modules/adminApi";
 import SubmitButton from "../../modules/SubmitButton";
-import { Button, ButtonLink, buttonClass, Callout, Segmented } from "../../ui";
+import { Button, ButtonLink, buttonClass, Callout, Segmented, useConfirm } from "../../ui";
 import { Field, getVal, setVal } from "../../modules/blockFields";
 import FoldSection from "../../modules/FoldSection";
 import { BLOCK_LABELS, BLOCK_HINTS, groupTitle } from "../../modules/blockCatalogue";
@@ -134,6 +134,7 @@ export default function HomepageBlockEditor({
    *  useFormDraft, which is what puts the work back. */
   saveFailed?: boolean;
 }) {
+  const { ask } = useConfirm();
   const zh = locale === "zh";
   const history = useUndoableList<Block[]>(() => seedBlocks(initialBlocks));
   // Named so the ~15 existing call sites keep reading as ordinary state; the
@@ -235,7 +236,7 @@ export default function HomepageBlockEditor({
    *  from this list, so the dialog is the only thing between a mis-aimed click
    *  and a rebuilt block. The old prompt asked "刪除此版塊？" about no block in
    *  particular, which is not enough to catch aiming at the wrong row. */
-  const remove = useCallback((id: string) => {
+  const remove = useCallback(async (id: string) => {
     const block = blocks.find((b) => b.id === id);
     if (!block) return;
     if (blockHasContent(block)) {
@@ -243,7 +244,7 @@ export default function HomepageBlockEditor({
       const msg = zh
         ? `刪除「${name}」區塊？裡面的設定會一併移除，且無法復原。`
         : `Delete this "${name}" block? Its settings go with it and cannot be restored.`;
-      if (!window.confirm(msg)) return;
+      if (!(await ask({ tone: "danger", title: msg }))) return;
     }
     const index = blocks.findIndex((b) => b.id === id);
     setBlocks((cur) => cur.filter((b) => b.id !== id));
@@ -261,7 +262,7 @@ export default function HomepageBlockEditor({
     // A deleted block cannot anchor the next insert; hand the role to the heir
     // so an add straight after a delete still lands where the work was.
     if (anchorIdRef.current === id) anchorIdRef.current = heir ? heir.id : null;
-  }, [blocks, selectedId, zh, label, setBlocks]);
+  }, [blocks, selectedId, zh, label, setBlocks, ask]);
 
   // Runs after the delete has been committed, so the heir row exists.
   useEffect(() => {

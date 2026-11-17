@@ -7,6 +7,7 @@ import { cfgT , eyebrowT} from "../../tr";
 import { safeCssBackground, safeCssColor } from "../../fontPresets";
 import { safeHtml } from "../../safeHtml";
 import { PUBLIC_API_URL as API_URL } from "../../apiBase";
+import SectionHeading from "../../SectionHeading";
 
 export type BlockNewsletterConfig = {
   eyebrow?: string | Record<string, string>;
@@ -101,8 +102,7 @@ export default function BlockNewsletter({
             </span>
           )}
           <div className="block-newsletter-copy">
-          {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-          <h2>{title}</h2>
+          <SectionHeading eyebrow={eyebrow} title={title} />
           <p dangerouslySetInnerHTML={{ __html: safeHtml(body, { convertNewlines: true }) }} />
           </div>
         </div>

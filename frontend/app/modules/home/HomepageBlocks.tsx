@@ -1,36 +1,13 @@
 import type { ReactNode } from "react";
 import type { Banner } from "../api";
 import type { Locale } from "../i18n";
-import BlockFlow from "./blocks/BlockFlow";
-import BlockStays from "./blocks/BlockStays";
-import BlockGallery from "./blocks/BlockGallery";
-import BlockPathways from "./blocks/BlockPathways";
-import BlockEditorial from "./blocks/BlockEditorial";
-import BlockAbout from "./blocks/BlockAbout";
-import BlockNewsletter from "./blocks/BlockNewsletter";
 import BlockDestinations from "./blocks/BlockDestinations";
 import BlockArticles from "./blocks/BlockArticles";
-import BlockRichText from "../property/blocks/BlockRichText";
-import BlockFeatureList from "../property/blocks/BlockFeatureList";
-import BlockImageGallery from "../property/blocks/BlockImageGallery";
-import BlockMap from "../property/blocks/BlockMap";
-import BlockAttractions from "../property/blocks/BlockAttractions";
-import BlockPartners from "../property/blocks/BlockPartners";
-import BlockOembed from "../property/blocks/BlockOembed";
-import BlockVideoText from "../property/blocks/BlockVideoText";
-import BlockFeatureHero from "../property/blocks/BlockFeatureHero";
-import BlockAlternating from "../property/blocks/BlockAlternating";
-import BlockRooms from "../property/blocks/BlockRooms";
-import BlockFaqAccordion from "../property/blocks/BlockFaqAccordion";
-import BlockTable from "../property/blocks/BlockTable";
 import BlockContactInfo from "../property/blocks/BlockContactInfo";
-import BlockFeatureBadges from "../property/blocks/BlockFeatureBadges";
-import BlockHouseRules from "../property/blocks/BlockHouseRules";
-import ContactFormBlock from "../content/ContactFormBlock";
 import { blockStyle, safeAnchor } from "../blockStyle";
 import HomeHeroCarousel from "./HomeHeroCarousel";
-import BlockSearchBar from "./blocks/BlockSearchBar";
 import { reportUnknownBlock } from "../unknownBlock";
+import { renderBlockType, type BlockRenderer } from "../blockRegistry";
 import { renderWithPairs } from "../blockPairs";
 
 export type HomepageBlock = {
@@ -57,90 +34,32 @@ function renderBlock(
   extra: { banners?: Banner[]; siteSlug?: string; heroFallbacks?: { eyebrow: string; title: string; subtitle: string } },
 ): ReactNode {
   const { banners, siteSlug, heroFallbacks } = extra;
-  let el: ReactNode;
-  switch (block.type) {
-    case "flow":
-      el = <BlockFlow key={block.id} locale={locale} config={cfg} />; break;
-    case "stays":
-      el = <BlockStays key={block.id} locale={locale} config={cfg} />; break;
-    case "gallery":
-      el = <BlockGallery key={block.id} locale={locale} config={cfg} />; break;
-    case "pathways":
-      el = <BlockPathways key={block.id} locale={locale} config={cfg} />; break;
-    case "editorial":
-      el = <BlockEditorial key={block.id} locale={locale} config={cfg} />; break;
-    case "about":
-      el = <BlockAbout key={block.id} locale={locale} config={cfg} />; break;
-    case "newsletter":
-      el = <BlockNewsletter key={block.id} locale={locale} config={cfg} siteSlug={siteSlug} />; break;
-    case "destinations":
-      el = <BlockDestinations key={block.id} locale={locale} config={cfg} />; break;
-    case "articles":
-      el = <BlockArticles key={block.id} locale={locale} config={cfg} />; break;
-    case "rich_text":
-      el = <BlockRichText key={block.id} locale={locale} config={cfg} />; break;
-    case "feature_list":
-      el = <BlockFeatureList key={block.id} locale={locale} config={cfg} />; break;
-    case "search":
-      el = <BlockSearchBar key={block.id} locale={locale} config={cfg} />; break;
-    case "hero_banner":
-      // The group site's hero is its own carousel, not the villa one —
-      // rendering the villa hero here would have changed how the front
-      // page looks the moment anyone added the block.
-      el = (
-        <HomeHeroCarousel
-          key={block.id}
-          config={cfg}
-          banners={banners ?? []}
-          eyebrow={heroFallbacks?.eyebrow ?? ""}
-          fallbackTitle={heroFallbacks?.title ?? ""}
-          fallbackSubtitle={heroFallbacks?.subtitle ?? ""}
-          locale={locale}
-        />
-      ); break;
-    case "image_gallery":
-      el = <BlockImageGallery key={block.id} locale={locale} config={cfg} />; break;
-    case "map":
-      el = <BlockMap key={block.id} locale={locale} config={cfg} />; break;
-    case "attractions":
-      el = <BlockAttractions key={block.id} locale={locale} config={cfg} />; break;
-    case "partners":
-      el = <BlockPartners key={block.id} locale={locale} config={cfg} />; break;
-    // Offered by the homepage editor's block list, so leaving it out here meant
-    // an editor could add a social embed, save it, and get nothing on the page.
-    case "oembed":
-      el = <BlockOembed key={block.id} locale={locale} config={cfg} />; break;
-    case "video_text":
-      el = <BlockVideoText key={block.id} locale={locale} config={cfg} />; break;
-    case "feature_hero":
-      el = <BlockFeatureHero key={block.id} locale={locale} config={cfg} />; break;
-    case "alternating":
-      el = <BlockAlternating key={block.id} locale={locale} config={cfg} />; break;
-    // The same seven the villa renderer has always had. The homepage editor
-    // offers all of them with working config forms, so without these an admin
-    // could build a whole 入住須知 section, save it without error, and find the
-    // front page unchanged — the failure gave no sign it had happened.
-    case "rooms":
-      el = <BlockRooms key={block.id} locale={locale} config={cfg} />; break;
-    case "faq_accordion":
-      el = <BlockFaqAccordion key={block.id} locale={locale} config={cfg} />; break;
-    case "table":
-      el = <BlockTable key={block.id} locale={locale} config={cfg} />; break;
-    case "feature_badges":
-      el = <BlockFeatureBadges key={block.id} locale={locale} config={cfg} />; break;
-    case "house_rules":
-      el = <BlockHouseRules key={block.id} locale={locale} config={cfg} />; break;
-    // No siteLine is threaded through: that is a per-villa contact setting, and
-    // the group homepage has no villa. Both blocks fall back to the LINE id
-    // typed into their own config, which is the only one an admin can set here.
-    case "contact_info":
-      el = <BlockContactInfo key={block.id} locale={locale} config={cfg} />; break;
-    case "contact_form":
-      el = <ContactFormBlock key={block.id} locale={locale} config={cfg} />; break;
-    default:
-      el = reportUnknownBlock("HomepageBlocks", block.type);
-  }
-  return el;
+  /* What the brand homepage draws its own way; every other type comes from
+     the shared table in modules/blockRegistry. */
+  const own: Record<string, BlockRenderer> = {
+    destinations: (c) => <BlockDestinations key={c.key} locale={c.locale} config={c.cfg} />,
+    articles: (c) => <BlockArticles key={c.key} locale={c.locale} config={c.cfg} />,
+    // The group site's hero is its own carousel, not the villa one — rendering
+    // the villa hero here would have changed how the front page looks the
+    // moment anyone added the block.
+    hero_banner: (c) => (
+      <HomeHeroCarousel
+        key={c.key}
+        config={c.cfg}
+        banners={banners ?? []}
+        eyebrow={heroFallbacks?.eyebrow ?? ""}
+        fallbackTitle={heroFallbacks?.title ?? ""}
+        fallbackSubtitle={heroFallbacks?.subtitle ?? ""}
+        locale={c.locale}
+      />
+    ),
+    // No villa here, so no siteLine and no villa slug for the map label: the
+    // block falls back to the LINE id typed into its own config, which is the
+    // only one an admin can set on the group homepage.
+    contact_info: (c) => <BlockContactInfo key={c.key} locale={c.locale} config={c.cfg} />,
+  };
+  return renderBlockType(block.type, { key: block.id, locale, cfg, siteSlug }, own)
+    ?? reportUnknownBlock("HomepageBlocks", block.type);
 }
 
 // Every block gets the same wrapper, so the rule drawn between blocks has

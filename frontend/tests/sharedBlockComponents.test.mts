@@ -12,6 +12,7 @@ import * as unknownBlock from "../app/modules/unknownBlock.ts";
 import * as faqSchema from "../app/modules/faqSchema.ts";
 import { readCode, readStyles } from "./readCode.mts";
 import { sharedModule } from "./sharedModules.mts";
+import { drawing } from "./blockTypes.mts";
 
 /**
  * FAQ, 入住須知 and 表格 draw the same thing on a group content page as on a
@@ -71,7 +72,7 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
     if (!(id in imports)) {
-      const shared = sharedModule(file, id);
+      const shared = sharedModule(file, id, (p, remap) => compile(p, remap(imports)));
       if (shared) return shared;
       throw new Error(`${file}: no stub for import "${id}"`);
     }
@@ -365,19 +366,18 @@ test("a rule's detail is rendered once", () => {
 test("neither renderer draws these three blocks itself again", () => {
   /* The defect was two implementations of each. A `case` that builds its own
      markup instead of naming the shared component has started a third. */
-  for (const [file, assign] of [
-    ["app/modules/content/PageBlocks.tsx", "el ="],
-    ["app/modules/property/PropertyPageRenderer.tsx", "return"],
-  ] as const) {
-    const src = readCode(file);
+  for (const file of [
+    "app/modules/content/PageBlocks.tsx",
+    "app/modules/property/PropertyPageRenderer.tsx",
+  ]) {
     for (const [type, component] of [
       ["faq_accordion", "BlockFaqAccordion"],
       ["house_rules", "BlockHouseRules"],
       ["table", "BlockTable"],
     ] as const) {
       assert.match(
-        src,
-        new RegExp(`case "${type}":\\s*${assign}\\s*<${component}\\b`),
+        drawing(file, type) ?? "",
+        new RegExp(`^<${component}\\b`),
         `${file} no longer hands ${type} to ${component}`,
       );
     }

@@ -303,15 +303,12 @@ img {
   /* Nav / menu / CTA use the UI font, kept separate from the page content fonts
      so a content preset (e.g. kai 楷書) never makes the chrome hard to read. */
   font-family: var(--font-ui);
-  background: transparent;
   border-bottom: 1px solid transparent;
-  color: var(--white);
   min-height: 92px;
   position: sticky;
   top: 0;
   z-index: 20;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 22px clamp(24px, 4vw, 72px);
   transition: background 320ms ease, border-color 320ms ease, color 320ms ease, box-shadow 320ms ease, transform 320ms ease;
@@ -321,9 +318,7 @@ img {
 .site-header.is-hidden { transform: translateY(-100%); }
 
 .site-header.is-scrolled {
-  background: rgba(247, 245, 239, 0.94);
   border-bottom: 1px solid rgba(15, 15, 13, 0.07);
-  color: var(--ink);
   backdrop-filter: blur(20px);
   box-shadow: 0 1px 0 rgba(15, 15, 13, 0.04);
 }
@@ -565,16 +560,6 @@ img {
   z-index: -1;
 }
 
-.hero .eyebrow {
-  color: var(--r-eyebrow-color, rgba(255, 255, 255, 0.75));
-  letter-spacing: 0.2em;
-  display: block;
-  /* No margin override: the shared .eyebrow value is the one gap every block
-     uses. This carried 18px to clear a hero title that was italic with a tight
-     line-height; the title is upright now, and the exception was the reason
-     the hero sat apart from the other eyebrows on desktop. */
-}
-
 /* A hero slide may hold a video instead of a still; it has to cover the same
    box the background-image did, behind the copy. */
 .hero-slide video,
@@ -593,7 +578,6 @@ img {
   inset: 0;
   opacity: 0;
   position: absolute;
-  transition: opacity 900ms ease;
   z-index: -2;
 }
 
@@ -656,7 +640,6 @@ img {
 
 .hero-content {
   position: relative;
-  max-width: 1000px;
   /* The centre default lives here now, not in the JSX. It used to be written as
      an inline `textAlign` on every hero whether or not a banner had chosen one,
      and an inline declaration beats everything — so the block's own 對齊方式
@@ -724,14 +707,10 @@ img {
   /* The banner subtitle is the `body` role — it and the title used to share one
      alignment value on .hero-content, so a centred title forced a centred
      subtitle (客戶: 眉眼和標題的對齊是同步的，內容需要另外分開對齊). */
-  color: var(--r-body-color, inherit);
   text-align: var(--r-body-align, inherit);
   font-family: var(--r-body-font, var(--type-body-family, inherit));
-  font-size: var(--r-body-size, var(--type-body-size, clamp(16px, 1.6vw, 21px)));
   font-weight: var(--r-body-weight, var(--type-body-weight, inherit));
   line-height: var(--type-body-line, 1.6);
-  max-width: 580px;
-  opacity: 0.9;
   /* Matches the banner title above it, which has honoured a typed newline all
      along — the subtitle collapsed it to a space, so the two halves of the same
      banner behaved differently (客戶: banner 的副標也要能換行). pre-line rather
@@ -766,19 +745,13 @@ img {
 .hero-ctas {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 28px;
   /* justify-content comes from the per-banner inline style (follows 文字對齊). */
 }
 .hero-cta--primary,
 .hero-cta--ghost {
   margin-top: 0;
-  padding: 14px 30px;
   border-radius: 999px;
-  font-size: var(--r-cta-size, 13px);
-  letter-spacing: 0.04em;
   text-transform: none;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 .hero-cta--primary::after,
 .hero-cta--ghost::after { content: none; }
@@ -786,23 +759,20 @@ img {
   background: #fff;
   color: var(--r-cta-color, #16140f);
 }
-.hero-cta--primary:hover { transform: translateY(-2px); }
 .hero-cta--ghost {
   border: 1px solid rgba(255, 255, 255, 0.55);
   color: var(--r-cta-color, #fff);
 }
-.hero-cta--ghost:hover { background: rgba(255, 255, 255, 0.12); }
 
 /* 八代町-style scroll cue at the hero's bottom-centre. */
 .hero-scroll {
   position: absolute; left: 50%; bottom: clamp(20px, 3vw, 34px);
   transform: translateX(-50%); z-index: 2;
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  color: rgba(255, 255, 255, 0.82);
-  font: 600 10.5px/1 var(--font-ui); letter-spacing: 0.24em; text-transform: uppercase;
+  display: flex; flex-direction: column; align-items: center;
+  font: 600 10.5px/1 var(--font-ui); text-transform: uppercase;
   pointer-events: none;
 }
-.hero-scroll-line { width: 1px; height: 38px; background: linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0)); transform-origin: top; animation: heroScroll 1.9s ease-in-out infinite; }
+.hero-scroll-line { width: 1px; transform-origin: top; animation: heroScroll 1.9s ease-in-out infinite; }
 @keyframes heroScroll { 0% { transform: scaleY(0); opacity: 0; } 35% { opacity: 1; } 100% { transform: scaleY(1); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .hero-scroll-line { animation: none; opacity: 0.7; } }
 /* When carousel dots are present, lift the scroll cue so they don't overlap. */
@@ -1042,10 +1012,6 @@ img {
   color: var(--r-eyebrow-color, var(--muted));
   text-align: var(--r-eyebrow-align, inherit);
   text-transform: uppercase;
-  font-family: var(--r-eyebrow-font, var(--type-small-family, var(--font-ui)));
-  font-size: var(--r-eyebrow-size, var(--type-small-size, 11px));
-  letter-spacing: 0.18em;
-  font-weight: var(--r-eyebrow-weight, var(--type-small-weight, 600));
   display: block;
   /* One spacing value everywhere (client: 上下的間距要一樣). */
   margin: 0 0 12px;
@@ -1129,14 +1095,11 @@ img {
   grid-template-columns: 1fr;
   align-items: start;
   gap: 10px;
-  border: 1px solid rgba(214, 209, 197, 0.85);
   border-radius: 14px;
   padding: clamp(22px, 2.4vw, 32px);
-  background: rgba(255, 255, 255, 0.45);
   transition: transform 250ms ease, box-shadow 250ms ease, background 250ms ease;
 }
 .site-home .home-pathway-card:not(.has-image):hover {
-  background: #fff;
   transform: translateY(-3px);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07);
   padding-left: clamp(22px, 2.4vw, 32px);
@@ -1258,7 +1221,6 @@ img {
   gap: clamp(20px, 3vw, 44px);
   align-items: center;
   padding-bottom: 28px;
-  border-bottom: 1px solid var(--line);
 }
 .home-collection--list .home-collection-card-img { aspect-ratio: 3 / 2; }
 .home-collection--list .home-collection-card-body { padding: 0; }
@@ -1731,7 +1693,6 @@ img {
   display: flex; flex-direction: column;
   text-decoration: none; color: inherit;
   background: #fff;
-  border: 1px solid rgba(20, 20, 18, 0.07);
   /* Square, like every other card. This was the one rounded card in the system
      — it came in with its own "OA hotel" news styling — and once the cards took
      a black border the odd 14px corner was the only thing that did not match
@@ -1749,7 +1710,7 @@ img {
 /* OA Hotel-style date stamp on the cover: big day + month·year stacked. */
 .home-news-body { padding: clamp(18px, 2vw, 26px); display: flex; flex-direction: column; gap: 9px; flex: 1; }
 /* category label above the title (OA puts the category by the date) */
-.home-news-body h3 { font-family: var(--font-title); font-weight: 500; font-size: clamp(19px, 1.6vw, 23px); line-height: 1.3; margin: 0; }
+.home-news-body h3 { font-family: var(--font-title); line-height: 1.3; margin: 0; }
 /* Two classes, so this wins over the shared body-role group later in the file
    whose fallback is `inherit` (= 16px). That group's job is to thread the
    setting; this one carries the size the card was designed at, and without the
@@ -1781,11 +1742,9 @@ img {
 @media (max-width: 600px) { .home-news-grid { grid-template-columns: 1fr; } }
 
 /* ── Scroll reveal (progressive enhancement) ── */
-.home-reveal-ready .home-reveal { opacity: 0; transform: translateY(26px); }
+.home-reveal-ready .home-reveal { opacity: 0; }
 .home-reveal-ready .home-reveal.is-in {
   opacity: 1; transform: none;
-  transition: opacity 720ms cubic-bezier(0.22, 1, 0.36, 1), transform 720ms cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: calc(var(--reveal-i, 0) * 80ms);
 }
 
 /* ── Mobile sticky action bar (LINE + 立即預約) ── */
@@ -2026,7 +1985,6 @@ img {
 
 .home-pathway-card {
   align-items: center;
-  background: transparent;
   border: none;
   border-top: 1px solid rgba(214, 209, 197, 0.8);
   display: grid;
@@ -2059,7 +2017,6 @@ img {
   color: var(--r-title-color, var(--ink));
   font-family: var(--r-title-font, var(--font-title));
   font-size: var(--r-title-size, clamp(22px, 2.4vw, 36px));
-  font-weight: var(--r-title-weight, 500);
   line-height: 1.04;
   letter-spacing: -0.01em;
   text-align: var(--r-title-align, inherit);
@@ -2219,7 +2176,6 @@ img {
 }
 
 .home-booking-flow-steps div {
-  background: transparent;
   border: none;
   border-top: 1px solid rgba(15, 15, 13, 0.16);
   display: flex;
@@ -2242,7 +2198,6 @@ img {
 }
 
 .home-booking-flow-steps span {
-  color: rgba(15, 15, 13, 0.07);
   font-family: var(--font-title);
   font-size: clamp(72px, 8.5vw, 112px);
   line-height: 0.82;
@@ -2286,7 +2241,6 @@ img {
 .stays-index-hero {
   background-color: var(--paper);
   background-size: cover;
-  background-position: center 38%;
   display: flex;
   align-items: center;
   /* 頁面 Hero 高度, the same variable every other page hero reads. 78vh stays
@@ -2309,7 +2263,6 @@ img {
 }
 
 .stays-index-hero-copy .eyebrow {
-  color: var(--r-eyebrow-color, var(--muted));
   font-size: var(--r-eyebrow-size, var(--type-small-size, 11px));
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2319,18 +2272,13 @@ img {
    (client: eyebrow 改為純文字 沒有線條). */
 
 .stays-index-hero h1 {
-  color: var(--ink);
   font-family: var(--font-title);
-  font-size: clamp(36px, 6vw, 72px);
-  font-weight: 400;
   font-style: italic;
   line-height: 0.94;
   margin: 12px 0 18px;
-  letter-spacing: -0.02em;
 }
 
 .stays-index-hero p {
-  color: var(--muted);
   font-size: clamp(14px, 1.3vw, 17px);
   line-height: 1.7;
   max-width: 460px;
@@ -2344,30 +2292,15 @@ img {
 
 .stays-grid {
   display: grid;
-  column-gap: 28px;
-  row-gap: 72px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   padding-top: 36px;
 }
 
 .stay-card {
-  background: #ffffff;
-  border: 0;
-  overflow: hidden;
   min-height: 100%;
-  box-shadow: none;
-  padding: 0 0 10px;
-  transition: transform 180ms ease;
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto 1fr;
-  gap: 20px;
-}
-
-.stay-card:hover {
-  box-shadow: none;
-  transform: translateY(-2px);
 }
 
 .stay-card-link {
@@ -2393,7 +2326,6 @@ img {
 .stay-card-media {
   background: #ede8df;
   aspect-ratio: 4 / 3;
-  overflow: hidden;
   position: relative;
   /* The gallery reads a swipe (StayCard's touchstart/touchend pair). Under the
      default `auto` the browser may claim that same horizontal drag as a pan,
@@ -2423,7 +2355,6 @@ img {
      every photo and hover put it back, so a picture looked dull until the
      pointer touched it. Contrast is kept; the desaturation is not. */
   filter: contrast(1.03);
-  transition: opacity 260ms ease, transform 700ms ease, filter 220ms ease;
 }
 
 .stay-card-image.is-active {
@@ -2434,7 +2365,6 @@ img {
 
 .stay-card:hover .stay-card-image.is-active {
   filter: saturate(0.98) contrast(1.04);
-  transform: scale(1.025);
 }
 
 .stay-card-gallery-controls {
@@ -2539,7 +2469,6 @@ img {
   align-content: start;
   display: grid;
   gap: 0;
-  padding: 0;
 }
 
 .stay-card-copy {
@@ -2581,7 +2510,6 @@ img {
      down said 500 and won, so 500 is the figure this rule inherited in the one
      context where neither `.section h3` nor `.stays-grid` reaches it. */
   font-weight: var(--r-title-weight, var(--type-h3-weight, 500));
-  letter-spacing: -0.01em;
   margin: 0 0 4px;
 }
 
@@ -2707,7 +2635,6 @@ img {
   min-height: 2lh;
 }
 
-
 /* The framed body is the visible box, and it was sized to its text while the
    card around it was stretched to the tallest in the row. So the white boxes
    ended at different heights even though the cards did not
@@ -2763,7 +2690,6 @@ img {
   display: grid;
   gap: 24px;
   grid-template-columns: 1fr;
-  min-height: 360px;
   padding: clamp(54px, 8vw, 108px) var(--gutter);
 }
 
@@ -2773,8 +2699,6 @@ img {
   background-size: cover;
   background-position: center 40%;
   border-bottom: none;
-  margin-top: calc(-1 * var(--site-header-h, 76px));
-  padding-top: var(--site-header-h, 76px);
   /* Dead: the 頁面 Hero 高度 (--hero-h) block at the end of this file restates
      these same two selectors with `min-height: var(--hero-h, 78vh)` and wins. */
   min-height: 100vh;
@@ -2842,7 +2766,6 @@ img {
 .content-index-hero h1 {
   font-family: var(--r-title-font, var(--type-h1-family, var(--font-title)));
   font-size: var(--r-title-size, var(--type-h1-size, clamp(36px, 6vw, 72px)));
-  font-weight: var(--r-title-weight, var(--type-h1-weight, 600));
   line-height: var(--type-h1-line, 0.92);
   margin: 10px 0 22px;
 }
@@ -3013,15 +2936,8 @@ img {
 }
 
 .content-index-registry .content-card {
-  background: transparent;
-  border-width: 1px 0 0;
-  box-shadow: none;
   display: block;
   overflow: visible;
-}
-
-.content-index-registry .content-card:last-child {
-  border-bottom: 1px solid rgba(217, 205, 187, 0.95);
 }
 
 .content-card:nth-child(5n + 1) {
@@ -3044,7 +2960,6 @@ img {
 }
 
 .content-index-registry .content-card:hover {
-  background: rgba(255, 255, 255, 0.52);
   transform: none;
 }
 
@@ -3613,7 +3528,6 @@ img {
 }
 
 .journal-feature-image {
-  aspect-ratio: 16 / 9;
   overflow: hidden;
 }
 
@@ -3632,8 +3546,6 @@ img {
 
 .journal-feature-body {
   margin: 0 auto;
-  max-width: 620px;
-  padding: clamp(20px, 2.4vw, 30px) 0;
   text-align: center;
 }
 
@@ -3716,7 +3628,6 @@ img {
 .activity-featured-panel {
   color: var(--ink);
   display: grid;
-  gap: clamp(20px, 3vw, 40px);
   grid-template-columns: minmax(0, 0.5fr) minmax(0, 0.5fr);
   /* Contained rather than the full column width — same call as the journal
      lead card (client: 不要首張那麼大，其他頁面也是). */
@@ -3741,10 +3652,6 @@ img {
 .activity-featured-panel:hover .activity-featured-image img {
   filter: saturate(1) contrast(1.02);
   transform: scale(1.025);
-}
-
-.activity-featured-copy {
-  align-self: center;
 }
 
 .activity-featured-copy h2 {
@@ -3855,8 +3762,6 @@ img {
 }
 
 .footer {
-  background: var(--forest, var(--ink, #171915));
-  color: #fff;
   font-family: var(--font-ui);
   /* Was 13px, which the client read as too small. calc() so 版面 → 介面比例
      moves it without another deploy. */
@@ -3960,8 +3865,6 @@ img {
   border: 1px solid var(--accent-text, #8b6a43);
   border-radius: 999px;
   padding: 12px 22px;
-  background: var(--accent-text, #8b6a43);
-  color: #fff;
   font: 600 14px/1 var(--font-ui);
   letter-spacing: 0.04em;
   cursor: pointer;
@@ -4103,16 +4006,10 @@ img {
   display: grid;
   gap: 28px;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 0.36fr);
-  padding: clamp(54px, 8vw, 104px) 0 34px;
 }
 
 .contact-hero h1 {
   font-family: var(--r-title-font, var(--type-h1-family, var(--font-title)));
-  font-size: var(--r-title-size, var(--type-h1-size, clamp(48px, 7vw, 96px)));
-  font-weight: var(--r-title-weight, var(--type-h1-weight, 600));
-  line-height: var(--type-h1-line, 0.98);
-  margin: 10px 0 20px;
-  max-width: 980px;
 }
 
 .contact-hero p {
@@ -4125,9 +4022,6 @@ img {
 .contact-form-shell {
   align-items: start;
   display: grid;
-  gap: 24px;
-  grid-template-columns: minmax(260px, 0.34fr) minmax(0, 1fr);
-  padding-top: 28px;
 }
 
 .contact-form-shell h2 {
@@ -4322,10 +4216,6 @@ img {
 
   /* old footer grid overrides removed - new footer uses its own responsive rules */
 
-  .stays-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
   .stay-card,
   .stay-card:nth-child(6n + 1),
   .stay-card:nth-child(6n + 2),
@@ -4351,10 +4241,6 @@ img {
   .grid {
     grid-template-columns: 1fr;
     gap: 20px;
-  }
-
-  .stays-grid {
-    grid-template-columns: 1fr;
   }
 
   .stay-card,
@@ -5680,7 +5566,6 @@ button.is-pending {
 }
 
 .home-booking-flow-steps div {
-  background: #fbfaf5;
   border-color: rgba(17, 17, 17, 0.14);
 }
 
@@ -5720,22 +5605,8 @@ button.is-pending {
   color: var(--r-body-color, inherit);
   text-align: var(--r-body-align, inherit);}
 
-.stays-grid {
-  column-gap: 28px;
-  row-gap: 72px;
-}
-
 .stay-card {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
   padding: 0;
-  transition: transform 220ms ease;
-}
-
-.stay-card:hover {
-  box-shadow: none;
-  transform: translateY(-3px);
 }
 
 /* Three type levels shared one weight. As one rule it could only be threaded
@@ -5789,12 +5660,6 @@ button.is-pending {
     grid-template-columns: 1fr;
   }
 
-  .content-index-hero {
-    align-items: flex-start;
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-
   .content-index-hero > span {
     border-left: 0;
     border-top: 1px solid var(--line);
@@ -5805,12 +5670,6 @@ button.is-pending {
 
   .content-card-grid {
     grid-template-columns: 1fr;
-  }
-
-  .content-card,
-  .content-card:nth-child(5n + 1),
-  .content-card:nth-child(5n + 2) {
-    grid-column: auto;
   }
 
   .content-index-registry .content-card a {
@@ -5835,19 +5694,8 @@ button.is-pending {
     position: static;
   }
 
-  .content-detail-body {
-    border-left: 0;
-    border-top: 1px solid rgba(165, 109, 67, 0.28);
-    padding-left: 0;
-    padding-top: 22px;
-  }
-
   .home-pathways-intro {
     position: static;
-  }
-
-  .home-pathway-card {
-    grid-template-columns: 1fr;
   }
 
   .home-booking-flow-copy {
@@ -5915,14 +5763,6 @@ button.is-pending {
   .grid,
   .stays-grid {
     grid-template-columns: 1fr;
-  }
-
-  .stay-card,
-  .stay-card:nth-child(6n + 1),
-  .stay-card:nth-child(6n + 2),
-  .stay-card:nth-child(6n + 4),
-  .stay-card:nth-child(6n + 5) {
-    grid-column: auto;
   }
 
   .stay-detail-page {
@@ -6233,13 +6073,10 @@ button.is-pending {
 
 /* Hero: deep forest manifesto — white oversized headline */
 .content-index-brand .content-index-hero {
-  background-color: var(--forest);
   border-bottom-color: rgba(255, 255, 255, 0.1);
-  min-height: 640px;
 }
 
 .content-index-brand .content-index-hero h1 {
-  color: var(--r-title-color, var(--white));
   font-size: var(--r-title-size, var(--type-h1-size, clamp(36px, 6vw, 72px)));
   font-weight: var(--r-title-weight, var(--type-h1-weight, 300));
   letter-spacing: -0.055em;
@@ -6250,11 +6087,6 @@ button.is-pending {
 .content-index-brand .content-index-hero .eyebrow {
   color: var(--r-eyebrow-color, rgba(255, 255, 255, 0.4));
   letter-spacing: 0.22em;
-}
-
-.content-index-brand .content-index-hero p {
-  color: rgba(255, 255, 255, 0.58);
-  font-style: italic;
 }
 
 .content-index-brand .content-index-hero > span {
@@ -6279,27 +6111,10 @@ button.is-pending {
   padding-top: clamp(52px, 8vw, 104px);
 }
 
-.content-index-brand .content-card {
-  background: #1e261e;
-  border-color: rgba(255, 255, 255, 0.07);
-}
-
 .content-index-brand .content-card:hover {
   border-color: rgba(217, 185, 141, 0.4);
   box-shadow: 0 22px 64px rgba(0, 0, 0, 0.32);
   transform: translateY(-4px);
-}
-
-.content-index-brand .content-card h2 {
-  color: var(--r-title-color, var(--white));
-}
-
-.content-index-brand .content-card p {
-  color: rgba(255, 255, 255, 0.54);
-}
-
-.content-index-brand .content-card-meta {
-  color: #d9b98d;
 }
 
 /* Asymmetric: 8 / 4 / 4 / 8 / 12 rhythm */
@@ -6343,18 +6158,12 @@ button.is-pending {
 /* ── C. /dining — Dark Gastronomic Atmosphere ───────────────── */
 
 /* Page-level dark mode */
-.content-index-dining {
-  background: #111210;
-}
 
 .content-index-dining .content-index-hero {
-  background-color: #111210;
-  border-bottom-color: rgba(165, 109, 67, 0.2);
   min-height: 500px;
 }
 
 .content-index-dining .content-index-hero h1 {
-  color: var(--r-title-color, var(--white));
   font-style: italic;
   font-weight: var(--r-title-weight, var(--type-h1-weight, 400));
   letter-spacing: -0.03em;
@@ -6363,10 +6172,6 @@ button.is-pending {
 .content-index-dining .content-index-hero .eyebrow {
   color: var(--r-eyebrow-color, #d9b98d);
   letter-spacing: 0.2em;
-}
-
-.content-index-dining .content-index-hero p {
-  color: rgba(255, 255, 255, 0.54);
 }
 
 .content-index-dining .content-index-hero > span {
@@ -6384,36 +6189,18 @@ button.is-pending {
   padding-top: clamp(24px, 4vw, 48px);
 }
 
-.content-index-dining .content-card {
-  background: #1b1a17;
-  border-color: rgba(255, 255, 255, 0.07);
-}
-
 .content-index-dining .content-card:hover {
-  border-color: rgba(165, 109, 67, 0.48);
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.54);
   transform: translateY(-5px);
 }
 
 .content-index-dining .content-card h2 {
-  color: var(--r-title-color, var(--white));
-  font-style: italic;
   font-weight: var(--r-title-weight, var(--type-h2-weight, 400));
-}
-
-.content-index-dining .content-card p {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.content-index-dining .content-card-meta {
-  color: var(--r-eyebrow-color, #d9b98d);
 }
 
 /* Varying image heights for masonry feel */
 .content-index-dining .content-card-media {
   aspect-ratio: 4 / 3;
   min-height: 0;
-  background: linear-gradient(135deg, rgba(60, 30, 8, 0.88), rgba(22, 20, 16, 0.96));
 }
 
 .content-index-dining .content-card:nth-child(5n + 1) .content-card-media { aspect-ratio: 3 / 4; }
@@ -6423,14 +6210,8 @@ button.is-pending {
 /* ── D. /activities — Horizontal Scroll Timeline ────────────── */
 
 /* Hero: deep forest with large airy headline */
-.content-index-activity .content-index-hero {
-  background-color: var(--forest);
-  border-bottom-color: rgba(255, 255, 255, 0.09);
-  min-height: 540px;
-}
 
 .content-index-activity .content-index-hero h1 {
-  color: var(--r-title-color, var(--white));
   font-size: var(--r-title-size, var(--type-h1-size, clamp(36px, 6vw, 72px)));
   font-weight: var(--r-title-weight, var(--type-h1-weight, 300));
   letter-spacing: -0.044em;
@@ -6438,10 +6219,6 @@ button.is-pending {
 
 .content-index-activity .content-index-hero .eyebrow {
   color: var(--r-eyebrow-color, rgba(255, 255, 255, 0.48));
-}
-
-.content-index-activity .content-index-hero p {
-  color: rgba(255, 255, 255, 0.6);
 }
 
 .content-index-activity .content-index-hero > span {
@@ -6627,13 +6404,6 @@ button.is-pending {
   border-bottom-color: rgba(17, 17, 17, 0.09);
 }
 
-.contact-hero h1 {
-  font-size: var(--r-title-size, var(--type-h1-size, clamp(44px, 7vw, 104px)));
-  font-weight: var(--r-title-weight, var(--type-h1-weight, 300));
-  letter-spacing: -0.04em;
-  line-height: var(--type-h1-line, 0.94);
-}
-
 /* Gold left-line direct card — no filled background */
 
 /* Routing cards: outline only, no fill — accent on active */
@@ -6641,9 +6411,6 @@ button.is-pending {
 /* Form shell: 50/50 split, more breathing room */
 .contact-form-shell {
   grid-template-columns: 1fr 1fr;
-  gap: clamp(36px, 6vw, 80px);
-  padding-top: 52px;
-  padding-bottom: 96px;
 }
 
 /* Underline inputs — strip the box, keep only bottom line */
@@ -6654,30 +6421,15 @@ button.is-pending {
   padding: 0;
 }
 
-.contact-page .inquiry-form label {
-  position: relative;
-  padding-top: 20px;
-}
-
 .contact-page .inquiry-form label span {
-  position: absolute;
   top: 22px;
   left: 0;
-  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  color: var(--muted);
-  pointer-events: none;
-  transition: top 160ms ease, font-size 160ms ease, letter-spacing 160ms ease, color 160ms ease;
 }
 
 .contact-page .inquiry-form label:focus-within span {
-  top: 2px;
-  font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent);
 }
 
 .contact-page .inquiry-form input,
@@ -6708,9 +6460,7 @@ button.is-pending {
 /* Submit button: refined */
 .contact-page .inquiry-submit {
   align-items: center;
-  background: var(--ink);
   border: none;
-  color: var(--white);
   display: inline-flex;
   font-family: var(--font-ui);
   font-size: 12px;
@@ -6722,7 +6472,6 @@ button.is-pending {
   padding: 0 36px;
   text-transform: uppercase;
   transition: background 200ms ease;
-  width: auto;
   cursor: pointer;
 }
 
@@ -6796,34 +6545,9 @@ button.is-pending {
 /* ── 3. Light page palette — revert dark-mode overrides ─────── */
 
 /* Dining: warm cream (NOT midnight black) */
-.content-index-dining {
-  background: transparent;
-}
 
 .content-index-dining .content-index-hero {
-  background-color: #fdf8f2;
   border-bottom-color: rgba(165, 109, 67, 0.26);
-}
-
-.content-index-dining .content-index-hero h1 {
-  color: var(--r-title-color, #3d1f0a);
-}
-
-.content-index-dining .content-index-hero p {
-  color: rgba(61, 31, 10, 0.62);
-}
-
-.content-index-dining .content-card {
-  background: #fdf8f2;
-  border-color: rgba(165, 109, 67, 0.2);
-}
-
-.content-index-dining .content-card h2 {
-  color: var(--r-title-color, var(--ink));
-}
-
-.content-index-dining .content-card p {
-  color: var(--muted);
 }
 
 /* Brand: ivory paper + deep forest headline */
@@ -6866,17 +6590,8 @@ button.is-pending {
 
 /* Activities: ivory hero */
 .content-index-activity .content-index-hero {
-  background-color: var(--paper);
   border-bottom-color: rgba(40, 61, 52, 0.16);
   min-height: auto;
-}
-
-.content-index-activity .content-index-hero h1 {
-  color: var(--r-title-color, var(--ink));
-}
-
-.content-index-activity .content-index-hero p {
-  color: var(--muted);
 }
 
 /* ── 4. Contact: fix cramped text ───────────────────────────── */
@@ -7041,9 +6756,7 @@ button.is-pending {
   font-size: var(--r-cta-size, 11px);
   font-weight: var(--r-cta-weight, 700);
   gap: 8px;
-  letter-spacing: 0.13em;
   margin-top: 24px;
-  padding-bottom: 2px;
   text-transform: uppercase;
   transition: color 220ms ease;
   width: fit-content;
@@ -7212,8 +6925,6 @@ button.is-pending {
 }
 .block-about-feature-info h3 {
   font-family: var(--r-title-font, var(--font-title));
-  font-size: var(--r-title-size, clamp(14px, 1.4vw, 16px));
-  font-weight: var(--r-title-weight, 600);
   margin: 0 0 4px;
   letter-spacing: 0.02em;
   color: var(--r-title-color, inherit);
@@ -7321,7 +7032,6 @@ button.is-pending {
   padding: clamp(48px, 6vw, 80px) clamp(20px, 5vw, 80px);
   /* Contained (留白置中): a centred card with page background showing on both
      sides. This is the default; --bleed below stretches it edge-to-edge. */
-  max-width: 1240px;
   margin-inline: auto;
   border-radius: 22px;
 }
@@ -8337,7 +8047,6 @@ button.is-pending {
 .header-book {
   display: inline-flex; align-items: center;
   padding: 9px 18px; border-radius: 999px;
-  background: var(--forest, #2f4638); color: #fff;
   font: 600 12.5px/1 var(--font-ui); letter-spacing: 0.04em;
   text-decoration: none; white-space: nowrap;
   transition: transform 0.18s ease, opacity 0.18s ease;
@@ -8725,7 +8434,6 @@ button.is-pending {
        whole range these two share (1.6vw does not reach 16 until 1000px), so a
        17px cap made the subtitle GROW crossing down through 769px. Measured:
        16px at 770, 17px at 768. Same correction as the h1/h2/h3 caps. */
-    font-size: var(--r-body-size, var(--type-body-size, clamp(14px, 3.4vw, 16px)));
     line-height: var(--type-body-line, 1.6);
     max-width: 100%;
   }
@@ -8781,7 +8489,6 @@ button.is-pending {
        of this file is (0,1,0) too and LATER — a media query adds no specificity,
        so the 10px never applies. The phone figure is restated after that rule
        instead; see the `@media (max-width: 480px)` block beside it. */
-    font-size: var(--r-eyebrow-size, var(--type-small-size, 10px));
     letter-spacing: 0.14em;
   }
 }
@@ -8990,9 +8697,6 @@ button.is-pending {
 }
 .journal-mag-card--lead .journal-mag-card-image {
   aspect-ratio: 4 / 3;
-}
-.journal-mag-card-body {
-  padding: 16px 0 24px;
 }
 .journal-mag-card-tag {
   font: 600 11px/1 var(--font-ui);
@@ -9523,7 +9227,6 @@ button.is-pending {
      text at all — the copy is vertically centred, in the 0.1 band. Measured
      contribution to the H1: 3.14 with the full gradient, 2.54 with none, so the
      heavy foot came off and a light, even veil stayed. */
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.12) 50%, transparent 100%);
   pointer-events: none;
   z-index: 1;
 }
@@ -9739,7 +9442,6 @@ button.is-pending {
 /* Anchor offset so sticky header doesn't cover the scrolled-to section.
    Dead: superseded further down by the .property-anchor rule that measures the
    header via `calc(var(--property-header-h, 90px) + 14px)`. */
-.property-anchor { scroll-margin-top: 90px; }
 html { scroll-behavior: smooth; overflow-x: clip; }
 
 /* Read-only site editor — keep the layout readable, block every input,
@@ -10695,10 +10397,7 @@ html { scroll-behavior: smooth; overflow-x: clip; }
 /* Pulsing round marker — draws the eye to the villa's location (互動感). */
 .leaflet-pin span {
   display: block;
-  width: 16px;
-  height: 16px;
   border-radius: 50%;
-  background: var(--accent, #b78b58);
   border: 3px solid #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(183, 139, 88, 0.55);
   animation: pinPulse 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
@@ -11523,9 +11222,7 @@ h2.property-attraction-num,
 .property-room-media,
 .property-room-info { min-width: 0; }
 .property-room-media {
-  position: relative;
   border-radius: 14px;
-  overflow: hidden;
   box-shadow: 0 18px 44px rgba(15, 15, 13, 0.14);
   /* Column so the photo can take whatever height the row settles on — the copy
      side is often the taller of the two and the photo has to grow to meet it. */
@@ -11534,7 +11231,6 @@ h2.property-attraction-num,
 }
 .property-room-photo {
   display: block;
-  width: 100%;
   padding: 0;
   border: 0;
   background: none;
@@ -11545,7 +11241,6 @@ h2.property-attraction-num,
   flex: 1 1 auto;
   min-height: clamp(280px, 30vw, 420px);
 }
-.property-room-photo img { width: 100%; height: 100%; object-fit: cover; }
 .property-room-zoom-hint {
   position: absolute;
   inset: 0;
@@ -11612,13 +11307,11 @@ h2.property-attraction-num,
 .property-room-info {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 .property-room-heading {
   display: flex;
   align-items: baseline;
   gap: 14px;
-  margin-bottom: 22px;
 }
 .property-room-number {
   font-family: var(--font-title);
@@ -11989,8 +11682,6 @@ h2.property-attraction-num,
 /* ── Property Contact Info Block ── */
 
 /* Same centered column as FAQ / rich text */
-.property-contact {
-}
 
 .property-contact h2 {
   font-family: var(--font-title);
@@ -13031,13 +12722,6 @@ h2.property-attraction-num,
    shrank to a ~17px sliver. Nothing here has a min-content floor to stop it:
    `:where(.admin-workspace *) { min-width: 0 }` removes it. */
 
-@media (max-width: 900px) {
-
-  /* Declared after the base rule on purpose: same specificity, so source order
-     is what decides, and `flex: 1` would otherwise win and keep the title on
-     line one with a zero basis — about 53px, three characters per line. */
-}
-
 /* ── Page block: contact form ── */
 
 .page-block-contact-form {
@@ -13151,9 +12835,6 @@ h2.property-attraction-num,
    draws. The table keeps its 1200px. See tests/contentBlockParity.test.mts. */
 
 /* ── Page block: contact info ── */
-
-.page-block-contact { padding: var(--block-y) 0; }
-.page-block-contact h2 { font-family: var(--font-title); font-size: clamp(22px, 2.8vw, 32px); margin: 0 0 16px; }
 .page-block-contact-info p { margin: 4px 0; }
 .page-block-contact-info a { color: var(--accent); }
 .page-block-contact-map { margin-top: 24px; }
@@ -13964,13 +13645,9 @@ a.property-partner-card:hover {
      token, the site H1 scale, then the default. The banner control sits outermost
      because it is the most specific thing an author can have chosen
      (客戶: banner 字體需要能單獨改字體、大小、對齊). */
-  font-size: var(--r-title-size, var(--type-h1-size, var(--hero-title-size, clamp(32px, 5vw, 76px))));
-  font-weight: var(--r-title-weight, var(--type-h1-weight, 400));
-  line-height: var(--type-h1-line, 1.14);
   /* Hero uses the same face as the navbar and body text, not a display serif
      (客戶: hero 字體要和 navbar 與內文一樣). Default is the UI/navbar font; the
      admin H1 type-scale font still overrides it when set. */
-  font-family: var(--r-title-font, var(--type-h1-family, var(--font-ui)));
   color: var(--r-title-color, inherit);
   text-align: var(--r-title-align, inherit);
 }
@@ -13983,15 +13660,6 @@ a.property-partner-card:hover {
    (客戶: 手機標題斷字很醜). min() so the admin's own smaller choice still wins —
    this is a cap, not a replacement. */
 @media (max-width: 768px) {
-  .hero h1,
-  .property-hero-banner-content .property-hero-banner-title,
-  .content-index-hero h1 {
-    /* 32, the base clamp's floor, for the reason the h2 and h3 caps carry: at
-       44 the hero title grew crossing down through 768px (measured 38.5px at
-       769px, 44px at 768px). Below ~445px the 7.2vw arm renders and nothing
-       changes — a real phone was always on that arm. */
-    font-size: min(var(--r-title-size, var(--type-h1-size, var(--hero-title-size, 32px))), 7.2vw);
-  }
   .property-block-contained .section > h2,
   .property-block-contained .section > div > h2,
   .property-block-full-bleed .section > h2,
@@ -14182,17 +13850,12 @@ figcaption {
 
 /* ── The editing panel ── */
 
-
 /* The editor inside supplies its own legend; the panel bar already named it. */
 
 /* ── Search option editors (服務設施 / 民宿類型 / 人數級距) ──
    Two label columns and no machine-value column: the value is derived from the
    Chinese label, because the filter matches the tag stored on each villa and
    any other value silently matches nothing. */
-
-@media (max-width: 760px) {
-  /* The two label inputs stack; the action buttons keep their own row. */
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    卡片文字區：黑邊白底
@@ -14740,7 +14403,6 @@ a.property-partner-card,
   align-items: stretch;
   display: grid;
   gap: clamp(20px, 2.4vw, 36px);
-  grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr);
   margin: 0 auto;
   max-width: 1040px;
   padding: clamp(40px, 5vw, 76px) var(--gutter) clamp(64px, 8vw, 120px);
@@ -15186,7 +14848,6 @@ a.property-partner-card,
   /* A hero with no photo hugs its own copy on a phone — restated here because
      being last in the file means this block also outranks the `min-height: auto`
      rule that used to do it, media query or not. */
-  .content-index-hero { min-height: auto; }
   /* The 52vh cap used to override the admin here, so a page set to 全螢幕
      opened half-height on a phone. The setting is the setting on every screen
      (客戶: 母站的 hero 在 RWD 也要根據後台設定). The 46vh fallback still
@@ -15223,13 +14884,6 @@ a.property-partner-card,
    therefore unreachable on touch: an admin on a tablet could open a record but
    never delete or approve one. Keyboard was always fine (:focus-within), touch
    was not. Where there is no hover, the bar just stays visible. */
-@media (hover: none) {
-
-  /* The block editor's per-block controls are a worse case than the bars above:
-     they have no `pointer-events: none`, so on a phone they were invisible but
-     still live — 刪除 sat under a transparent strip on every article block and
-     fired on a stray tap. */
-}
 
 /* A grid item's automatic minimum size is its min-content width, so the wide
    admin tables (.cms-record-table is min-width: 980px by design) pushed their
@@ -15657,10 +15311,6 @@ a.property-partner-card,
    Only offices that carry a note become <details>; the grid that lays out the
    row moves onto the <summary>, because the card itself is now the disclosure
    wrapper. */
-.contact-office.has-note {
-  display: block;
-  padding: 0;
-}
 
 .contact-office-summary {
   display: grid;
@@ -15794,7 +15444,6 @@ a.property-partner-card,
 
 .contact-page .block-newsletter-inner {
   align-items: center;
-  display: grid;
   gap: clamp(16px, 3vw, 48px);
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
 }
@@ -15837,7 +15486,6 @@ a.property-partner-card,
 
 .contact-page .block-newsletter-form {
   align-items: center;
-  display: grid;
   gap: 12px;
   grid-template-columns: minmax(0, 1fr) auto;
 }
@@ -16227,7 +15875,6 @@ a.property-partner-card,
   padding-block: var(--block-y, clamp(28px, 3.4vw, 52px));
 }
 
-
 /* ── about 區塊：圖片高度對齊旁邊的欄位 ──────────────────────────────────────
    Side by side, the image stopped at its own natural height (capped at 480px)
    while the copy column — heading, paragraphs and a list of features — ran on
@@ -16486,7 +16133,6 @@ a.property-partner-card,
   }
 }
 
-
 /* ── 卡片兩行保留：行高必須是數值 ────────────────────────────────────────
    The two-line reserve above uses `lh`, which resolves from the COMPUTED
    line-height. These cards were computing `normal`, because the type-scale
@@ -16521,7 +16167,6 @@ a.property-partner-card,
 .home-news-body p {
   line-height: var(--type-body-line, 1.7);
 }
-
 
 /* ── Hero vs the sticky header ────────────────────────────────────────────
    Pulling a hero up behind the header only works while the header can be seen
@@ -16562,7 +16207,6 @@ a.property-partner-card,
   }
 }
 
-
 /* ── 頁面 Hero 的自訂換行 ──────────────────────────────────────────────────
    A newline typed into 頁面編輯's Hero 標題 / 副標題 breaks the line exactly
    there, the same way the homepage banner title already does. pre-line rather
@@ -16576,7 +16220,6 @@ a.property-partner-card,
 .page-hero p {
   white-space: pre-line;
 }
-
 
 /* ── 頁面主視覺 · 分割版型 ────────────────────────────────────────────
    The photograph beside the words rather than behind them: it runs off its own
@@ -16864,3 +16507,822 @@ a.property-partner-card,
 .category-picker-undo button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px; background: white; font: inherit; cursor: pointer; }
 
 /* Keep tag usage out of the table row; open the full relation list on demand. */
+
+/* ════════════════════════════════════════════════════════════════════════
+   Site refresh — the public site's visual layer.
+
+   The last section of this file, so a rule here wins over the same selector
+   earlier on. (It was a separate stylesheet loaded after this one; the two are
+   one file now, in the same order, so nothing about the cascade changed.) It restyles; it does not restructure: every admin
+   setting that globals.css exposes as a custom property (--r-*, --type-*,
+   --hero-title-size, --block-pad-x …) is still read first, and this file only
+   changes the value used when nothing was chosen.
+
+   The brief: the first screen has to hold the eye inside three seconds and
+   make the next screen visibly worth scrolling to.
+   ════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --rf-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rf-ink: #17201a;
+  --rf-forest: #22352b;
+  --rf-cream: #f6f2ea;
+  --rf-sand: #ece5d8;
+  --rf-bronze: #b78b58;
+  --rf-radius: 20px;
+  --rf-shadow: 0 30px 70px -32px rgba(23, 32, 26, 0.38);
+}
+
+/* ── 1. Hero ─────────────────────────────────────────────────────────────
+   A photo with white text on it needs somewhere dark for the text to sit.
+   Three soft layers instead of one flat veil: a top fade for the header, a
+   pool of shade behind the copy, and a foot for the controls. The middle of
+   the picture — the part people look at — is left almost untouched. */
+.hero::before {
+  background:
+    linear-gradient(180deg, rgba(14, 20, 16, 0.5) 0%, rgba(14, 20, 16, 0) 24%),
+    radial-gradient(ellipse 62% 46% at 50% 54%, rgba(14, 20, 16, 0.46), rgba(14, 20, 16, 0) 72%),
+    linear-gradient(180deg, rgba(14, 20, 16, 0) 58%, rgba(14, 20, 16, 0.62) 100%);
+}
+.hero--v-bottom::before {
+  background:
+    linear-gradient(180deg, rgba(14, 20, 16, 0.5) 0%, rgba(14, 20, 16, 0) 24%),
+    linear-gradient(180deg, rgba(14, 20, 16, 0) 40%, rgba(14, 20, 16, 0.72) 100%);
+}
+
+/* Slow push-in on the photo while its slide is up. The outgoing slide holds
+   its scale until it has finished fading, so nothing snaps back in view. */
+.hero-slide {
+  transform: scale(1);
+  transition: opacity 1.4s ease, transform 0s linear 1.5s;
+  will-change: opacity, transform;
+}
+.hero-slide.is-active {
+  transform: scale(1.075);
+  transition: opacity 1.4s ease, transform 11s cubic-bezier(0.2, 0.6, 0.3, 1);
+}
+
+.hero-content { max-width: 1180px; }
+
+.hero .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  font-size: var(--r-eyebrow-size, var(--type-small-size, clamp(11px, 0.85vw, 13px)));
+  letter-spacing: 0.42em;
+  color: var(--r-eyebrow-color, rgba(255, 255, 255, 0.92));
+  margin-bottom: clamp(18px, 2vw, 30px);
+}
+.hero .eyebrow::before,
+.hero .eyebrow::after {
+  content: "";
+  width: clamp(28px, 4vw, 64px);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.hero h1,
+.property-hero-banner-content .property-hero-banner-title,
+.content-index-hero h1 {
+  font-family: var(--r-title-font, var(--type-h1-family, var(--font-title)));
+  font-size: var(--r-title-size, var(--type-h1-size, var(--hero-title-size, clamp(40px, 6.4vw, 108px))));
+  font-weight: var(--r-title-weight, var(--type-h1-weight, 500));
+  line-height: var(--type-h1-line, 1.12);
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 30px rgba(10, 14, 11, 0.35);
+}
+.hero h1 { margin-bottom: clamp(18px, 2vw, 30px); }
+
+.hero p {
+  font-size: var(--r-body-size, var(--type-body-size, clamp(16px, 1.35vw, 21px)));
+  letter-spacing: 0.08em;
+  opacity: 1;
+  color: var(--r-body-color, rgba(255, 255, 255, 0.94));
+  text-shadow: 0 1px 18px rgba(10, 14, 11, 0.45);
+  max-width: 640px;
+}
+
+.hero-ctas { margin-top: clamp(28px, 3vw, 44px); gap: 16px; }
+.hero-cta--primary,
+.hero-cta--ghost {
+  padding: 17px 38px;
+  font-size: var(--r-cta-size, 14.5px);
+  letter-spacing: 0.14em;
+  transition: background 0.3s var(--rf-ease), color 0.3s var(--rf-ease), transform 0.3s var(--rf-ease), box-shadow 0.3s var(--rf-ease);
+}
+.hero-cta--primary { box-shadow: 0 18px 40px -18px rgba(10, 14, 11, 0.7); }
+.hero-cta--primary:hover { transform: translateY(-3px); box-shadow: 0 24px 46px -18px rgba(10, 14, 11, 0.8); }
+.hero-cta--ghost {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.hero-cta--ghost:hover { background: #fff; color: var(--rf-ink); transform: translateY(-3px); }
+
+/* The copy arrives in order — eyebrow, title, line, buttons — each time a
+   slide comes up (HomeHeroCarousel remounts .hero-content per slide). */
+@keyframes rfRise {
+  from { opacity: 0; transform: translateY(34px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rfFade { from { opacity: 0; } to { opacity: 1; } }
+.hero-content > * { animation: rfRise 1.1s var(--rf-ease) both; }
+.hero-content > .eyebrow { animation-delay: 0.15s; }
+.hero-content > h1 { animation-delay: 0.3s; animation-duration: 1.3s; }
+.hero-content > p { animation-delay: 0.55s; }
+.hero-content > .hero-ctas { animation-delay: 0.75s; }
+
+/* Scroll cue: big enough to be read as an invitation. */
+.hero-scroll {
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: rgba(255, 255, 255, 0.9);
+  animation: rfFade 1s ease 1.3s both;
+}
+.hero-scroll-line { height: 56px; background: linear-gradient(#fff, rgba(255, 255, 255, 0)); }
+
+@media (max-width: 768px) {
+  .hero h1,
+  .property-hero-banner-content .property-hero-banner-title,
+  .content-index-hero h1 {
+    font-size: min(var(--r-title-size, var(--type-h1-size, var(--hero-title-size, 46px))), 10.4vw);
+    letter-spacing: 0.04em;
+  }
+  .hero .eyebrow { letter-spacing: 0.3em; gap: 10px; }
+  .hero p { font-size: var(--r-body-size, var(--type-body-size, 16px)); letter-spacing: 0.04em; }
+  .hero-ctas { flex-direction: column; align-items: stretch; width: min(100%, 300px); margin-inline: auto; }
+  .hero-cta--primary, .hero-cta--ghost { justify-content: center; padding: 16px 24px; }
+}
+
+/* ── 2. Search bar floats over the foot of the hero ───────────────────────
+   The classic hotel-site move: the next thing to do is already on the first
+   screen, half over the photo, so the page reads as continuing. Desktop only —
+   on a phone the form stacks to several rows and would cover the picture. */
+@media (min-width: 1024px) {
+  .site-home .home-block:has(> .home-stays-search-wrap) {
+    position: relative;
+    z-index: 6;
+    margin-top: -168px;
+    padding-top: 0;
+  }
+  .site-home .home-stays-search-wrap {
+    margin: 0 auto;
+    padding: 26px 30px 30px;
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 26px;
+    box-shadow: 0 40px 90px -40px rgba(14, 20, 16, 0.55), 0 0 0 1px rgba(23, 32, 26, 0.05);
+    animation: rfRise 1.1s var(--rf-ease) 0.95s both;
+  }
+  .site-home .home-stays-search-head { margin-bottom: 16px; }
+  .site-home .home-stays-search-head h2 {
+    font-size: var(--r-title-size, var(--type-h2-size, clamp(17px, 1.35vw, 21px)));
+    letter-spacing: 0.18em;
+    color: var(--r-title-color, var(--rf-forest));
+  }
+  .site-home .home-stays-search-wrap .ssb { box-shadow: none; border: 1px solid rgba(23, 32, 26, 0.1); }
+  /* Lift the hero's own furniture clear of the card. */
+  .site-home .hero-carousel .hero-carousel-controls { bottom: 196px; }
+  .site-home .hero-carousel .hero-scroll,
+  .site-home .hero-carousel:has(.hero-carousel-controls) .hero-scroll { display: none; }
+  .site-home .hero.hero-carousel .hero-content { padding-bottom: 150px; }
+}
+
+/* ── 3. Section headings ───────────────────────────────────────────────── */
+.eyebrow {
+  letter-spacing: 0.32em;
+}
+.site-home .section-header h2,
+.site-home .block-about h2,
+.site-home .home-pathways-intro h2,
+.site-home .editorial-feature h2,
+.content-index .section-header h2 {
+  font-size: var(--r-title-size, var(--type-h2-size, clamp(30px, 3.3vw, 52px)));
+  letter-spacing: 0.05em;
+  line-height: 1.25;
+}
+.site-home .section-header .eyebrow,
+.site-home .block-about .eyebrow,
+.site-home .home-pathways-intro .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.site-home .section-header .eyebrow::before,
+.site-home .block-about .eyebrow::before,
+.site-home .home-pathways-intro .eyebrow::before {
+  content: "";
+  width: 36px;
+  height: 1px;
+  background: var(--accent, var(--rf-bronze));
+}
+.site-home .section { padding-block: clamp(48px, 5.4vw, 92px); }
+.stay-card-cta { margin-top: 14px; }
+
+/* ── 4. Stay cards ─────────────────────────────────────────────────────── */
+.stay-card {
+  border-radius: var(--rf-radius);
+  overflow: hidden;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(23, 32, 26, 0.06), 0 22px 50px -38px rgba(23, 32, 26, 0.4);
+  transition: transform 0.6s var(--rf-ease), box-shadow 0.6s var(--rf-ease);
+}
+.stay-card:hover { transform: translateY(-8px); box-shadow: var(--rf-shadow); }
+.stay-card-media { overflow: hidden; }
+.stay-card-image { transition: opacity 0.6s ease, transform 1.4s var(--rf-ease); }
+.stay-card:hover .stay-card-image.is-active { transform: scale(1.06); }
+.stay-card-body h3 { letter-spacing: 0.04em; }
+.site-home .home-collection--grid .stay-card-media { aspect-ratio: 4 / 3.2; }
+
+/* ── 5. About: copy beside a tall photograph ───────────────────────────── */
+.site-home .block-about--has-image {
+  gap: clamp(36px, 6vw, 110px);
+}
+.site-home .block-about--has-image :is(img, .about-image-carousel) {
+  border-radius: var(--rf-radius);
+  box-shadow: var(--rf-shadow);
+}
+.site-home .block-about-body p { font-size: var(--r-body-size, var(--type-body-size, clamp(15px, 1.15vw, 18px))); line-height: 2; }
+.block-about-cta {
+  position: relative;
+  text-decoration: none;
+  padding-bottom: 6px;
+  letter-spacing: 0.14em;
+}
+.block-about-cta::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform-origin: right;
+  transition: transform 0.5s var(--rf-ease);
+}
+.block-about-cta:hover::after { transform: scaleX(0.35); transform-origin: left; }
+
+/* ── 6. Pathways: four doors ───────────────────────────────────────────── */
+.site-home .home-pathway-card {
+  position: relative;
+  border-radius: var(--rf-radius);
+  overflow: hidden;
+  transition: transform 0.6s var(--rf-ease), box-shadow 0.6s var(--rf-ease), background 0.5s ease, color 0.5s ease;
+}
+.site-home .home-pathway-card:hover { transform: translateY(-6px); box-shadow: var(--rf-shadow); }
+.site-home .home-pathway-card:not(.has-image) { border: 1px solid rgba(23, 32, 26, 0.08); background: #fff; }
+.site-home .home-pathway-card:not(.has-image):hover { background: var(--rf-forest); color: #fff; }
+.site-home .home-pathway-card:not(.has-image):hover :is(strong, p, span) { color: inherit; }
+
+/* With a photo, the card is the photo: the picture sits on its own layer so it
+   can push in on hover, and the copy stacks at the foot instead of being
+   pinned at two fixed offsets (which overlapped once the title wrapped). */
+.site-home .home-pathway-card.has-image {
+  min-height: clamp(300px, 31vw, 460px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: clamp(20px, 2.2vw, 32px);
+  border: 0;
+  background: var(--rf-forest);
+  isolation: isolate;
+}
+.site-home .home-pathway-card.has-image .pathway-thumb {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: auto;
+  height: auto;
+  margin: 0;
+  border-radius: 0;
+  background: var(--pathway-img) center / cover no-repeat;
+  transition: transform 1.4s var(--rf-ease);
+}
+.site-home .home-pathway-card.has-image::before,
+.site-home .home-pathway-card.has-image:hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(14, 20, 16, 0.05) 30%, rgba(14, 20, 16, 0.8) 100%);
+}
+.site-home .home-pathway-card.has-image:hover .pathway-thumb { transform: scale(1.07); }
+.site-home .home-pathway-card.has-image :is(strong, p) { position: static; }
+.site-home .home-pathway-card.has-image strong {
+  font-size: var(--r-title-size, clamp(22px, 1.9vw, 30px));
+  letter-spacing: 0.08em;
+}
+.site-home .home-pathway-card.has-image p {
+  margin: 0;
+  color: var(--r-body-color, rgba(255, 255, 255, 0.88));
+}
+
+/* ── 7. Article feature ────────────────────────────────────────────────── */
+.site-home .article-feature-main { border-radius: var(--rf-radius); overflow: hidden; }
+.site-home .article-feature-main img { transition: transform 1.4s var(--rf-ease); }
+.site-home .article-feature-main:hover img { transform: scale(1.04); }
+
+/* ── 8. Reveal: a touch more travel, and children arrive in sequence ───── */
+.home-reveal-ready .home-reveal { transform: translateY(44px); }
+.home-reveal-ready .home-reveal.is-in {
+  transition: opacity 1s var(--rf-ease), transform 1s var(--rf-ease);
+  transition-delay: calc(var(--reveal-i, 0) * 110ms);
+}
+
+/* ── 9. Inner page heroes ──────────────────────────────────────────────── */
+.content-index-hero,
+.page-hero {
+  position: relative;
+}
+.content-index-hero h1 { animation: rfRise 1.1s var(--rf-ease) 0.15s both; }
+.content-index-hero p { animation: rfRise 1.1s var(--rf-ease) 0.35s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide, .hero-slide.is-active { transform: none; transition: opacity 0.3s ease; }
+  .hero-content > *, .hero-scroll, .content-index-hero h1, .content-index-hero p,
+  .site-home .home-stays-search-wrap { animation: none; }
+  .stay-card, .stay-card-image, .site-home .home-pathway-card, .pathway-thumb { transition: none; }
+}
+
+/* ── 10. Homepage layout corrections ───────────────────────────────────── */
+/* Pathways: the heading on top, then one row of four tall photo cards. The old
+   layout pinned the heading in a narrow left column and squeezed the cards into
+   a 2×2 beside it, which left them too short to show their photos. */
+.site-home .home-pathways-section { grid-template-columns: minmax(0, 1fr); }
+.site-home .home-pathways-intro {
+  position: static;
+  text-align: var(--r-title-align, center);
+  max-width: 720px;
+  margin-inline: auto;
+}
+.site-home .home-pathways-intro .eyebrow { justify-content: center; }
+.site-home .home-pathways-section .home-pathways-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 1.4vw, 22px);
+}
+.site-home .home-pathway-card.has-image :is(strong, p) { text-align: left; }
+@media (max-width: 1023px) {
+  .site-home .home-pathways-section .home-pathways-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-home .home-pathway-card.has-image { min-height: clamp(220px, 46vw, 360px); }
+}
+@media (max-width: 520px) {
+  .site-home .home-pathways-section .home-pathways-grid { grid-template-columns: minmax(0, 1fr); }
+  .site-home .home-pathway-card.has-image { min-height: 240px; }
+}
+
+/* The lead article's photo was a 3:4 portrait in a wide column — two screens
+   tall on a laptop. Landscape keeps the story and its neighbours on one screen. */
+.site-home .article-feature-img {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--rf-radius);
+}
+.site-home .article-feature-img img { filter: none; }
+
+/* Closing section: centred like its heading, with a real button. */
+:is(.site-home, .content-index) .editorial-feature { align-items: center; }
+:is(.site-home, .content-index) .editorial-feature .block-about-cta {
+  align-self: var(--r-cta-self, center);
+  margin-top: clamp(26px, 3vw, 40px);
+  padding: 17px 40px;
+  border-radius: 999px;
+  background: var(--rf-forest);
+  color: var(--r-cta-color, #fff);
+  font-size: var(--r-cta-size, 14.5px);
+  letter-spacing: 0.14em;
+  transition: transform 0.3s var(--rf-ease), box-shadow 0.3s var(--rf-ease), background 0.3s ease;
+}
+:is(.site-home, .content-index) .editorial-feature .block-about-cta::after { content: none; }
+:is(.site-home, .content-index) .editorial-feature .block-about-cta:hover {
+  transform: translateY(-3px);
+  background: var(--rf-ink);
+  box-shadow: 0 22px 44px -20px rgba(23, 32, 26, 0.7);
+}
+:is(.site-home, .content-index) .editorial-feature-media { border-radius: var(--rf-radius); overflow: hidden; box-shadow: var(--rf-shadow); }
+
+/* ── 11. Inner-page and villa-site heroes with a photo ─────────────────── */
+/* Same idea as the homepage hero: shade only where the words are. */
+/* A page that sets its own Hero 遮罩 in the admin keeps that and gets no scrim
+   from here: the setting has to stay the last word. */
+.content-index-hero.has-hero-image:not(.has-hero-mask)::before,
+.contact-hero.has-hero-image:not(.has-hero-mask)::before,
+.stays-index-hero[style*="background-image"]:not(.has-hero-mask)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(14, 20, 16, 0.46) 0%, rgba(14, 20, 16, 0) 26%),
+    radial-gradient(ellipse 64% 50% at 50% 52%, rgba(14, 20, 16, 0.5), rgba(14, 20, 16, 0) 72%),
+    linear-gradient(180deg, rgba(14, 20, 16, 0) 62%, rgba(14, 20, 16, 0.4) 100%);
+}
+.property-hero-banner::before {
+  background:
+    radial-gradient(ellipse 64% 50% at 50% 52%, rgba(14, 20, 16, 0.46), rgba(14, 20, 16, 0) 72%),
+    linear-gradient(180deg, rgba(14, 20, 16, 0.2) 0%, rgba(14, 20, 16, 0) 30%, rgba(14, 20, 16, 0) 62%, rgba(14, 20, 16, 0.4) 100%);
+}
+.stays-index-hero[style*="background-image"] .stays-index-hero-inner { position: relative; z-index: 2; }
+
+.content-index-hero.has-hero-image h1,
+.contact-hero.has-hero-image h1,
+.stays-index-hero[style*="background-image"] h1 {
+  color: #fff;
+  font-family: var(--r-title-font, var(--type-h1-family, var(--font-title)));
+  font-size: var(--r-title-size, var(--type-h1-size, clamp(38px, 5.2vw, 84px)));
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 30px rgba(10, 14, 11, 0.4);
+}
+.content-index-hero.has-hero-image p,
+.contact-hero.has-hero-image p,
+.stays-index-hero[style*="background-image"] p {
+  color: rgba(255, 255, 255, 0.94);
+  font-size: clamp(15px, 1.25vw, 19px);
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 18px rgba(10, 14, 11, 0.5);
+}
+.property-hero-banner-content .property-hero-banner-title { text-shadow: 0 2px 30px rgba(10, 14, 11, 0.4); }
+.property-hero-banner-content :is(p, .property-hero-banner-subtitle) {
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 18px rgba(10, 14, 11, 0.5);
+}
+.contact-hero.has-hero-image h1 { animation: rfRise 1.1s var(--rf-ease) 0.15s both; }
+.contact-hero.has-hero-image p { animation: rfRise 1.1s var(--rf-ease) 0.35s both; }
+.stays-index-hero h1 { animation: rfRise 1.1s var(--rf-ease) 0.15s both; }
+.stays-index-hero p { animation: rfRise 1.1s var(--rf-ease) 0.35s both; }
+
+/* Content cards on the section indexes share the stay card's lift. */
+.content-index :is(.content-card, .journal-card, .activity-card) {
+  transition: transform 0.6s var(--rf-ease), box-shadow 0.6s var(--rf-ease);
+}
+.content-index :is(.content-card, .journal-card, .activity-card):hover { transform: translateY(-6px); }
+
+@media (max-width: 768px) {
+  .site-home .section-header h2,
+  .site-home .block-about h2,
+  .site-home .home-pathways-intro h2,
+  .site-home .editorial-feature h2 {
+    font-size: var(--r-title-size, var(--type-h2-size, clamp(25px, 6.8vw, 32px)));
+    letter-spacing: 0.03em;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-hero.has-hero-image :is(h1, p), .stays-index-hero :is(h1, p) { animation: none; }
+}
+
+/* 聯絡我們 with a hero photo: centred like every other section hero. Its own
+   layout is a two-column footer-aligned grid meant for the plain version, which
+   left the title in the top-left corner of the picture. */
+.contact-page .contact-hero.has-hero-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  text-align: center;
+  padding-top: calc(var(--site-header-h, 76px) + 40px);
+  padding-bottom: 60px;
+  border-bottom: 0;
+}
+.contact-page .contact-hero.has-hero-image h1 { margin-top: 0; margin-bottom: 18px; line-height: 1.15; letter-spacing: 0.08em; }
+.contact-page .contact-hero.has-hero-image p { margin-top: 0; margin-bottom: 0; max-width: 640px; }
+
+/* The wide tracking above is tuned for Chinese display type. Latin titles want
+   almost none. */
+html:not([lang^="zh"]) :is(.hero h1, .property-hero-banner-title, .content-index-hero h1, .contact-hero h1, .stays-index-hero h1) {
+  letter-spacing: 0.01em;
+}
+html:not([lang^="zh"]) :is(.hero p, .content-index-hero p, .contact-hero p, .stays-index-hero p, .property-hero-banner-content p) {
+  letter-spacing: 0.02em;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   12. Homepage grid: one set of edges, one heading style, one rhythm
+
+   Measured before this section existed: section headings were a mix of left
+   and centred, in four sizes (44 / 46 / 47.5 / 50.4px); the search card, the
+   map and the closing picture each had their own width; two sections had no
+   top padding; and the FAQ's eyebrow sat left of its centred title.
+
+   The rules: every block's content runs gutter to gutter; every section
+   heading is centred, the same size, the same distance above its content;
+   every section has the same vertical padding; every card grid shares one gap,
+   one corner and one picture ratio.
+   ════════════════════════════════════════════════════════════════════════ */
+.site-home {
+  --rf-pad-y: clamp(56px, 6.2vw, 108px);
+  --rf-head-gap: clamp(30px, 3.4vw, 56px);
+  --rf-grid-gap: clamp(18px, 2vw, 30px);
+}
+
+/* Rhythm */
+.site-home > .home-block > :is(.section, .block-about, .property-map, .property-faq, .editorial-feature) {
+  padding-top: var(--block-pad-y, var(--rf-pad-y));
+  padding-bottom: var(--block-pad-y, var(--rf-pad-y));
+  border-top: 0;
+}
+.site-home > .home-block > :is(.section, .property-map, .property-faq, .editorial-feature) {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: var(--block-pad-x, var(--gutter));
+  padding-right: var(--block-pad-x, var(--gutter));
+}
+.site-home > .home-block { border-top: 0; }
+.site-home > .home-block::before, .site-home > .home-block::after { content: none; }
+
+/* Two quiet bands so nine sections do not read as one long sheet. */
+.site-home > .home-block:has(> .home-news-section),
+.site-home > .home-block:has(> .property-faq) {
+  background: #efe9dd;
+}
+
+/* Headings: centred eyebrow with a rule each side, then the title. */
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: var(--r-title-align, center);
+  gap: 14px;
+  margin: 0 auto var(--rf-head-gap);
+  max-width: 820px;
+  position: static;
+}
+.site-home .section-header > div { display: contents; }
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro, .property-map, .property-faq, .editorial-feature) > .eyebrow,
+.site-home .section-header .eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  text-align: var(--r-eyebrow-align, center);
+}
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro, .property-map, .property-faq, .editorial-feature) .eyebrow::before,
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro, .property-map, .property-faq, .editorial-feature) .eyebrow::after {
+  content: "";
+  flex: 0 0 36px;
+  width: 36px;
+  height: 1px;
+  background: var(--accent, var(--rf-bronze));
+}
+.site-home :is(.section-header, .home-news-head, .home-gallery-header, .home-pathways-intro, .block-about, .property-map, .property-faq, .editorial-feature) h2 {
+  font-size: var(--r-title-size, var(--type-h2-size, clamp(28px, 3.1vw, 46px)));
+  line-height: 1.3;
+  letter-spacing: 0.05em;
+  margin: 0;
+  text-align: var(--r-title-align, center);
+}
+.site-home .block-about h2 { text-align: var(--r-title-align, left); margin-bottom: clamp(18px, 2vw, 28px); }
+.site-home .block-about .eyebrow { margin-bottom: 16px; }
+.site-home :is(.property-map, .property-faq) > .eyebrow { margin-bottom: 14px; }
+.site-home :is(.property-map, .property-faq) > h2 { margin-bottom: var(--rf-head-gap); }
+.site-home .home-pathways-intro p { margin: 0; }
+/* "View all" sits under the title, centred, instead of floating at the right. */
+.site-home .section-header > a {
+  order: 3;
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+}
+
+/* Card grids: stays and news share a gap, a corner and a 4:3 picture. */
+.site-home :is(.home-collection--grid, .home-news-grid) { gap: var(--rf-grid-gap); }
+.site-home .home-news-card {
+  border: 0;
+  border-radius: var(--rf-radius);
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(23, 32, 26, 0.06), 0 22px 50px -38px rgba(23, 32, 26, 0.4);
+  transition: transform 0.6s var(--rf-ease), box-shadow 0.6s var(--rf-ease);
+}
+.site-home .home-news-card:hover { transform: translateY(-8px); box-shadow: var(--rf-shadow); }
+.site-home .home-news-img,
+.site-home .home-collection--grid .stay-card-media { aspect-ratio: 4 / 3; }
+.site-home .home-showcase-foot { margin-top: var(--rf-head-gap); text-align: center; }
+
+/* About: the split runs gutter to gutter like everything else. */
+.site-home > .home-block > .block-about {
+  padding-left: var(--block-pad-x, var(--gutter));
+  padding-right: var(--block-pad-x, var(--gutter));
+}
+.site-home .block-about--has-image > * { padding-left: 0; padding-right: 0; }
+
+/* Gallery, map and the closing picture all take the full measure. */
+.site-home .home-gallery-grid { border-radius: var(--rf-radius); overflow: hidden; }
+.site-home .property-map-frame {
+  width: 100%;
+  max-width: none;
+  border-radius: var(--rf-radius);
+  overflow: hidden;
+  box-shadow: var(--rf-shadow);
+}
+.site-home .property-map-meta { margin-top: 22px; justify-content: center; text-align: var(--r-body-align, center); }
+.site-home .property-map-meta p { max-width: 720px; margin: 0 auto; }
+.site-home .editorial-feature-media { width: 100%; max-width: none; margin-left: 0; margin-right: 0; }
+.site-home .editorial-feature-media img { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; display: block; }
+
+/* Search card: same edges as the sections below it. */
+@media (min-width: 1024px) {
+  .site-home .home-stays-search-wrap { width: calc(100% - 2 * var(--gutter)); }
+}
+
+/* FAQ: one centred column, questions set like headings. */
+.site-home .property-faq .stay-faq-accordion { max-width: 920px; margin: 0 auto; }
+.site-home .property-faq .stay-faq-item {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 18px 40px -34px rgba(23, 32, 26, 0.45);
+}
+.site-home .property-faq .stay-faq-question {
+  padding-top: 22px;
+  padding-bottom: 22px;
+  font-family: var(--r-body-font, var(--font-title));
+  font-size: var(--r-body-size, clamp(17px, 1.35vw, 20px));
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .site-home .home-news-grid { grid-template-columns: minmax(0, 1fr); }
+  .site-home .editorial-feature-media img { aspect-ratio: 4 / 3; }
+}
+
+/* ── 13. Map markers and remaining homepage fixes ──────────────────────── */
+/* Each marker carries its place name, so a map of several stays reads at a
+   glance instead of one hover at a time. */
+.leaflet-pin { overflow: visible; }
+.leaflet-pin span { width: 20px; height: 20px; background: var(--rf-forest); border-width: 4px; }
+.leaflet-pin-label {
+  position: absolute;
+  left: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--rf-ink);
+  font: 600 13px/1 var(--font-ui);
+  letter-spacing: 0.04em;
+  box-shadow: 0 10px 24px -10px rgba(23, 32, 26, 0.55);
+  pointer-events: none;
+}
+.site-home .property-map-frame,
+.site-home .property-map-leaflet-wrap { max-width: none; width: 100%; margin-inline: 0; }
+
+/* The gallery section zeroed its own top padding; it keeps the shared rhythm. */
+.site-home > .home-block > .section.home-gallery-section { padding-top: var(--block-pad-y, var(--rf-pad-y)); }
+
+/* Pathway cards: portrait, so four across still show their photographs. */
+.site-home .home-pathways-section .home-pathway-card.has-image { aspect-ratio: 3 / 4; min-height: 0; }
+@media (max-width: 1023px) {
+  .site-home .home-pathways-section .home-pathway-card.has-image { aspect-ratio: 4 / 3; }
+}
+
+/* About: the photograph is as tall as the copy beside it. */
+.site-home .block-about--has-image { align-items: stretch; }
+.site-home .block-about--has-image .block-about-copy { align-self: center; }
+
+/* About, stacked (below the 1200px split): words first, photograph after.
+   Every other block on the page opens with its heading; with the photograph
+   on top it read as the tail of the block above. The paddings swap with the
+   order so the outer edges still follow 上下留白 and the gap between the two
+   halves stays small. */
+@media (max-width: 1199px) {
+  .site-home .block-about--has-image .block-about-media { order: 0; }
+  .site-home .block-about--has-image { row-gap: 0; }
+}
+@media (min-width: 901px) and (max-width: 1199px) {
+  .site-home .block-about--has-image .block-about-copy {
+    padding-top: var(--about-pad-y);
+    padding-bottom: clamp(20px, 3vw, 32px);
+  }
+  .site-home .block-about--has-image .block-about-media {
+    padding-top: 0;
+    padding-bottom: var(--about-pad-y);
+  }
+}
+@media (max-width: 900px) {
+  .site-home .block-about--has-image .block-about-copy {
+    padding-top: var(--block-pad-y, clamp(24px, 5vw, 40px));
+    padding-bottom: clamp(24px, 5vw, 40px);
+  }
+  .site-home .block-about--has-image .block-about-media {
+    padding-top: 0;
+    padding-bottom: var(--block-pad-y, clamp(24px, 5vw, 40px));
+  }
+}
+
+/* Gallery as a wall: six equal 4:3 tiles on the page grid instead of one
+   photograph filling the screen. The staggered lead tile is switched off so
+   every tile shares the stay and news cards' proportions. */
+.site-home .home-gallery-grid.home-gallery-wall {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  gap: var(--rf-grid-gap);
+  border-radius: 0;
+  overflow: visible;
+}
+.site-home .home-gallery-wall .home-gallery-item {
+  grid-row: auto;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--rf-radius);
+}
+@media (max-width: 900px) {
+  .site-home .home-gallery-grid.home-gallery-wall { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+}
+
+/* Fewer screen-filling pictures. Stacked, the about photograph is a 16:9 band
+   rather than a full-width 4:3; the closing picture is a shallow band too. */
+@media (max-width: 1199px) {
+  .site-home .block-about--has-image .block-about-carousel,
+  .site-home .block-about--has-image:not(.block-about--collage) .block-about-image {
+    aspect-ratio: 16 / 9;
+    max-height: 420px;
+  }
+}
+:is(.site-home, .content-index) .editorial-feature-media img { width: 100%; aspect-ratio: 3 / 1; max-height: 420px; object-fit: cover; display: block; }
+@media (max-width: 900px) {
+  :is(.site-home, .content-index) .editorial-feature-media img { aspect-ratio: 16 / 9; }
+}
+
+/* ── 14. Contact page ──────────────────────────────────────────────────
+   The enquiry form and the newsletter sit in one row as two cards of the same
+   height: the form takes the wider column, the subscription the narrower. */
+.contact-page .property-block-pair {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  gap: clamp(18px, 2vw, 30px);
+  align-items: stretch;
+}
+.contact-page .property-block-pair > * { display: flex; flex-direction: column; min-width: 0; }
+.contact-page .property-block-pair > * > * { flex: 1 1 auto; }
+.contact-page .property-block-pair .page-block-contact-form {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding-top: clamp(28px, 3.4vw, 52px);
+  padding-bottom: clamp(28px, 3.4vw, 52px);
+  padding-left: var(--block-pad-x, clamp(22px, 3.4vw, 52px));
+  padding-right: var(--block-pad-x, clamp(22px, 3.4vw, 52px));
+}
+.contact-page .property-block-pair .block-newsletter {
+  display: flex;
+  align-items: center;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  padding-top: clamp(28px, 3.4vw, 52px);
+  padding-bottom: clamp(28px, 3.4vw, 52px);
+  padding-left: clamp(22px, 3vw, 44px);
+  padding-right: clamp(22px, 3vw, 44px);
+}
+.contact-page .property-block-pair .block-newsletter-inner {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 26px;
+  width: 100%;
+}
+@media (max-width: 900px) {
+  .contact-page .property-block-pair { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Contact details: one row of four with room for each value on a single line.
+   The row used to wrap three-and-one, and the address broke onto two lines. */
+@media (min-width: 1100px) {
+  .contact-page .page-block-contact-info { flex-wrap: nowrap; }
+  .contact-page .page-block-contact-info .contact-item {
+    flex: 1 1 auto;
+    padding-left: clamp(18px, 2vw, 30px);
+    padding-right: clamp(18px, 2vw, 30px);
+  }
+}
+@media (min-width: 721px) and (max-width: 1099px) {
+  .contact-page .page-block-contact-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .contact-page .page-block-contact-info .contact-item:nth-child(odd)::before { content: none; }
+  .contact-page .page-block-contact-info .contact-item:nth-child(n + 3) { border-top: 1px solid var(--line); }
+}
+@media (min-width: 900px) {
+  .contact-page .page-block-contact-info .contact-item :is(a, p) { white-space: nowrap; }
+}
+
+/* 特色亮點 with exactly five cards: five across, not four and an orphan. */
+@media (min-width: 1100px) {
+  .block-about-features.is-grid:has(> :nth-child(5):last-child) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+/* In the narrow column the icon sits above the copy, so the copy keeps the
+   card's whole width. */
+.contact-page .property-block-pair .block-newsletter-head { flex-direction: column; align-items: flex-start; gap: 18px; }
+
+/* Stacked, the single track must be allowed to shrink: a bare 1fr takes the
+   carousel's intrinsic width as its minimum, and on a phone the copy and the
+   photograph both ran off the right edge. */
+@media (max-width: 1199px) {
+  .site-home .block-about--has-image { grid-template-columns: minmax(0, 1fr); }
+  .site-home .block-about--has-image > * { min-width: 0; }
+}

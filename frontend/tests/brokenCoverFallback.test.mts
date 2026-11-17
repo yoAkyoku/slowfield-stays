@@ -61,7 +61,7 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
   const mod = { exports: {} as Record<string, unknown> };
   const req = (id: string) => {
     if (!(id in imports)) {
-      const shared = sharedModule(file, id);
+      const shared = sharedModule(file, id, (p, remap) => compile(p, remap(imports)));
       if (shared) return shared;
       throw new Error(`${file}: no stub for import "${id}"`);
     }

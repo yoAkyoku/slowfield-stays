@@ -40,6 +40,7 @@ import { useOverlay } from "../../../modules/useOverlay";
 import { extractText, resolveText } from "../../modules/blockText";
 import { useUndoableList } from "../../modules/useUndoableList";
 import { useUnsavedGuard } from "../../modules/useUnsavedGuard";
+import { useConfirm } from "../../ui";
 
 /* ────────────────────────────────────────────
    Types
@@ -960,6 +961,7 @@ function MiniBlockList({
   editLocale: string;
   label: string;
 }) {
+  const { ask } = useConfirm();
   const [editIdx, setEditIdx] = useState<number | null>(null);
 
   const update = (idx: number, patch: Partial<CmsContentBlock>) => {
@@ -975,8 +977,8 @@ function MiniBlockList({
     setEditIdx((cur) => (cur === idx ? next : cur === next ? idx : cur));
   };
 
-  const remove = (idx: number) => {
-    if (blockHasContent(blocks[idx]) && !window.confirm(confirmDeleteText(blocks[idx], copy, editLocale))) return;
+  const remove = async (idx: number) => {
+    if (blockHasContent(blocks[idx]) && !(await ask({ tone: "danger", title: confirmDeleteText(blocks[idx], copy, editLocale) }))) return;
     onChange(blocks.filter((_, i) => i !== idx));
     setEditIdx(null);
   };
@@ -1065,6 +1067,7 @@ function ColumnsForm({
   editLocale: string;
   onChange: (patch: Partial<CmsContentBlock>) => void;
 }) {
+  const { ask } = useConfirm();
   const items = block.items ?? [{ blocks: [], flex: 5 }, { blocks: [], flex: 5 }];
   const colCount = items.length;
 
@@ -1084,12 +1087,12 @@ function ColumnsForm({
     onChange({ items: [...items, { blocks: [], flex: 5 }] });
   };
 
-  const removeColumn = () => {
+  const removeColumn = async () => {
     if (colCount <= 2) return;
     // Guarded like the block-level delete: this drops the last column AND every
     // block in it, and there is no undo.
     const last = items[colCount - 1];
-    if (last.blocks.some(blockHasContent) && !window.confirm(confirmDeleteColumnText(colCount, editLocale))) return;
+    if (last.blocks.some(blockHasContent) && !(await ask({ tone: "danger", title: confirmDeleteColumnText(colCount, editLocale) }))) return;
     onChange({ items: items.slice(0, -1) });
   };
 
@@ -1363,6 +1366,7 @@ export default function PageBlockEditor({
   canWrite?: boolean;
   onClosePreview?: () => void;
 }) {
+  const { ask } = useConfirm();
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   // Closing the open form on every undo / redo: the form is addressed by index,
   // and a step that changes the list length (an undone delete, a redone
@@ -1521,9 +1525,9 @@ export default function PageBlockEditor({
   /** Delete, guarded when there is something to lose. There is no undo and no
    *  version history (out of scope), so the dialog is the only thing between a
    *  mis-aimed click and a retyped paragraph. */
-  const remove = useCallback((index: number) => {
+  const remove = useCallback(async (index: number) => {
     const block = items[index];
-    if (block && blockHasContent(block) && !window.confirm(confirmDeleteText(block, copy, editLocale))) return;
+    if (block && blockHasContent(block) && !(await ask({ tone: "danger", title: confirmDeleteText(block, copy, editLocale) }))) return;
     setItems((current) => current.filter((_, i) => i !== index));
     setEditingIndex(null);
     // Focus used to fall to <body>, dropping a keyboard user at the top of the
@@ -1537,7 +1541,7 @@ export default function PageBlockEditor({
       }
       (rows[Math.min(index, rows.length - 1)])?.focus();
     });
-  }, [items, copy, editLocale, setItems]);
+  }, [items, copy, editLocale, setItems, ask]);
 
   /** Duplicate: the everyday move this editor had no answer for. Rebuilding an
    *  image-plus-caption or a three-column row by hand each time is where the

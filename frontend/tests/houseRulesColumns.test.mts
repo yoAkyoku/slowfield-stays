@@ -128,7 +128,8 @@ test("a collection placed under an existing heading can be left headless", () =>
   );
   /* And an empty one must render nothing rather than an empty <h2>, which is
      what the guard is for — three layouts draw it. */
-  const guarded = [...src.matchAll(/\{headline && <h2>\{headline\}<\/h2>\}/g)].length;
+  /* SectionHeading draws its heading only when it has text, so it counts as guarded. */
+  const guarded = [...src.matchAll(/\{headline && <h2>\{headline\}<\/h2>\}|<SectionHeading\b[^>]*title=\{headline\}/g)].length;
   const bare = [...src.matchAll(/(?<!\{headline && )<h2>\{headline\}<\/h2>/g)].length;
   assert.equal(bare, 0, `${bare} of the collection's headings render an empty <h2> when the heading is cleared`);
   assert.equal(guarded, 3, `expected all three layouts to guard the heading, found ${guarded}`);

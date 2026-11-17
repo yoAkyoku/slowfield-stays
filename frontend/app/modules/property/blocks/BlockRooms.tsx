@@ -5,6 +5,7 @@ import useAutoAdvance from "../../useAutoAdvance";
 import type { Locale } from "../../i18n";
 import { cfgT, eyebrowT, pickT } from "../../tr";
 import { Lightbox, type LightboxImage } from "../LightboxGallery";
+import SectionHeading from "../../SectionHeading";
 
 type BiText = string | Record<string, string> | undefined;
 type Spec = { label?: BiText; value?: BiText };
@@ -139,8 +140,7 @@ export default function BlockRooms({ locale, config }: { locale: Locale; config:
       {(eyebrow || title) && (
         <div className="section-header">
           <div>
-            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-            {title && <h2>{title}</h2>}
+            <SectionHeading eyebrow={eyebrow} title={title} />
           </div>
         </div>
       )}

@@ -1,6 +1,7 @@
 import type { Locale } from "../../i18n";
 import { cfgT, eyebrowT, pickT } from "../../tr";
 import LightboxGallery from "../LightboxGallery";
+import SectionHeading from "../../SectionHeading";
 
 type GalleryImage = { url: string; caption?: string | Record<string, string> };
 
@@ -58,8 +59,7 @@ export default function BlockImageGallery({ locale, config }: { locale: Locale; 
       {(eyebrow || title) && (
         <div className="section-header">
           <div>
-            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-            {title && <h2>{title}</h2>}
+            <SectionHeading eyebrow={eyebrow} title={title} />
           </div>
         </div>
       )}

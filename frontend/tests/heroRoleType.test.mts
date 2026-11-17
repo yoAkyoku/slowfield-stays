@@ -76,10 +76,14 @@ test("the hero rules read the role variables, outside the site type scale", () =
   assert.match(heroH1![1], /font-size:\s*var\(--r-title-size,\s*var\(--type-h1-size/);
   assert.match(heroH1![1], /font-family:\s*var\(--r-title-font,\s*var\(--type-h1-family/);
 
-  const heroP = /\.hero p \{([\s\S]*?)\}/.exec(CSS);
+  /* `.hero p` is set in more than one place (base rules, then the site refresh
+     layer); the property has to read the role variable wherever it is set, and
+     a later rule is where the winning value is. */
+  const heroP = [...CSS.matchAll(/\.hero p \{([\s\S]*?)\}/g)].map((m) => m[1]).join("\n");
   assert.ok(heroP, ".hero p rule not found");
-  assert.match(heroP![1], /font-size:\s*var\(--r-body-size,/);
-  assert.match(heroP![1], /text-align:\s*var\(--r-body-align,/);
+  assert.match(heroP, /font-size:\s*var\(--r-body-size,/);
+  assert.match(heroP, /text-align:\s*var\(--r-body-align,/);
+  assert.doesNotMatch(heroP, /font-size:\s*(?!\s|var\(--r-body-size|min\(var\(--r-body-size)/, "a .hero p font-size skips the role variable");
 });
 
 test("the phone ceiling keeps the role size inside its min()", () => {

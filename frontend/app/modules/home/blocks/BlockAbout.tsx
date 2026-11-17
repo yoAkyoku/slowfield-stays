@@ -5,6 +5,7 @@ import { isSafeUrl } from "../../safeHtml";
 import FeatureIcon from "../../property/blocks/FeatureIcon";
 import AboutImageCarousel from "./AboutImageCarousel";
 import { normaliseAboutImages } from "./aboutImages";
+import SectionHeading from "../../SectionHeading";
 
 type AboutImageConfig = string | { url: string; alt?: string | Record<string, string> };
 
@@ -74,8 +75,7 @@ export default function BlockAbout({ locale, config }: { locale: Locale; config?
   return (
     <section className={classes}>
       <div className="block-about-copy">
-        {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-        <h2>{title}</h2>
+        <SectionHeading eyebrow={eyebrow} title={title} />
         <div className="block-about-body">
           {lines.length > 1
             ? lines.map((line, i) => <p key={i}>{line}</p>)

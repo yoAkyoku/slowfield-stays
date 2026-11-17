@@ -2,6 +2,7 @@ import type { Locale } from "../../i18n";
 import { isSafeUrl } from "../../safeHtml";
 import { cfgT, eyebrowT } from "../../tr";
 import PartnerGrid, { type Partner } from "./PartnerGrid";
+import SectionHeading from "../../SectionHeading";
 
 /**
  * Partner brands ("合作品牌") — the dining and lifestyle partners behind the
@@ -49,8 +50,7 @@ export default function BlockPartners({ locale, config }: { locale: Locale; conf
     <section className={`property-partners property-partners--${layout} section`}>
       {(eyebrow || heading || caption) && (
         <div className="property-partners-head">
-          {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-          {heading && <h2>{heading}</h2>}
+          <SectionHeading eyebrow={eyebrow} title={heading} />
           {caption && <p className="property-partners-caption">{caption}</p>}
         </div>
       )}

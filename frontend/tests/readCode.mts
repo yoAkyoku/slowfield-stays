@@ -132,7 +132,7 @@ function appStylesheet(): string {
     }
   };
   walk("app/admin");
-  return ["app/globals.css", "app/site-refresh.css", "app/admin/ui/admin-legacy.css", "app/admin/ui/admin-ui.css", ...area.sort()]
+  return ["app/globals.css", "app/admin/ui/admin-legacy.css", "app/admin/ui/admin-ui.css", ...area.sort()]
     .map((p) => readFileSync(p, "utf8").replace(/\r\n/g, "\n"))
     .join("\n");
 }

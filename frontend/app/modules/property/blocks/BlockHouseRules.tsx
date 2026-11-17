@@ -1,5 +1,6 @@
 import type { Locale } from "../../i18n";
 import { cfgT, clearableT, eyebrowT } from "../../tr";
+import SectionHeading from "../../SectionHeading";
 
 export default function BlockHouseRules({ locale, config }: { locale: Locale; config: Record<string, unknown> }) {
   const zh = locale === "zh";
@@ -33,8 +34,7 @@ export default function BlockHouseRules({ locale, config }: { locale: Locale; co
 
   return (
     <section className={`property-house-rules section${layout === "columns" ? " is-columns" : ""}`}>
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      {title && <h2>{title}</h2>}
+      <SectionHeading eyebrow={eyebrow} title={title} />
       <ul className="property-house-rules-list">
         {items.map((item, i) => (
           <li key={i} className="property-house-rules-item">

@@ -5,6 +5,7 @@ import { cfgT , eyebrowT} from "../../tr";
 import MapEmbed from "../../MapEmbed";
 import FeatureIcon from "./FeatureIcon";
 import ContactOffices from "../../content/ContactOffices";
+import SectionHeading from "../../SectionHeading";
 
 export default function BlockContactInfo({ locale, config, siteLine, siteSlug }: { locale: Locale; config: Record<string, unknown>; siteLine?: string; siteSlug?: string }) {
   const zh = locale === "zh";
@@ -67,8 +68,7 @@ export default function BlockContactInfo({ locale, config, siteLine, siteSlug }:
   if (layout === "classic") {
     return (
       <section className="property-contact section">
-        {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-        <h2>{title}</h2>
+        <SectionHeading eyebrow={eyebrow} title={title} />
         <div className="property-contact-grid">
           <div className="property-contact-info">
             {address && (
@@ -158,8 +158,7 @@ export default function BlockContactInfo({ locale, config, siteLine, siteSlug }:
 
   return (
     <section className="property-contact section">
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      <h2>{title}</h2>
+      <SectionHeading eyebrow={eyebrow} title={title} />
 
       <div className="property-contact-cards">
         {hasReach && (

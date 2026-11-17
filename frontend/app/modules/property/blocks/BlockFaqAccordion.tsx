@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { Locale } from "../../i18n";
 import { cfgT, eyebrowT } from "../../tr";
 import { safeHtml, sanitizeRichHtml } from "../../safeHtml";
+import SectionHeading from "../../SectionHeading";
 
 /* Answers authored in the WYSIWYG editor arrive as HTML with inline styles;
    older ones are plain text. safeHtml would strip the styling, so HTML goes
@@ -37,8 +38,7 @@ export default function BlockFaqAccordion({ locale, config }: { locale: Locale; 
     <>
       {schema && <JsonLd data={schema} />}
     <section className="property-faq section">
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      <h2>{title}</h2>
+      <SectionHeading eyebrow={eyebrow} title={title} />
       <div className="stay-faq-accordion">
         {items.map((item, i) => {
           const isOpen = openIndex === i;

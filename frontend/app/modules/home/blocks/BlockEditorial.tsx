@@ -3,6 +3,7 @@ import type { Locale } from "../../i18n";
 import { t } from "../../i18n";
 import { cfgT , eyebrowT} from "../../tr";
 import { isSafeUrl } from "../../safeHtml";
+import SectionHeading from "../../SectionHeading";
 
 export type BlockEditorialConfig = {
   image?: string;
@@ -52,8 +53,7 @@ export default function BlockEditorial({ locale, config }: { locale: Locale; con
       <section className={classes}>
         <div className="property-rich-split">
           <div className="property-rich-split-text">
-            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-            {title && <h2>{title}</h2>}
+            <SectionHeading eyebrow={eyebrow} title={title} />
             {body && <div className="property-rich-text-body"><p>{body}</p></div>}
             {hasCta && (
               <Link href={ctaHref} className="block-about-cta">
@@ -90,8 +90,7 @@ export default function BlockEditorial({ locale, config }: { locale: Locale; con
           <img src={image} alt="" loading="lazy" />
         </figure>
       )}
-      {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-      {title && <h2>{title}</h2>}
+      <SectionHeading eyebrow={eyebrow} title={title} />
       {body && (
         <div className="property-rich-text-body">
           <p>{body}</p>

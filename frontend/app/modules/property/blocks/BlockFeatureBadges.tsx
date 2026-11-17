@@ -1,5 +1,6 @@
 import type { Locale } from "../../i18n";
 import { cfgT , eyebrowT} from "../../tr";
+import SectionHeading from "../../SectionHeading";
 
 /* Thin-line icons drawn on a 24×24 grid, stroke = currentColor so they
    inherit the brand palette instead of reading as emoji clip-art. */
@@ -379,8 +380,7 @@ export default function BlockFeatureBadges({ locale, config }: { locale: Locale;
         {(eyebrow || title) && (
           <div className="section-header">
             <div>
-              {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-              {title && <h2>{title}</h2>}
+              <SectionHeading eyebrow={eyebrow} title={title} />
             </div>
           </div>
         )}
@@ -415,8 +415,7 @@ export default function BlockFeatureBadges({ locale, config }: { locale: Locale;
       {(eyebrow || title) && (
         <div className="section-header">
           <div>
-            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-            {title && <h2>{title}</h2>}
+            <SectionHeading eyebrow={eyebrow} title={title} />
           </div>
         </div>
       )}

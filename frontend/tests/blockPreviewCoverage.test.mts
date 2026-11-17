@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { readCode, readEditorSurface } from "./readCode";
+import { drawnTypes } from "./blockTypes.mts";
 
 /**
  * Every block type the editor offers must be drawn by the renderer that will
@@ -18,8 +19,8 @@ const PROPERTY = "app/modules/property/PropertyPageRenderer.tsx";
 const HOMEPAGE = "app/modules/home/HomepageBlocks.tsx";
 
 const src = (f: string) => readFileSync(f, "utf8");
-const cases = (f: string) =>
-  new Set([...src(f).matchAll(/case "([a-z_]+)"/g)].map((m) => m[1]));
+/* The types a renderer draws: its own table plus the shared one. */
+const cases = (f: string) => drawnTypes(f);
 
 /** The BLOCK_LABELS map's keys — what the palette can offer. */
 function paletteTypes(): string[] {

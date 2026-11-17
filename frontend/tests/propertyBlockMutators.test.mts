@@ -189,35 +189,36 @@ test("an id carries the time it was minted, so two mints in different ms differ 
    that had just been added and held nothing. A prompt that always fires is a
    prompt that gets dismissed, which is how the configured one goes too. */
 
-test("deleting a block with content names the block", () => {
+/* confirmRemove asks through the kit's dialog, which answers asynchronously. */
+type Ask = (o: { title: unknown }) => Promise<boolean>;
+type ConfirmRemove = (b: Blk, zh: boolean, ask: Ask) => Promise<boolean>;
+
+test("deleting a block with content names the block", async () => {
   const asked: string[] = [];
   const { confirmRemove } = build({
     blockLabel: (type: string, zh: boolean) => (zh ? "相片拼貼牆" : "Photo collage"),
-    confirm: (msg: string) => { asked.push(msg); return true; },
-  }) as unknown as { confirmRemove: (b: Blk, zh: boolean) => boolean };
+  }) as unknown as { confirmRemove: ConfirmRemove };
 
-  const ok = confirmRemove({ id: "g", type: "gallery", enabled: true, config: { images: ["a.jpg"] } }, true);
+  const ok = await confirmRemove({ id: "g", type: "gallery", enabled: true, config: { images: ["a.jpg"] } }, true, async (o) => { asked.push(String(o.title)); return true; });
   assert.equal(ok, true);
   assert.equal(asked.length, 1, "no confirmation before an irreversible delete");
   assert.match(asked[0], /相片拼貼牆/, `the prompt does not say what is being deleted: ${asked[0]}`);
 });
 
-test("cancelling the prompt refuses the delete", () => {
+test("cancelling the prompt refuses the delete", async () => {
   const { confirmRemove } = build({
     blockLabel: (type: string) => type,
-    confirm: () => false,
-  }) as unknown as { confirmRemove: (b: Blk, zh: boolean) => boolean };
-  assert.equal(confirmRemove({ id: "g", type: "gallery", enabled: true, config: { images: ["a.jpg"] } }, true), false);
+  }) as unknown as { confirmRemove: ConfirmRemove };
+  assert.equal(await confirmRemove({ id: "g", type: "gallery", enabled: true, config: { images: ["a.jpg"] } }, true, async () => false), false);
 });
 
-test("an untouched block is deleted without a prompt", () => {
+test("an untouched block is deleted without a prompt", async () => {
   let asked = 0;
   const { confirmRemove } = build({
     blockLabel: (type: string) => type,
-    confirm: () => { asked += 1; return true; },
-  }) as unknown as { confirmRemove: (b: Blk, zh: boolean) => boolean };
+  }) as unknown as { confirmRemove: ConfirmRemove };
 
-  assert.equal(confirmRemove({ id: "n", type: "faq", enabled: true, config: {} }, true), true);
+  assert.equal(await confirmRemove({ id: "n", type: "faq", enabled: true, config: {} }, true, async () => { asked += 1; return true; }), true);
   assert.equal(asked, 0, "a block with nothing in it still asks");
 });
 

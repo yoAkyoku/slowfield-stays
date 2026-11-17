@@ -16,6 +16,7 @@ import ViewAllFooter from "../ViewAllFooter";
 import { staysVariantsFor } from "../../blockStyle";
 import { stayLocationLabel } from "../../stayLocations";
 import { contentFilterTags, hasContentFilterTag } from "../../contentFilter";
+import SectionHeading from "../../SectionHeading";
 
 export type BlockStaysConfig = {
   /** "stays" (default) pulls from the stay catalogue; anything else is a CMS content_type */
@@ -408,8 +409,7 @@ export default async function BlockStays({
         <section className="section home-news-section">
           {(eyebrow || headline) && (
             <div className="home-news-head">
-              {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-              {headline && <h2>{headline}</h2>}
+              <SectionHeading eyebrow={eyebrow} title={headline} />
             </div>
           )}
           <NewsCategoryFilter
@@ -502,8 +502,7 @@ export default async function BlockStays({
       {(eyebrow || headline) && (
         <div className="section-header">
           <div>
-            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-            {headline && <h2>{headline}</h2>}
+            <SectionHeading eyebrow={eyebrow} title={headline} />
           </div>
         </div>
       )}

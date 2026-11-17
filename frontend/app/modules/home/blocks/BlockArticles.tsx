@@ -8,6 +8,7 @@ import { cardTagsT, cfgT, trs , eyebrowT, tagsT} from "../../tr";
 import { contentFilterTags, hasContentFilterTag } from "../../contentFilter";
 import ViewAllFooter from "../ViewAllFooter";
 import { ArticleCard } from "../../content/cards";
+import SectionHeading from "../../SectionHeading";
 
 export type BlockArticlesConfig = {
   limit?: number;
@@ -73,8 +74,7 @@ export default async function BlockArticles({ locale, config }: { locale: Locale
     return (
       <section className="section home-news-section">
         <div className="home-news-head">
-          {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-          <h2>{title}</h2>
+          <SectionHeading eyebrow={eyebrow} title={title} />
         </div>
         <RailOrGrid rail={rail} label={String(title || eyebrow || viewAll)} railProps={railProps}>
           {articles.map((article) => {
@@ -109,8 +109,7 @@ export default async function BlockArticles({ locale, config }: { locale: Locale
     <section className="section">
       <div className="section-header">
         <div>
-          {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-          <h2>{title}</h2>
+          <SectionHeading eyebrow={eyebrow} title={title} />
         </div>
         <Link href={contentIndexHref(contentType)}>{viewAll}</Link>
       </div>

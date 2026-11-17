@@ -1,5 +1,6 @@
 import type { Locale } from "../../i18n";
 import { cfgT, eyebrowT } from "../../tr";
+import SectionHeading from "../../SectionHeading";
 
 /**
  * 圖文交錯 (客戶, 八、內容頁版型).
@@ -72,8 +73,7 @@ export default function BlockAlternating({
       {(eyebrow || heading) && (
         <div className="section-header">
           <div>
-            {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-            {heading && <h2>{heading}</h2>}
+            <SectionHeading eyebrow={eyebrow} title={heading} />
           </div>
         </div>
       )}

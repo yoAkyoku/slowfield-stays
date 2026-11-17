@@ -1,6 +1,7 @@
 import type { Locale } from "../../i18n";
 import { safeLinkHref } from "../../safeHtml";
 import { cfgT , eyebrowT} from "../../tr";
+import SectionHeading from "../../SectionHeading";
 
 /**
  * Nearby attractions ("周邊景點 / 漫遊宜蘭"). Admin-managed list of places near the
@@ -45,8 +46,7 @@ export default function BlockAttractions({ locale, config }: { locale: Locale; c
     <section className="property-attractions section">
       {(eyebrow || heading || caption) && (
         <div className="property-attractions-head">
-          {eyebrow && <div className="eyebrow">{eyebrow}</div>}
-          {heading && <h2>{heading}</h2>}
+          <SectionHeading eyebrow={eyebrow} title={heading} />
           {caption && <p className="property-attractions-caption">{caption}</p>}
         </div>
       )}

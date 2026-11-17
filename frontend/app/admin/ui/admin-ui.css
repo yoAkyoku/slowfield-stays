@@ -913,3 +913,7 @@ a.a-list__link:hover { background: var(--a-surface-2); }
   .a-input,
   :where(.admin-shell, .admin-auth, .a-dialog-layer) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="hidden"]), select, textarea) { font-size: 16px; }
 }
+
+/* Confirm / notice dialogs (Confirm.tsx). Their messages were written for
+   window.confirm, some with a line break in them, so the title keeps it. */
+.a-confirm .a-dialog__title { white-space: pre-line; }

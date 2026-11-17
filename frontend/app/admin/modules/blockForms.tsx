@@ -16,6 +16,7 @@ import { ChevronDown, ChevronUp, GripVertical, Trash2 } from "lucide-react";
 import type { AdminSite } from "./adminApi";
 import { siteContentTypesFromConfig } from "./siteContentTypes";
 import { PUBLIC_API_URL as API_URL } from "../../modules/apiBase";
+import { useConfirm } from "../ui";
 
 /** The read-only shape of the site's managed bilingual tag catalogue. */
 export type ManagedTagOption = {
@@ -1128,6 +1129,7 @@ export function EditorialConfigForm({
 export function AboutConfigForm({
   c, zh, editLocale, onChange,
 }: { c: Record<string, unknown>; zh: boolean; editLocale: string; onChange: (c: Record<string, unknown>) => void }) {
+  const { ask } = useConfirm();
   type AboutImageItem = { url: string; alt: Record<string, string>; [key: string]: unknown };
   const toImage = (raw: unknown): AboutImageItem => {
     if (typeof raw === "string") return { url: raw, alt: {} };
@@ -1160,11 +1162,11 @@ export function AboutConfigForm({
     [next[index], next[target]] = [next[target], next[index]];
     updateImages(next);
   };
-  const removeImage = (index: number) => {
+  const removeImage = async (index: number) => {
     const image = images[index];
     if (image.url || Object.values(image.alt).some(Boolean)) {
       const name = image.alt[editLocale] || image.url.split("/").pop() || image.url;
-      if (!window.confirm(zh ? `移除「${name}」（第 ${index + 1} 張圖片）？` : `Remove "${name}" (image ${index + 1})?`)) return;
+      if (!(await ask({ tone: "danger", title: zh ? `移除「${name}」（第 ${index + 1} 張圖片）？` : `Remove "${name}" (image ${index + 1})?` }))) return;
     }
     updateImages(images.filter((_, i) => i !== index));
   };
@@ -1256,6 +1258,7 @@ export function AboutConfigForm({
 export function AboutItemsEditor({
   c, zh, editLocale, onChange,
 }: { c: Record<string, unknown>; zh: boolean; editLocale: string; onChange: (c: Record<string, unknown>) => void }) {
+  const { ask } = useConfirm();
   const [items, setItems] = useState<Record<string, unknown>[]>(() =>
     Array.isArray(c.items) ? (c.items as Record<string, unknown>[]) : [],
   );
@@ -1271,13 +1274,13 @@ export function AboutItemsEditor({
   // The card body cannot go through ItemsEditor (it draws a live FeatureIcon
   // preview from two fields at once, which no field descriptor describes), but
   // an unconfirmed delete is the same lost work here as anywhere else.
-  const remove = (i: number) => {
+  const remove = async (i: number) => {
     if (repeatedItemHasContent(items[i])) {
       const what = getVal(items[i], "label", editLocale) || (zh ? "這個亮點" : "this highlight");
       const msg = zh
         ? `刪除「${what}」（第 ${i + 1} 個亮點）？裡面的內容會一併移除，且無法復原。`
         : `Delete "${what}" (highlight ${i + 1})? Its content goes with it and cannot be restored.`;
-      if (!window.confirm(msg)) return;
+      if (!(await ask({ tone: "danger", title: msg }))) return;
     }
     update(items.filter((_, j) => j !== i));
   };
@@ -1555,6 +1558,7 @@ function RepeatedRows<T>({
    *  costs a click per row and the row is one line of inputs anyway. */
   collapsible?: boolean;
 }) {
+  const { ask } = useConfirm();
   const baseId = useId();
   // Choose the initial state once. Recomputing it from content while typing
   // closes a new row as soon as its first field gains a value.
@@ -1576,7 +1580,7 @@ function RepeatedRows<T>({
     [nextOpen[i], nextOpen[j]] = [nextOpen[j], nextOpen[i]];
     commit(nextItems, nextOpen, { kind: "move", from: i, to: j });
   };
-  const removeItem = (i: number) => {
+  const removeItem = async (i: number) => {
     // A row still identical to the one the add button made is not work: a new
     // room is seeded with its 棟別 letter, and asking "delete C棟?" about a row
     // created by the click before is exactly the noise that trains people to
@@ -1590,7 +1594,7 @@ function RepeatedRows<T>({
       const msg = zh
         ? `刪除「${what}」（第 ${i + 1} 個${noun.zh}）？裡面的內容會一併移除，且無法復原。`
         : `Delete "${what}" (${noun.en} ${i + 1})? Its content goes with it and cannot be restored.`;
-      if (!window.confirm(msg)) return;
+      if (!(await ask({ tone: "danger", title: msg }))) return;
     }
     commit(items.filter((_, j) => j !== i), open.filter((_, j) => j !== i), { kind: "remove", index: i });
   };
@@ -1986,6 +1990,7 @@ export function GalleryConfigForm({
   onChange: (c: Record<string, unknown>) => void;
   showLayoutOptions?: boolean;
 }) {
+  const { ask } = useConfirm();
   // Images may be plain URL strings (legacy) or { url, caption } objects. Normalise
   // to objects for editing so the URL field never receives an object (which would
   // render as "[object Object]") and captions stay editable per locale.
@@ -2016,7 +2021,7 @@ export function GalleryConfigForm({
     [next[i], next[j]] = [next[j], next[i]];
     update(next);
   };
-  const removeImage = (i: number) => {
+  const removeImage = async (i: number) => {
     const img = images[i];
     const caption = Object.values(img.caption ?? {}).map((v) => String(v ?? "").trim()).find(Boolean) ?? "";
     const filled = Boolean(img.url.trim() || caption);
@@ -2025,7 +2030,7 @@ export function GalleryConfigForm({
       const msg = zh
         ? `刪除「${what}」（第 ${i + 1} 張）？無法復原。`
         : `Delete "${what}" (image ${i + 1})? This cannot be undone.`;
-      if (!window.confirm(msg)) return;
+      if (!(await ask({ tone: "danger", title: msg }))) return;
     }
     update(images.filter((_, j) => j !== i));
   };
@@ -3474,6 +3479,7 @@ const altRowAnyLocale = anyLocale;
 function AlternatingRows({
   c, zh, editLocale, onChange,
 }: { c: Record<string, unknown>; zh: boolean; editLocale: string; onChange: (c: Record<string, unknown>) => void }) {
+  const { ask } = useConfirm();
   const items = useMemo(() => (Array.isArray(c.items) ? (c.items as Record<string, unknown>[]) : []), [c.items]);
   const bleed = c.layout === "bleed";
   const flip = c.flip === true;
@@ -3520,8 +3526,8 @@ function AlternatingRows({
     setDropIndex(null);
   };
 
-  const removeAt = (i: number) => {
-    if (altRowRenders(items[i]) && !window.confirm(zh ? "刪除這一列？" : "Delete this row?")) return;
+  const removeAt = async (i: number) => {
+    if (altRowRenders(items[i]) && !(await ask({ tone: "danger", title: zh ? "刪除這一列？" : "Delete this row?" }))) return;
     put(items.filter((_, j) => j !== i));
     setOpenIdx((prev) => (prev === null ? null : prev === i ? null : prev > i ? prev - 1 : prev));
   };
