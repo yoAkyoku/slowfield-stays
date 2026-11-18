@@ -1,4 +1,5 @@
 import AdminEmptyState from "./AdminEmptyState";
+import { TableFrame } from "../ui";
 
 type Column<T> = {
   key: keyof T | string;
@@ -50,36 +51,38 @@ export default function AdminTable<T extends Record<string, unknown>>({
   const visibleRows = maxRows ? rows.slice(0, maxRows) : rows;
   const hiddenCount = Math.max(rows.length - visibleRows.length, 0);
 
+  /* Built on the kit's TableFrame and .a-table, so a page that lists with this
+     looks like every other admin list. It used to draw its own legacy
+     .admin-table frame, which only these three pages still had. */
   return (
-    <div className="admin-table-frame">
-      <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              {columns.map((column) => (
-                <th key={String(column.key)}>{column.label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {visibleRows.map((row, index) => (
-              <tr key={rowKey ? rowKey(row, index) : String(row.id ?? index)}>
-                {columns.map((column) => (
-                  <td key={String(column.key)}>
-                    {column.render ? column.render(row) : String(row[column.key] ?? "")}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {hiddenCount > 0 ? (
-        <div className="admin-table-more">
+    <TableFrame
+      footer={hiddenCount > 0 ? (
+        <>
           <span>{hiddenCount} more records</span>
           {moreHref ? <a href={moreHref}>{moreLabel}</a> : null}
-        </div>
-      ) : null}
-    </div>
+        </>
+      ) : undefined}
+    >
+      <table className="a-table">
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={String(column.key)}>{column.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {visibleRows.map((row, index) => (
+            <tr key={rowKey ? rowKey(row, index) : String(row.id ?? index)}>
+              {columns.map((column) => (
+                <td key={String(column.key)} data-label={column.label}>
+                  {column.render ? column.render(row) : String(row[column.key] ?? "")}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </TableFrame>
   );
 }

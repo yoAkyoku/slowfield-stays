@@ -113,6 +113,8 @@ const blockPairs = compile("app/modules/blockPairs.tsx", {
 });
 
 const PAGE_BLOCK_STUBS: Record<string, unknown> = {
+  // The map is the shared embed; what it frames is MapEmbed's own test.
+  "../MapEmbed": { default: (p: Record<string, unknown>) => ({ type: "iframe", props: { src: p.src, children: [] } }) },
   "../socialLinks": socialLinks,
   react: REACT_STUB,
   "lucide-react": { Mail: "Mail", MapPin: "MapPin", MessageCircle: "MessageCircle", Phone: "Phone" },

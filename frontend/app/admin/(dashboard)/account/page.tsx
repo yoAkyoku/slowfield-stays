@@ -5,14 +5,11 @@ import { changePasswordAction } from "../../modules/accountActions";
 import SubmitButton from "../../modules/SubmitButton";
 import { Badge, Card, DescriptionList, Field, FormActions, Grid, Input, Page, PageHeader, Stack, buttonClass } from "../../ui";
 import AccountPermissionModal from "./AccountPermissionModal";
+import { labelFromMap } from "../../modules/adminUtils";
 
 /* Permission keys keep the plain lookup: an unlisted one is a bug in the
    table, and dressing `sites:read` up as "Sites:read" would hide it. Roles go
    through roleLabel, which spells an unlisted key as words. */
-function labelFromMap(map: Record<string, string>, value: string) {
-  return map[value] ?? value;
-}
-
 export default async function AdminAccountPage(
   props: {
     searchParams: Promise<{ error?: string; notice?: string }>;

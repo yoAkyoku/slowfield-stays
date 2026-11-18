@@ -7,7 +7,7 @@ import type { Locale } from "../../i18n";
 import { cardTagsT, cfgT, trs , eyebrowT, tagsT} from "../../tr";
 import { contentFilterTags, hasContentFilterTag } from "../../contentFilter";
 import ViewAllFooter from "../ViewAllFooter";
-import { ArticleCard } from "../../content/cards";
+import { ArticleCard, NewsCard } from "../../content/cards";
 import SectionHeading from "../../SectionHeading";
 
 export type BlockArticlesConfig = {
@@ -82,17 +82,15 @@ export default async function BlockArticles({ locale, config }: { locale: Locale
             const articleSummary = trs(article, "summary", locale);
             const category = cardTagsT(article, locale)[0];
             return (
-              <Link href={buildContentHref(article)} className="home-news-card" key={article.id}>
-                <div className="home-news-img">
-                  {article.cover_image_url && <img src={article.cover_image_url} alt={articleTitle} loading="lazy" />}
-                  {category && <span className="home-news-cat">{category}</span>}
-                </div>
-                <div className="home-news-body">
-                  <h3>{articleTitle}</h3>
-                  {articleSummary && <p>{articleSummary}</p>}
-                  <span className="home-news-more">{zh ? "閱讀更多" : "Read more"} <ArrowUpRight size={15} /></span>
-                </div>
-              </Link>
+              <NewsCard
+                key={article.id}
+                href={buildContentHref(article)}
+                title={articleTitle}
+                summary={articleSummary}
+                cover={article.cover_image_url}
+                category={category}
+                readMore={zh ? "閱讀更多" : "Read more"}
+              />
             );
           })}
         </RailOrGrid>

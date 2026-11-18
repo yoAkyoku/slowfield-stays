@@ -1,17 +1,7 @@
 "use server";
 
-import { adminJsonDataRequest, adminJsonRequest, type AdminResult } from "./adminRequest";
-import { actionRedirect, bulkDeleteResult, stampedRedirect } from "./adminUtils";
-
-function safeReturnTo(value: string, fallback: string): string {
-  const trimmed = value.trim();
-  return trimmed.startsWith("/admin/") ? trimmed : fallback;
-}
-
-function formRedirect(result: AdminResult, formData: FormData) {
-  const returnTo = safeReturnTo(String(formData.get("return_to") ?? ""), "/admin/stays");
-  actionRedirect(result, returnTo);
-}
+import { adminJsonDataRequest, adminJsonRequest } from "./adminRequest";
+import { actionRedirect, bulkDeleteResult, formRedirect, parseTranslations, safeReturnTo, stampedRedirect } from "./adminUtils";
 
 function lines(value: FormDataEntryValue | null) {
   return String(value ?? "")
@@ -62,16 +52,6 @@ function parseFaq(value: FormDataEntryValue | null) {
     const [question = "", answer = ""] = line.split("|").map((item) => item.trim());
     return { question, answer };
   });
-}
-
-function parseTranslations(formData: FormData): Record<string, Record<string, string>> {
-  const raw = String(formData.get("translations") ?? "{}");
-  try {
-    const parsed = JSON.parse(raw);
-    return typeof parsed === "object" && parsed !== null ? parsed : {};
-  } catch {
-    return {};
-  }
 }
 
 /** Carried through the form as hidden JSON so a full-replace PUT does not blank
@@ -148,7 +128,7 @@ function stayPayload(formData: FormData) {
 
 export async function createStayAction(formData: FormData) {
   const result = await adminJsonDataRequest<{ id: number; slug: string; status: string }>("/stays", stayPayload(formData));
-  if (!result.ok) formRedirect(result, formData);
+  if (!result.ok) formRedirect(result, formData, "/admin/stays");
   const stay = result.data;
   if (!stay?.id) stampedRedirect("/admin/stays/new?error=Stay+create+failed");
   actionRedirect(result, `/admin/stays/${stay.id}/edit`);
@@ -156,7 +136,7 @@ export async function createStayAction(formData: FormData) {
 
 export async function updateStayAction(id: string, formData: FormData) {
   const result = await adminJsonRequest(`/stays/${id}`, stayPayload(formData), "PUT");
-  formRedirect(result, formData);
+  formRedirect(result, formData, "/admin/stays");
 }
 
 export async function updateStayStatusAction(id: string, status: string) {

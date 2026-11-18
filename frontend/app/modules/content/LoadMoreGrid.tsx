@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { buildContentHref } from "../contentRoutes";
 import type { Locale } from "../i18n";
 import { cardTagsT, trs } from "../tr";
 import { ContentCard } from "./cards";
+import LoadMore from "./LoadMore";
 
 export type CardItem = {
   id: number;
@@ -34,9 +35,6 @@ export default function LoadMoreGrid({
   locale?: Locale;
   children?: (item: CardItem, index: number) => ReactNode;
 }) {
-  const [shown, setShown] = useState(initialCount);
-  const visible = items.slice(0, shown);
-  const hasMore = shown < items.length;
 
   const itemTitle = (item: CardItem) => locale ? trs(item, "title", locale) : item.title;
   const itemSummary = (item: CardItem) => locale ? trs(item, "summary", locale) : (item.summary ?? "");
@@ -54,26 +52,14 @@ export default function LoadMoreGrid({
     />
   );
 
-  const renderCard = children || defaultCard;
-
   return (
-    <>
-      <div className={className || "content-card-grid"}>
-        {visible.map((item, index) => renderCard(item, index))}
-      </div>
-      <div className="load-more-container">
-        {hasMore ? (
-          <button
-            className="load-more-button"
-            type="button"
-            onClick={() => setShown((s) => Math.min(s + initialCount, items.length))}
-          >
-            {loadMoreLabel}
-          </button>
-        ) : items.length > initialCount ? (
-          <span className="load-more-done">{noMoreLabel}</span>
-        ) : null}
-      </div>
-    </>
+    <LoadMore
+      items={items}
+      initialCount={initialCount}
+      loadMoreLabel={loadMoreLabel}
+      noMoreLabel={noMoreLabel}
+      className={className || "content-card-grid"}
+      render={children || defaultCard}
+    />
   );
 }

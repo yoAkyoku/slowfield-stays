@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import useAutoAdvance from "../useAutoAdvance";
-import { cssUrl } from "../safeCss";
+import { useMemo } from "react";
+import useCardGallery from "../useCardGallery";
+import { galleryLabels } from "../galleryLabels";
 import type { Locale } from "../i18n";
 
 export type ShowcaseStay = {
@@ -37,23 +37,29 @@ export default function StayShowcaseCard({
   locale: Locale;
 }) {
   const zh = locale === "zh";
-  const imgs = stay.images.length ? stay.images : [];
-  const [i, setI] = useState(0);
-  const many = imgs.length > 1;
-  const go = (d: number) => setI((p) => (p + d + imgs.length) % imgs.length);
-  const autoRef = useAutoAdvance(() => go(1), { count: imgs.length });
+  const labels = galleryLabels(zh);
+  /* The same strip as StayCard: swipe on a phone, and a photo that does not
+     load is dropped rather than left as a blank frame. */
+  const photos = useMemo(() => stay.images.map((src) => ({ src })), [stay.images]);
+  const { gallery, activeIndex: i, onStep, onSelect, autoRef, swipeHandlers, markFailed } = useCardGallery(photos);
+  const many = gallery.length > 1;
 
   return (
     <article className="home-showcase-card home-reveal">
-      <div className="home-showcase-media" ref={autoRef}>
-        {imgs.length > 0 ? (
+      <div className="home-showcase-media" ref={autoRef} {...swipeHandlers}>
+        {gallery.length > 0 ? (
           <Link href={stay.propertyHref} className="home-showcase-stage" aria-label={stay.name}>
-            {imgs.map((src, idx) => (
-              <span
-                key={idx}
+            {gallery.map(({ src }, idx) => (
+              /* An <img>, not a background, so a photo that fails to load says
+                 so and can be taken out of the strip. */
+              <img
+                key={src}
+                src={src}
+                alt=""
+                loading={idx === 0 ? "eager" : "lazy"}
                 className={`home-showcase-slide${idx === i ? " is-active" : ""}`}
-                style={{ backgroundImage: cssUrl(src) }}
                 aria-hidden={idx !== i}
+                onError={(event) => markFailed(src, event.currentTarget)}
               />
             ))}
           </Link>
@@ -62,21 +68,21 @@ export default function StayShowcaseCard({
         )}
         {many && (
           <>
-            <button type="button" className="home-showcase-nav home-showcase-nav--prev" aria-label={zh ? "上一張" : "Previous"} onClick={() => go(-1)}><ChevronLeft size={18} /></button>
-            <button type="button" className="home-showcase-nav home-showcase-nav--next" aria-label={zh ? "下一張" : "Next"} onClick={() => go(1)}><ChevronRight size={18} /></button>
+            <button type="button" className="home-showcase-nav home-showcase-nav--prev" aria-label={labels.previous} onClick={(event) => onStep(event, -1)}><ChevronLeft size={18} /></button>
+            <button type="button" className="home-showcase-nav home-showcase-nav--next" aria-label={labels.next} onClick={(event) => onStep(event, 1)}><ChevronRight size={18} /></button>
             {/* group + aria-current, not tablist/aria-selected: these pick a photo
                 in place, there is no tabpanel, and aria-selected is not supported
                 on a button at all — so which dot was current reached a screen
                 reader as nothing. */}
-            <div className="home-showcase-dots" role="group" aria-label={zh ? "照片" : "Photos"}>
-              {imgs.map((_, idx) => (
+            <div className="home-showcase-dots" role="group" aria-label={labels.group}>
+              {gallery.map((_, idx) => (
                 <button
                   key={idx}
                   type="button"
                   className={`home-showcase-dot${idx === i ? " is-active" : ""}`}
-                  aria-label={zh ? `第 ${idx + 1} 張` : `Photo ${idx + 1}`}
+                  aria-label={labels.photo(idx + 1)}
                   aria-current={idx === i}
-                  onClick={() => setI(idx)}
+                  onClick={(event) => onSelect(event, idx)}
                 />
               ))}
             </div>

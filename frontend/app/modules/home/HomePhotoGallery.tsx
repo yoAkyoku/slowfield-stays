@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import useAutoAdvance from "../useAutoAdvance";
+import { galleryLabels } from "../galleryLabels";
 
 /** One tile of the 相片拼貼牆. `caption` is already resolved to the reader's
  *  language by the caller — see BlockGallery. */
@@ -11,7 +12,9 @@ export type HomeGalleryImage = { url: string; caption?: string };
  *  one large photo at a time. */
 export type HomeGalleryDisplay = "carousel" | "wall";
 
-export default function HomePhotoGallery({ images, eyebrow, title, display = "carousel" }: { images: HomeGalleryImage[]; eyebrow: string; title: string; display?: HomeGalleryDisplay }) {
+export default function HomePhotoGallery({ images, eyebrow, title, display = "carousel", zh = true }: { images: HomeGalleryImage[]; eyebrow: string; title: string; display?: HomeGalleryDisplay; zh?: boolean }) {
+  /* The arrows were labelled in English on the Chinese page too. */
+  const labels = galleryLabels(zh);
   const shown = images.slice(0, 8);
   const [index, setIndex] = useState(0);
 
@@ -84,9 +87,9 @@ export default function HomePhotoGallery({ images, eyebrow, title, display = "ca
         ))}
         {shown.length > 1 && (
           <div className="home-gallery-controls">
-            <button type="button" onClick={() => go(currentIndex - 1)} aria-label="Previous image">&#8592;</button>
+            <button type="button" onClick={() => go(currentIndex - 1)} aria-label={labels.previous}>&#8592;</button>
             <span aria-live="polite">{currentIndex + 1} / {shown.length}</span>
-            <button type="button" onClick={() => go(currentIndex + 1)} aria-label="Next image">&#8594;</button>
+            <button type="button" onClick={() => go(currentIndex + 1)} aria-label={labels.next}>&#8594;</button>
           </div>
         )}
       </div>

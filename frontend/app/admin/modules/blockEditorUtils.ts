@@ -5,6 +5,8 @@
  * disagreed on whether a block "has content" worth confirming a delete for.
  */
 
+import { plainText } from "../../modules/safeHtml";
+
 /** A block as the editors hold it. */
 export type EditorBlock = {
   id: string;
@@ -67,7 +69,7 @@ export function cloneBlock<B extends EditorBlock>(block: B): B {
 export function blockHasContent(block: Pick<EditorBlock, "config">): boolean {
   const filled = (v: unknown): boolean => {
     if (v === null || v === undefined || v === false || v === "") return false;
-    if (typeof v === "string") return v.replace(/<[^>]*>/g, "").trim().length > 0;
+    if (typeof v === "string") return plainText(v).length > 0;
     if (Array.isArray(v)) return v.some(filled);
     if (typeof v === "object") return Object.values(v as Record<string, unknown>).some(filled);
     return true;

@@ -8,7 +8,8 @@ import AdminEmptyState from "../../../modules/AdminEmptyState";
 import { nlStatusTone } from "../nlStatusTone";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { NewsletterCampaign } from "../../../modules/adminApi";
-import AdminPagination, { paginate, usePagination } from "../../../modules/AdminPagination";
+import AdminPagination, { usePagination } from "../../../modules/AdminPagination";
+import { getPageSlice } from "../../../modules/paginationUtils";
 import ConfirmSubmitButton from "../../../modules/ConfirmSubmitButton";
 import SubmitButton from "../../../modules/SubmitButton";
 import { formatDateTime, siteDateKey } from "../../../../modules/datetime";
@@ -80,7 +81,7 @@ export default function CampaignsPanel({
 
   useEffect(() => { resetPage(); }, [keyword, dateField, dateFrom, dateTo, resetPage]);
 
-  const paginatedRows = paginate(filtered, page, pageSize);
+  const paginatedRows = getPageSlice(filtered, page, pageSize);
 
   const clearFilters = useCallback(() => {
     setKeyword("");

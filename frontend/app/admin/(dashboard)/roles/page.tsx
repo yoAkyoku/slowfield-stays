@@ -5,57 +5,7 @@ import AdminSopButton from "../../modules/AdminSopButton";
 import { ShieldAlert } from "lucide-react";
 import { Callout, Page, PageHeader } from "../../ui";
 import RolesTabView from "./RolesTabView";
-
-const permissionGroups = (zh: boolean) => [
-  {
-    id: "sites",
-    label: zh ? "群站管理" : "Site Network",
-    labelEn: zh ? "SITE NETWORK" : "",
-    permissions: ["sites:read", "sites:write"]
-  },
-  {
-    id: "global_users",
-    label: zh ? "全域帳號" : "Global Users",
-    labelEn: zh ? "GLOBAL USERS" : "",
-    permissions: ["global_users:read", "global_users:write"]
-  },
-  {
-    id: "roles",
-    label: zh ? "角色管理" : "Roles",
-    labelEn: zh ? "ROLES" : "",
-    permissions: ["roles:read", "roles:write"]
-  },
-  {
-    id: "stays",
-    label: zh ? "住宿管理" : "Accommodations",
-    labelEn: zh ? "ACCOMMODATIONS" : "",
-    permissions: ["stays:read", "stays:write"]
-  },
-  {
-    id: "content",
-    label: zh ? "內容與媒體" : "Content & Media",
-    labelEn: zh ? "CONTENT & MEDIA" : "",
-    permissions: ["cms:read", "cms:write", "media:read", "media:write"]
-  },
-  {
-    id: "comms",
-    label: zh ? "表單聯絡" : "Form contacts",
-    labelEn: zh ? "INQUIRIES & BOOKINGS" : "",
-    permissions: ["inquiries:read", "inquiries:write"]
-  },
-  {
-    id: "newsletter",
-    label: zh ? "電子報" : "Newsletter",
-    labelEn: zh ? "NEWSLETTER" : "",
-    permissions: ["newsletter:read", "newsletter:write"]
-  },
-  {
-    id: "site_users",
-    label: zh ? "站點帳號" : "Site Users",
-    labelEn: zh ? "SITE USERS" : "",
-    permissions: ["site_users:read", "site_users:write"]
-  }
-];
+import { permissionGroups } from "../../modules/permissionGroups";
 
 export default async function AdminRolesPage(
   props: {

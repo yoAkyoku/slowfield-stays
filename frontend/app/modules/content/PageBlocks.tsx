@@ -1,7 +1,8 @@
 import { lineUrl, mapsUrl } from "../socialLinks";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { renderWithPairs } from "../blockPairs";
-import { googleMapEmbedSrc, mapSrcForLocale } from "../safeHtml";
+import { googleMapEmbedSrc } from "../safeHtml";
+import MapEmbed from "../MapEmbed";
 import type { Locale } from "../i18n";
 import ContactOffices from "./ContactOffices";
 import { cfgT, eyebrowT } from "../tr";
@@ -80,9 +81,7 @@ function ContactInfo({ config, locale, siteLine }: { config: Record<string, unkn
   // (安全: 不可嵌入任意來源；此前既讀錯 key 又未驗證).
   const mapEmbed = typeof config.map_embed === "string" ? config.map_embed : "";
   const mapUrlRaw = typeof config.map_url === "string" ? config.map_url : "";
-  const mapSrc = googleMapEmbedSrc(mapEmbed) || googleMapEmbedSrc(mapUrlRaw);
-  // Google labels the map; hl is what makes them follow the site language.
-  const mapSrcT = mapSrcForLocale(mapSrc, locale);
+  const mapSrc = googleMapEmbedSrc(mapEmbed) || googleMapEmbedSrc(mapUrlRaw);
   // Multiple 通訊處 / offices — each a name with its own phone and address, for
   // brands that list several (台北通訊處、台南通訊處…). Kept separate from the
   // single central phone/email/LINE above.
@@ -147,9 +146,11 @@ function ContactInfo({ config, locale, siteLine }: { config: Record<string, unkn
           {directions.split("\n").map((ln, i) => (ln.trim() ? <p key={i}>{ln}</p> : null))}
         </div>
       )}
-      {mapSrcT && (
+      {mapSrc && (
         <div className="page-block-contact-map">
-          <iframe key={mapSrcT} src={mapSrcT} loading="lazy" referrerPolicy="no-referrer-when-downgrade" title={locale === "zh" ? "地圖" : "Map"} style={{ width: "100%", height: "300px", border: 0 }} />
+          {/* The shared embed: it holds the wheel until the map is clicked, so
+              scrolling the contact page does not zoom the map instead. */}
+          <MapEmbed src={mapSrc} title={locale === "zh" ? "地圖" : "Map"} locale={locale as Locale} />
         </div>
       )}
     </section>

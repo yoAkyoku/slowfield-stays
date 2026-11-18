@@ -105,6 +105,8 @@ const blockTable = compile("app/modules/property/blocks/BlockTable.tsx", {
 });
 
 const PAGE_BLOCK_STUBS: Record<string, unknown> = {
+  // The map is the shared embed; what it frames is MapEmbed's own test.
+  "../MapEmbed": { default: (p: Record<string, unknown>) => ({ type: "iframe", props: { src: p.src, children: [] } }) },
   "../property/blocks/BlockFaqAccordion": faqAccordion,
   "../property/blocks/BlockHouseRules": houseRules,
   "../property/blocks/BlockTable": blockTable,

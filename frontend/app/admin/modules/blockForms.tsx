@@ -10,13 +10,15 @@
  */
 
 import Link from "next/link";
-import { useState, useEffect, useMemo, useRef, useId } from "react";
+import { useState, useEffect, useMemo, useId } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { ChevronDown, ChevronUp, GripVertical, Trash2 } from "lucide-react";
 import type { AdminSite } from "./adminApi";
 import { siteContentTypesFromConfig } from "./siteContentTypes";
 import { PUBLIC_API_URL as API_URL } from "../../modules/apiBase";
-import { useConfirm } from "../ui";
+import { Button, Dialog, DialogActions, useConfirm } from "../ui";
+import { plainText } from "../../modules/safeHtml";
+import { editableHeroScrollLabel } from "../../modules/heroScrollLabel";
 
 /** The read-only shape of the site's managed bilingual tag catalogue. */
 export type ManagedTagOption = {
@@ -67,26 +69,6 @@ export function mergeManagedTagOptions(
 }
 
 /**
- * Read the value shown in the editor without filling an empty field.
- *
- * The public renderer applies the default label at display time. The editor
- * must keep an empty string visible and writable, otherwise clearing the
- * controlled input immediately replaces it with the default and the author
- * can never save an intentional blank.
- */
-export function resolveHeroScrollLabel(raw: unknown, locale: string): string {
-  const value = raw && typeof raw === "object" && !Array.isArray(raw)
-    ? (raw as Record<string, unknown>)[locale]
-    : raw;
-  const text = typeof value === "string" ? value.trim() : "";
-  // Numeric leftovers came from an old field-shape collision with the slide
-  // count. They are data corruption, not meaningful copy, so show an empty
-  // editable value and let the public renderer supply its locale default.
-  if (/^\d+$/.test(text)) return "";
-  return text;
-}
-
-/**
  * Arrow keys for a radiogroup of buttons.
  *
  * The groups already carry the radiogroup and radio roles with `aria-checked` —
@@ -123,7 +105,6 @@ export function radioGroupKeys(e: ReactKeyboardEvent<HTMLDivElement>): void {
 }
 import ImageUploadInput from "../(dashboard)/homepage/ImageUploadInput";
 import { resolveMapMode } from "../../modules/property/blocks/mapMode";
-import { useOverlay } from "../../modules/useOverlay";
 import RichTextEditor from "./RichTextEditor";
 import { Field, FieldLabel, HeadingInput, getVal, setVal } from "./blockFields";
 import { altRowRenders, altReindex, anyLocale } from "./alternatingRows";
@@ -312,7 +293,7 @@ export function HeroBannerConfigForm({
       </Field>
       <Field label={zh ? "向下探索文字" : "Scroll cue text"}>
         <input
-          value={resolveHeroScrollLabel(c.scroll_label, editLocale)}
+          value={editableHeroScrollLabel(c.scroll_label, editLocale)}
           onChange={(e) => onChange(setVal(c, "scroll_label", editLocale, e.target.value))}
           placeholder={zh ? "向下探索" : "Scroll to explore"}
         />
@@ -323,10 +304,9 @@ export function HeroBannerConfigForm({
         </p>
       </Field>
       <Field label={zh ? "高度" : "Height"}>
-        <select
+        <select className="a-u-full-width"
           value={height}
           onChange={(e) => onChange({ ...c, height: e.target.value })}
-          style={{ width: "100%" }}
         >
           {/* The winning min-height when this is unset is 100dvh on .hero and 100vh on
               .hero.hero-carousel — never 55vh. Labelled 55vh, picking 中 (55vh) to
@@ -365,7 +345,7 @@ export function HeroBannerConfigForm({
             the hex box beside each swatch had no accessible name at all. Both
             halves are named explicitly rather than relying on that. */}
         <Field label={zh ? "標題顏色" : "Title colour"}>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <div className="a-u-row-center">
             <input
               type="color"
               aria-label={zh ? "標題顏色（色票）" : "Title colour (swatch)"}
@@ -373,11 +353,11 @@ export function HeroBannerConfigForm({
               onChange={(e) => onChange({ ...c, titleColor: e.target.value })}
               style={{ width: 40, height: 32, border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer" }}
             />
-            <input type="text" aria-label={zh ? "標題顏色（色碼）" : "Title colour (hex)"} value={titleColor} onChange={(e) => onChange({ ...c, titleColor: e.target.value })} style={{ flex: 1 }} />
+            <input className="a-u-grow" type="text" aria-label={zh ? "標題顏色（色碼）" : "Title colour (hex)"} value={titleColor} onChange={(e) => onChange({ ...c, titleColor: e.target.value })} />
           </div>
         </Field>
         <Field label={zh ? "副標顏色" : "Subtitle colour"}>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <div className="a-u-row-center">
             <input
               type="color"
               aria-label={zh ? "副標顏色（色票）" : "Subtitle colour (swatch)"}
@@ -385,7 +365,7 @@ export function HeroBannerConfigForm({
               onChange={(e) => onChange({ ...c, subtitleColor: e.target.value })}
               style={{ width: 40, height: 32, border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer" }}
             />
-            <input type="text" aria-label={zh ? "副標顏色（色碼）" : "Subtitle colour (hex)"} value={subtitleColor} onChange={(e) => onChange({ ...c, subtitleColor: e.target.value })} style={{ flex: 1 }} />
+            <input className="a-u-grow" type="text" aria-label={zh ? "副標顏色（色碼）" : "Subtitle colour (hex)"} value={subtitleColor} onChange={(e) => onChange({ ...c, subtitleColor: e.target.value })} />
           </div>
         </Field>
       </div>
@@ -505,7 +485,7 @@ export function RoomsConfigForm({
       ) : null}
 
       <FieldLabel>{zh ? "房型 / 空間項目" : "Rooms / Spaces"}</FieldLabel>
-      <div style={{ marginTop: 8 }}>
+      <div className="a-u-mt-8">
         <ItemsEditor
           items={items}
           fields={roomFields}
@@ -583,14 +563,14 @@ export function NewsletterConfigForm({
       </Field>
       <Field label={zh ? "背景顏色" : "Background colour"}>
         <div style={{ display: "flex", gap: 8 }}>
-          <input type="color" aria-label={zh ? "背景顏色（色票）" : "Background colour (swatch)"} value={bgColor || "#ffffff"} onChange={e => setBg(e.target.value)} style={{ width: 44, height: 32, cursor: "pointer" }} />
-          <input type="text" aria-label={zh ? "背景顏色（色碼）" : "Background colour (hex)"} value={bgColor} onChange={e => setBg(e.target.value)} placeholder={zh ? "預設" : "Default"} style={{ flex: 1 }} />
+          <input className="a-u-swatch-sm" type="color" aria-label={zh ? "背景顏色（色票）" : "Background colour (swatch)"} value={bgColor || "#ffffff"} onChange={e => setBg(e.target.value)} />
+          <input className="a-u-grow" type="text" aria-label={zh ? "背景顏色（色碼）" : "Background colour (hex)"} value={bgColor} onChange={e => setBg(e.target.value)} placeholder={zh ? "預設" : "Default"} />
         </div>
       </Field>
       <Field label={zh ? "文字顏色" : "Text colour"}>
         <div style={{ display: "flex", gap: 8 }}>
-          <input type="color" aria-label={zh ? "文字顏色（色票）" : "Text colour (swatch)"} value={textColor || "#3a322b"} onChange={e => onChange({ ...c, text_color: e.target.value })} style={{ width: 44, height: 32, cursor: "pointer" }} />
-          <input type="text" aria-label={zh ? "文字顏色（色碼）" : "Text colour (hex)"} value={textColor} onChange={e => onChange({ ...c, text_color: e.target.value })} placeholder={zh ? "預設" : "Default"} style={{ flex: 1 }} />
+          <input className="a-u-swatch-sm" type="color" aria-label={zh ? "文字顏色（色票）" : "Text colour (swatch)"} value={textColor || "#3a322b"} onChange={e => onChange({ ...c, text_color: e.target.value })} />
+          <input className="a-u-grow" type="text" aria-label={zh ? "文字顏色（色碼）" : "Text colour (hex)"} value={textColor} onChange={e => onChange({ ...c, text_color: e.target.value })} placeholder={zh ? "預設" : "Default"} />
         </div>
       </Field>
       {/* full_bleed moved to inspector panel */}
@@ -645,7 +625,7 @@ export function RichTextConfigForm({
     <div className="rtc-form">
       {/* Compact controls row (align + font size + heading colour + body colour) */}
       <div className="rtc-row" style={{ display: "flex", gap: 16, alignItems: "flex-end", flexWrap: "wrap", marginBottom: 12 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div className="a-u-col">
           <FieldLabel>{zh ? "對齊" : "Align"}</FieldLabel>
           <div className="rtc-align" role="radiogroup" onKeyDown={radioGroupKeys} aria-label={zh ? "對齊方式" : "Text align"} style={{ display: "inline-flex", border: "1px solid var(--line)", borderRadius: 6, overflow: "hidden" }}>
             {ALIGNS.map((a, i) => (
@@ -669,23 +649,23 @@ export function RichTextConfigForm({
             ))}
           </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div className="a-u-col">
           <FieldLabel>{zh ? "行距" : "Line height"}</FieldLabel>
           <select value={String(c._lineHeight ?? "")} onChange={(e) => onChange(e.target.value ? { ...c, _lineHeight: e.target.value } : (() => { const { _lineHeight, ...rest } = c as Record<string, unknown>; void _lineHeight; return rest; })())}>
             <option value="">{zh ? "預設" : "Default"}</option>
             {["1.2","1.4","1.6","1.8","2.0","2.2"].map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div className="a-u-col">
           <FieldLabel>{zh ? "字間" : "Letter spacing"}</FieldLabel>
           <select value={String(c._letterSpacing ?? "")} onChange={(e) => onChange(e.target.value ? { ...c, _letterSpacing: e.target.value } : (() => { const { _letterSpacing, ...rest } = c as Record<string, unknown>; void _letterSpacing; return rest; })())}>
             <option value="">{zh ? "預設" : "Default"}</option>
             {["0px","0.5px","1px","1.5px","2px","3px"].map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div className="a-u-col">
           <FieldLabel>{zh ? "標題色" : "Heading"}</FieldLabel>
-          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          <div className="a-u-row-tight">
             {/* FieldLabel is a <span>, so these swatches sat beside a caption
                 that names nothing: without an explicit label they read out as
                 bare colour pickers. */}
@@ -707,9 +687,9 @@ export function RichTextConfigForm({
             )}
           </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div className="a-u-col">
           <FieldLabel>{zh ? "內文色" : "Body"}</FieldLabel>
-          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          <div className="a-u-row-tight">
             <input
               type="color"
               aria-label={zh ? "內文色" : "Body colour"}
@@ -728,9 +708,9 @@ export function RichTextConfigForm({
             )}
           </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div className="a-u-col">
           <FieldLabel>{zh ? "區塊背景" : "Background"}</FieldLabel>
-          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+          <div className="a-u-row-tight">
             <input
               type="color"
               aria-label={zh ? "區塊背景色" : "Block background colour"}
@@ -1452,7 +1432,7 @@ const DEFAULT_NOUN: ItemNoun = { zh: "項目", en: "item" };
  *  rather than its tags. */
 function itemFieldText(v: unknown): string {
   if (v == null) return "";
-  if (typeof v === "string") return v.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  if (typeof v === "string") return plainText(v);
   if (typeof v === "number" || typeof v === "boolean") return String(v);
   if (Array.isArray(v)) return v.map(itemFieldText).filter(Boolean).join(" ");
   if (typeof v === "object") {
@@ -1713,7 +1693,7 @@ export function ItemsEditor({
       return (
         <div key={f.key} style={{ marginBottom: 10 }}>
           <FieldLabel>{f.label}</FieldLabel>
-          <div style={{ marginTop: 6 }}>
+          <div className="a-u-mt-6">
             <ItemsEditor
               items={normaliseItemRows(item[f.key], nestedFields)}
               fields={nestedFields}
@@ -2296,7 +2276,7 @@ export function ContactInfoConfigForm({
           : "Turning this off keeps the values above, it only hides the card. The office list is unaffected."}
       </p>
       <FieldLabel>{zh ? "通訊處（可多個：台北 / 台南 / 台東…）" : "Offices (add several)"}</FieldLabel>
-      <div style={{ marginTop: 8 }}>
+      <div className="a-u-mt-8">
         <ItemsEditor
           items={Array.isArray(c.offices) ? (c.offices as Record<string, unknown>[]) : []}
           fields={[
@@ -2345,7 +2325,7 @@ export function AttractionsConfigForm({
         <textarea rows={4} value={getVal(c, "caption", editLocale)} onChange={(e) => onChange(setVal(c, "caption", editLocale, e.target.value))} />
       </Field>
       <FieldLabel>{zh ? "景點項目" : "Attractions"}</FieldLabel>
-      <div style={{ marginTop: 8 }}>
+      <div className="a-u-mt-8">
         <ItemsEditor
           items={Array.isArray(c.items) ? (c.items as Record<string, unknown>[]) : []}
           fields={[
@@ -2389,7 +2369,7 @@ export function FaqConfigForm({
         <HeadingInput value={getVal(c, "title", editLocale)} onChange={(v) => onChange(setVal(c, "title", editLocale, v))} />
       </Field>
       <FieldLabel>{zh ? "問答項目" : "FAQ Items"}</FieldLabel>
-      <div style={{ marginTop: 8 }}>
+      <div className="a-u-mt-8">
         <ItemsEditor
           items={Array.isArray(c.items) ? (c.items as Record<string, unknown>[]) : []}
           fields={[
@@ -2423,7 +2403,7 @@ export function PathwaysConfigForm({
         <textarea rows={3} value={getVal(c, "intro", editLocale)} onChange={(e) => onChange(setVal(c, "intro", editLocale, e.target.value))} />
       </Field>
       <FieldLabel>{zh ? "路徑卡片（留空則使用預設）" : "Pathway items (leave empty for defaults)"}</FieldLabel>
-      <div style={{ marginTop: 8 }}>
+      <div className="a-u-mt-8">
         <ItemsEditor
           items={Array.isArray(c.items) ? (c.items as Record<string, unknown>[]) : []}
           fields={[
@@ -2673,7 +2653,7 @@ export function StaysConfigForm({
             never read (客戶: 檢查所有 block 的設置是否生效). Hidden rather than
             left to look available. */}
         {variant === "feature" ? (
-          <p className="hpb-field-hint" style={{ marginTop: 10 }}>
+          <p className="hpb-field-hint a-u-mt-10">
             {zh
               ? "「精選大圖」有自己的版面（每筆大圖＋照片輪播），因此不提供「橫向捲動」與標籤設定。需要那些請改用其他排版樣式。"
               : "“Featured” has a layout of its own — a large image and photo carousel per entry — so the card row and tag controls do not apply. Pick another layout for those."}
@@ -2685,7 +2665,7 @@ export function StaysConfigForm({
              tick visibly broke the block rather than doing nothing. Tags are a
              separate matter: the index rows draw none and the chip row excludes
              this variant, so both switches were inert here too. */
-          <p className="hpb-field-hint" style={{ marginTop: 10 }}>
+          <p className="hpb-field-hint a-u-mt-10">
             {zh
               ? "「編號列表」是直式的編號清單，沒有卡片列，因此不提供「橫向捲動」與標籤設定。需要那些請改用「網格」或「最新消息卡」。"
               : "“Numbered index” is a vertical list rather than a card row, so the side-scroll and tag controls do not apply. Use 網格 or 最新消息卡 for those."}
@@ -2697,11 +2677,10 @@ export function StaysConfigForm({
            `rail`, so nothing saved changes. */
         <Field label={zh ? "橫向捲動" : "Side-scroll"}>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-            <input
+            <input className="a-u-auto-width"
               type="checkbox"
               checked={c.rail === true}
               onChange={(e) => onChange({ ...c, rail: e.target.checked })}
-              style={{ width: "auto" }}
             />
             <span>{zh ? "排成一列，可左右捲動" : "One row, scrolling sideways"}</span>
           </label>
@@ -2733,20 +2712,18 @@ export function StaysConfigForm({
               by picked_tags on every variant, news included — so it stays. */}
           {variant !== "news" && (<>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-            <input
+            <input className="a-u-auto-width"
               type="checkbox"
               checked={c.show_tags === true}
               onChange={(e) => onChange({ ...c, show_tags: e.target.checked })}
-              style={{ width: "auto" }}
             />
             <span>{zh ? "在卡片上顯示標籤" : "Show tags on the cards"}</span>
           </label>
           <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginTop: 8 }}>
-            <input
+            <input className="a-u-auto-width"
               type="checkbox"
               checked={c.show_filter === true}
               onChange={(e) => onChange({ ...c, show_filter: e.target.checked })}
-              style={{ width: "auto" }}
             />
             <span>{zh ? "顯示分類篩選按鈕" : "Show the category filter chips"}</span>
           </label>
@@ -2798,7 +2775,7 @@ export function StaysConfigForm({
                   : `The link always points at the ${sourceLabel(source)} index page.`)}
           </p>
           {extraSourceCount > 0 && (
-            <p className="hpb-field-hint" style={{ marginTop: 6 }}>
+            <p className="hpb-field-hint a-u-mt-6">
               {zh
                 ? `這個區塊還併了「${extraSources.map((source) => sourceLabel(source)).join("、")}」，那些內容不會出現在該頁——所以留空時會自動帶入「查看更多${sourceLabel(source)}」，讓連結文字和落點一致。要各自獨立的入口，請拆成多個區塊。`
                 : `This block also merges ${extraSources.map((source) => sourceLabel(source)).join(", ")}, which that page does not list — so a blank label auto-fills as “More ${sourceLabel(source)}”, matching the text to where it lands. Split the row into separate blocks if each category needs its own entry point.`}
@@ -2854,7 +2831,7 @@ export function HouseRulesConfigForm({
         </p>
       </Field>
       <FieldLabel>{zh ? "規則項目" : "Rule Items"}</FieldLabel>
-      <div style={{ marginTop: 6 }}>
+      <div className="a-u-mt-6">
         <ItemsEditor
           items={items}
           fields={[
@@ -2927,7 +2904,7 @@ export function TableConfigForm({
         />
       </div>
       <FieldLabel>{zh ? `資料列（${trows.length}）` : `Rows (${trows.length})`}</FieldLabel>
-      <div style={{ marginTop: 6 }}>
+      <div className="a-u-mt-6">
         {/* A row is a positional string[], not a field bag, so it drives the shared
             row chrome directly rather than through the field descriptors. */}
         <RepeatedRows<string[]>
@@ -3245,7 +3222,7 @@ export function FeatureBadgesConfigForm({
         </>
       )}
       <FieldLabel>{zh ? "標籤列表（可自訂）" : "Badge Items (custom)"}</FieldLabel>
-      <div style={{ marginTop: 6 }}>
+      <div className="a-u-mt-6">
         <ItemsEditor
           items={items}
           fields={[
@@ -3830,7 +3807,7 @@ export function PartnersConfigForm({
         <textarea rows={3} value={getVal(c, "caption", editLocale)} onChange={(e) => onChange(setVal(c, "caption", editLocale, e.target.value))} />
       </Field>
       <FieldLabel>{zh ? "合作品牌" : "Partner brands"}</FieldLabel>
-      <div style={{ marginTop: 8 }}>
+      <div className="a-u-mt-8">
         <ItemsEditor
           items={Array.isArray(c.items) ? (c.items as Record<string, unknown>[]) : []}
           /* 代表照片 and 簡短說明 are offered only on the cards layout, because
@@ -4125,14 +4102,14 @@ export function ContentTagFilterPicker({
             ))}
           </div>
           {!available.length && (
-            <p className="hpb-field-hint" style={{ marginTop: 10 }}>
+            <p className="hpb-field-hint a-u-mt-10">
               {zh
                 ? "這些來源的內容目前都沒有標籤。先到內容管理替文章加上標籤，這裡就會列出來。"
                 : "No entry in these sources carries a tag yet. Add tags in content management and they will appear here."}
             </p>
           )}
           {orphan && (
-            <p className="hpb-field-hint" style={{ marginTop: 10 }}>
+            <p className="hpb-field-hint a-u-mt-10">
               {zh
                 ? onlyOrphans
                   ? `目前設定的「${orphanTags.join("、")}」在這些來源裡找不到任何內容——這個區塊在前台會整個消失。改選其他標籤，或選「不過濾」。`
@@ -4142,7 +4119,7 @@ export function ContentTagFilterPicker({
                   : `“${orphanTags.join(", ")}” match no entry in these sources. The block still shows if another selected tag matches.`}
             </p>
           )}
-          <p className="hpb-field-hint" style={{ marginTop: 10 }}>
+          <p className="hpb-field-hint a-u-mt-10">
             {zh
               ? "可複選；前台採 OR，只要內容符合任一標籤就會顯示。"
               : "Select more than one; the page uses OR logic, so an entry matching any selected tag is shown."}
@@ -4265,20 +4242,9 @@ export function PickerModal({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const titleId = useId();
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  /* Escape, the Tab trap, the scroll lock and focus restore, all from the one
-     hook the rest of the admin uses. `trapFocus` is not optional for a panel
-     claiming `aria-modal="true"`.
-
-     What was here was a local copy of half of it, hung off `onKeyDown` on the
-     backdrop. That is a React synthetic handler, so it only ran while focus was
-     inside the dialog: clicking the dialog's own heading — not a control, so
-     focus lands on <body> — left Escape doing nothing and the page behind still
-     scrolling. The focus-restore half also fired on mount, when the dialog had
-     never been open, pulling focus onto the trigger as the form rendered. */
-  useOverlay(open, () => setOpen(false), { trapFocus: modalRef });
+  /* The kit Dialog: Escape, the Tab trap, the scroll lock and focus restore,
+     the same as every other admin dialog. This used to be its own backdrop and
+     panel markup over the shared overlay hook. */
 
   return (
     <div className="amenity-import picker-shell">
@@ -4291,29 +4257,20 @@ export function PickerModal({
       <button type="button" className="bf-picker-trigger" onClick={() => setOpen(true)}>
         {trigger}
       </button>
-      {open && (
-        <div className="bf-modal-backdrop" onClick={() => setOpen(false)}>
-          <div
-            className="bf-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            ref={modalRef}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="bf-modal-head">
-              <FieldLabel id={titleId}>{title}</FieldLabel>
-              <button type="button" className="bf-modal-close" aria-label={zh ? "關閉" : "Close"} onClick={() => setOpen(false)}>&times;</button>
-            </div>
-            <div className="bf-modal-body">{children}</div>
-            <div className="bf-modal-foot">
-              <button type="button" className="amenity-import-all" onClick={() => setOpen(false)}>
-                {zh ? "完成" : "Done"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title={title}
+        size="sm"
+        closeLabel={zh ? "關閉" : "Close"}
+        footer={
+          <DialogActions>
+            <Button onClick={() => setOpen(false)}>{zh ? "完成" : "Done"}</Button>
+          </DialogActions>
+        }
+      >
+        {children}
+      </Dialog>
     </div>
   );
 }
@@ -4703,11 +4660,10 @@ export function RoleTypeControls({
         })}
       </div>
 
-      <div
+      <div className="a-u-mt-10"
         id={`${uid}-panel`}
         role="tabpanel"
         aria-labelledby={`${uid}-tab-${role}`}
-        style={{ marginTop: 10 }}
       >
         <Field label={zh ? `${name(role)}對齊` : `${name(role)} align`}>
           <div className="hpb-variant-pick" role="radiogroup" onKeyDown={radioGroupKeys} aria-label={zh ? `${name(role)}對齊` : `${name(role)} align`}>
@@ -4786,7 +4742,7 @@ export function RoleTypeControls({
         {/* A Field is a <label> and names only its first control, so the two
             halves are named explicitly — same reason as the hero colours. */}
         <Field label={zh ? "顏色" : "Colour"}>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <div className="a-u-row-center">
             <input
               type="color"
               aria-label={zh ? `${name(role)}顏色（色票）` : `${name(role)} colour (swatch)`}
@@ -4929,18 +4885,18 @@ export function SourcesPicker({
         ))}
       </div>
       {deletedChosen.length > 0 && (
-        <p className="hpb-field-hint" style={{ marginTop: 10 }}>
+        <p className="hpb-field-hint a-u-mt-10">
           {zh
             ? `「${deletedChosen.map(([, zhL]) => zhL).join("、")}」的分類頁已在頁面管理刪除，所以不能再新選；這個區塊還在用它，內容仍會顯示，取消勾選就會移除。`
             : `${deletedChosen.map(([, , enL]) => enL).join(", ")} was deleted in page management, so it can no longer be newly picked. This block still draws it and its entries still appear — untick it to stop.`}
         </p>
       )}
-      <p className="hpb-field-hint" style={{ marginTop: 10 }}>
+      <p className="hpb-field-hint a-u-mt-10">
         {zh
           ? "住宿目錄不能和文章分類混用：選了住宿會清掉已選的分類，反之亦然。"
           : "The stay catalogue cannot be mixed with article categories: picking one clears the other."}
       </p>
-      <p className="hpb-field-hint" style={{ marginTop: 6 }}>
+      <p className="hpb-field-hint a-u-mt-6">
         {zh
           ? "訪客篩選方式在「版面」設定；卡片文字到文章編輯頁管理。"
           : "Set visitor filters under Layout. Manage card labels in the article editor."}

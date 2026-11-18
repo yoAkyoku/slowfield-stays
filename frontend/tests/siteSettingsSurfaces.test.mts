@@ -270,10 +270,12 @@ test("every write path still carries it too", () => {
   for (const [path, expression] of [
     // The site editor's own payload: the value it reads out of the FormData.
     ["app/admin/modules/siteActions.ts", 'is_template: formData.get("is_template") === "on"'],
-    // The page-order autosave, and the two block editors, echo the stored value.
-    ["app/admin/modules/siteActions.ts", "is_template: site.is_template ?? false"],
-    ["app/admin/modules/homepageActions.ts", "is_template: site.is_template ?? false"],
-    ["app/admin/modules/propertyPagesActions.ts", "is_template: site.is_template ?? false"],
+    // The page-order autosave and the two block editors echo the stored value,
+    // all three through siteReplacePayload.
+    ["app/admin/modules/sitePayload.ts", "is_template: site.is_template ?? false"],
+    ["app/admin/modules/siteActions.ts", "siteReplacePayload("],
+    ["app/admin/modules/homepageActions.ts", "siteReplacePayload("],
+    ["app/admin/modules/propertyPagesActions.ts", "siteReplacePayload("],
   ] as Array<[string, string]>) {
     assert.ok(
       readCode(path).includes(expression),

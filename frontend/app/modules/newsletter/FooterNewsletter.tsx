@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import type { Locale } from "../i18n";
-import { PUBLIC_API_URL as API_URL } from "../apiBase";
+import useNewsletterSignup from "./useNewsletterSignup";
 
 /**
  * One-line newsletter signup for the site footers. The 電子報訂閱 block is the
@@ -17,22 +16,7 @@ export default function FooterNewsletter({
   siteSlug?: string;
 }) {
   const zh = locale === "zh";
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-
-  async function submit(formData: FormData) {
-    setStatus("sending");
-    try {
-      const params = siteSlug ? `?site=${encodeURIComponent(siteSlug)}` : "";
-      const res = await fetch(`${API_URL}/newsletter/subscribe${params}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: String(formData.get("email") ?? ""), name: "", groups: ["public"] }),
-      });
-      setStatus(res.ok ? "sent" : "error");
-    } catch {
-      setStatus("error");
-    }
-  }
+  const { status, submit } = useNewsletterSignup(siteSlug);
 
   return (
     <div className="footer-newsletter">

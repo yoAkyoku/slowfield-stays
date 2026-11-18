@@ -29,8 +29,8 @@ test("article tag picker keeps the clear action out of an empty selection", () =
 });
 
 test("hero scroll cue has a text default and rejects numeric placeholders", () => {
-  assert.match(FORM, /export function resolveHeroScrollLabel\(/);
-  assert.match(FORM, /resolveHeroScrollLabel\(c.scroll_label, editLocale\)/);
+  assert.match(readCode("app/modules/heroScrollLabel.ts"), /export function editableHeroScrollLabel\(/);
+  assert.match(FORM, /editableHeroScrollLabel\(c.scroll_label, editLocale\)/);
   assert.match(STAYS.replace(/BlockStays/g, ""), /dedupeContentPages/);
 });
 

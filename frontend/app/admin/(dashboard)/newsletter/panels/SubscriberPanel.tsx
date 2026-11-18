@@ -7,7 +7,8 @@ import AdminEmptyState from "../../../modules/AdminEmptyState";
 import { nlStatusTone } from "../nlStatusTone";
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import type { NewsletterSubscriber } from "../../../modules/adminApi";
-import AdminPagination, { paginate, usePagination } from "../../../modules/AdminPagination";
+import AdminPagination, { usePagination } from "../../../modules/AdminPagination";
+import { getPageSlice } from "../../../modules/paginationUtils";
 import ConfirmSubmitButton from "../../../modules/ConfirmSubmitButton";
 import SubmitButton from "../../../modules/SubmitButton";
 import type { AdminResult } from "../../../modules/adminRequest";
@@ -115,7 +116,7 @@ export default function SubscriberPanel({
     resetPage();
   }, [search, groupFilter, resetPage]);
 
-  const paginatedSubs = paginate(filtered, page, pageSize);
+  const paginatedSubs = getPageSlice(filtered, page, pageSize);
 
   const handleAdd = useCallback(
     (fd: FormData) => {

@@ -8,22 +8,8 @@ import SubmitButton from "../../../modules/SubmitButton";
 import { createAdminUserAction } from "../../../modules/userActions";
 import { ButtonLink, Card, Field, FormActions, FormGrid, Input, Page, PageHeader, Select, buttonClass } from "../../../ui";
 import NewUserPermissions from "./NewUserPermissions";
-
-function labelFromMap(map: Record<string, string>, value: string) {
-  return map[value] ?? value;
-}
-
-const permissionGroups = (zh: boolean) => [
-  { id: "stays", label: zh ? "住宿模組" : "Accommodations", permissions: ["stays:read", "stays:write"] },
-  { id: "content", label: zh ? "內容與頁面" : "Content & Pages", permissions: ["cms:read", "cms:write"] },
-  { id: "inquiries", label: zh ? "表單聯絡" : "Form contacts", permissions: ["inquiries:read", "inquiries:write"] },
-  { id: "media", label: zh ? "媒體資源管理" : "Media Library", permissions: ["media:read", "media:write"] },
-  { id: "newsletter", label: zh ? "電子報" : "Newsletter", permissions: ["newsletter:read", "newsletter:write"] },
-  { id: "sites", label: zh ? "群站管理" : "Site Network", permissions: ["sites:read", "sites:write"] },
-  { id: "global_users", label: zh ? "全域帳號" : "Global Users", permissions: ["global_users:read", "global_users:write"] },
-  { id: "roles", label: zh ? "角色管理" : "Roles", permissions: ["roles:read", "roles:write"] },
-  { id: "site_users", label: zh ? "站點帳號" : "Site Users", permissions: ["site_users:read", "site_users:write"] }
-];
+import { labelFromMap } from "../../../modules/adminUtils";
+import { permissionGroups } from "../../../modules/permissionGroups";
 
 export default async function NewUserPage(
   props: {

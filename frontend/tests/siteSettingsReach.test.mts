@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { readStyles, readCode } from "./readCode";
+import { galleryImages } from "../app/modules/galleryImages.ts";
 
 /**
  * A site-group setting that the admin can save must actually reach the page.
@@ -96,7 +97,10 @@ test("a gallery image survives the editor's own normalisation", () => {
   // reached <img src> as "[object Object]".
   const src = readCode("app/modules/home/blocks/BlockGallery.tsx");
   assert.ok(!src.includes("as string[]"), "the gallery casts objects to strings again");
-  assert.ok(src.includes('"url" in item'), "the gallery no longer accepts the editor's shape");
+  assert.match(src, /galleryImages\(c\.images, locale\)/, "the gallery no longer reads its images through galleryImages");
+  // Both shapes, run rather than grepped: a bare URL and the editor's object.
+  const read = galleryImages(["/a.jpg", { url: "/b.jpg", caption: { zh: "說明", en: "Caption" } }, { url: "" }], "en");
+  assert.deepEqual(read, [{ url: "/a.jpg", caption: "" }, { url: "/b.jpg", caption: "Caption" }]);
 });
 
 test("a villa page marked noindex is actually kept out of the index", () => {
@@ -237,20 +241,15 @@ test("a new theme colour survives an unrelated save", () => {
     );
   }
 
-  const homepage = readCode("app/admin/modules/homepageActions.ts");
+  /* The homepage, villa-page and page-order saves carry the stored value
+     forward through one builder, siteReplacePayload. */
+  const builder = readCode("app/admin/modules/sitePayload.ts");
   for (const key of ["nav_button_bg", "footer_button_bg"]) {
-    assert.ok(
-      homepage.includes(`${key}: theme.`),
-      `saving the homepage clears ${key} instead of carrying it forward`,
-    );
+    assert.ok(builder.includes(`${key}: theme.`), `the settings-only saves clear ${key} instead of carrying it forward`);
   }
-
-  const villaPages = readCode("app/admin/modules/propertyPagesActions.ts");
-  for (const key of ["nav_button_bg", "footer_button_bg"]) {
-    assert.ok(
-      villaPages.includes(carried(key)),
-      `saving a villa page clears ${key} instead of carrying it forward`,
-    );
+  void carried;
+  for (const file of ["app/admin/modules/homepageActions.ts", "app/admin/modules/propertyPagesActions.ts"]) {
+    assert.match(readCode(file), /siteReplacePayload\(/, `${file} no longer saves through siteReplacePayload`);
   }
 });
 
@@ -265,7 +264,7 @@ test("the hero block's own settings are read", () => {
     "the hero height reaches a class name unchecked",
   );
   const editor = readCode("app/admin/modules/blockForms.tsx");
-  assert.ok(editor.includes('resolveHeroScrollLabel(c.scroll_label, editLocale)'), "the hero block has no bilingual scroll cue field");
+  assert.ok(editor.includes('editableHeroScrollLabel(c.scroll_label, editLocale)'), "the hero block has no bilingual scroll cue field");
   assert.ok(editor.includes('setVal(c, "scroll_label", editLocale'), "the hero block scroll cue is not saved per locale");
 });
 

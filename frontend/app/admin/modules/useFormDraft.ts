@@ -112,3 +112,14 @@ export function useFormDraft(
 
   return { stash, recovered, registerForm };
 }
+
+/** A JSON field from a restored draft, or `fallback` if it is missing or will
+ *  not parse — a half-written draft must not throw the restore away. */
+export function draftJson<T>(raw: string | undefined, fallback: T): T {
+  if (!raw) return fallback;
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+}

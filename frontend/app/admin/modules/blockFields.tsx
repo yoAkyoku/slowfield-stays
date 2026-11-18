@@ -12,25 +12,20 @@
 // getVal/setVal live in a plain .ts module so their legacy-migration rule can be
 // unit tested; every importer still reaches them through here.
 export { getVal, setVal, legacyValueLocale, type FieldLocale } from "./localizedValue";
+import { Field as KitField } from "../ui";
 
-const labelStyle: React.CSSProperties = {
-  fontSize: 11,
-  fontWeight: 700,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase",
-  color: "var(--muted)",
-};
-
+/* The block editors' field is the kit Field, in the inspector's compact
+   small-caps dress (.a-field--inspector). It was a second component also
+   called Field, styled inline. */
 export function FieldLabel({ children, id }: { children: React.ReactNode; id?: string }) {
-  return <span id={id} style={labelStyle}>{children}</span>;
+  return <span id={id} className="a-field__label a-field__label--inspector">{children}</span>;
 }
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 10 }}>
-      <FieldLabel>{label}</FieldLabel>
+    <KitField className="a-field--inspector" label={label}>
       {children}
-    </label>
+    </KitField>
   );
 }
 

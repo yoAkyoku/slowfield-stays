@@ -19,11 +19,6 @@ export function usePagination(initialPageSize = 20) {
   return { ...state, setPage, resetPage };
 }
 
-export function paginate<T>(rows: T[], page: number, pageSize: number): T[] {
-  const start = (page - 1) * pageSize;
-  return rows.slice(start, start + pageSize);
-}
-
 export default function AdminPagination({
   currentPage,
   onPageChange,

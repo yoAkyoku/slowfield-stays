@@ -1,6 +1,7 @@
 import { articleCategories } from "../../modules/articlePlacement";
 import type { AdminPage } from "../../modules/adminApi";
 import type { Banner } from "../../../modules/api";
+import { hasAnyLocale } from "../../modules/localeFields";
 
 export type CmsTabKey = "overview" | "pages" | "banners" | "issues";
 export type CmsVisibility = "active" | "deleted" | "all";
@@ -62,11 +63,6 @@ function seoValue(page: AdminPage, key: string) {
  * is the granularity this console works at: it lists a page once, not once per
  * locale.
  */
-function hasAnyLocale(page: AdminPage, field: "title" | "summary" | "body"): boolean {
-  if (hasText(page[field])) return true;
-  return Object.values(page.translations ?? {}).some((fields) => hasText(fields?.[field]));
-}
-
 /**
  * An SEO override stored for `key`, wherever `cmsEntrySeo` would find one:
  * translations[locale].seo_title / seo_description first, the flat `seo` object

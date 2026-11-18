@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 
 /**
  * The image area of a content card.
@@ -26,10 +26,13 @@ export default function CardCover({
   src,
   alt,
   className,
+  children,
 }: {
   src?: string | null;
   alt: string;
   className: string;
+  /** Laid over the picture, e.g. a category label. */
+  children?: ReactNode;
 }) {
   /* Which src failed, not a bare "it failed": the flag has to be about a
      particular URL, or a card handed a new cover would stay on the placeholder
@@ -70,6 +73,7 @@ export default function CardCover({
       ) : (
         <span className="card-cover-empty" aria-hidden="true" />
       )}
+      {children}
     </div>
   );
 }

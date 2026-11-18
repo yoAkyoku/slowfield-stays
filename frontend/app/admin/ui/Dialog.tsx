@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { useId, useRef, type ReactNode } from "react";
 import { useOverlay } from "../../modules/useOverlay";
 import { cx } from "./cx";
@@ -55,7 +56,7 @@ export function Dialog({
             {description ? <p className="a-dialog__desc">{description}</p> : null}
           </div>
           <button aria-label={closeLabel} className="a-dialog__close" title={closeLabel} onClick={onClose} type="button">
-            <svg aria-hidden="true" fill="none" height="18" stroke="currentColor" strokeLinecap="round" strokeWidth="2" viewBox="0 0 24 24" width="18"><path d="M18 6 6 18M6 6l12 12" /></svg>
+            <X aria-hidden="true" size={18} />
           </button>
         </header>
         {children != null ? <div className="a-dialog__body">{children}</div> : null}

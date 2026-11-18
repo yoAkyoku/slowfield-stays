@@ -20,13 +20,20 @@ import { compileDeclarations, declarationText, evaluateExpression, initialiserTe
  */
 
 const CMS = "app/admin/(dashboard)/cms/PageBlockEditor.tsx";
-const PUBLIC = "app/modules/content/ContentBlockRenderer.tsx";
+/* The page's blocks are drawn by ContentBlocks (ContentBlockRenderer only
+   adds the server-side oembed to it), and the preview now delegates to the
+   same ContentBlocks rather than keeping its own switch. */
+const PUBLIC = "app/modules/content/ContentBlocks.tsx";
 
-/** The block types the preview has a branch for. */
+/** The block types the preview draws: ContentBlocks' own, when it delegates. */
 function previewTypes(): Set<string> {
   const fn = declarationText(CMS, ["LivePreviewBlock"]).get("LivePreviewBlock");
   assert.ok(fn, `${CMS}: LivePreviewBlock is gone`);
-  return new Set([...fn!.matchAll(/\.type === "([a-z_]+)"/g)].map((m) => m[1]));
+  const own = [...fn!.matchAll(/\.type === "([a-z_]+)"/g)].map((m) => m[1]);
+  if (!/<ContentBlocks\b/.test(fn!)) return new Set(own);
+  const drawn = [...readCode(PUBLIC).matchAll(/(?:block|raw)\.type === "([a-z_]+)"/g)].map((m) => m[1]);
+  // oembed is drawn only when a renderer is supplied, which the preview does not.
+  return new Set([...own, ...drawn.filter((t) => t !== "oembed")]);
 }
 
 /** Config-shaped types the published page draws, with the component each uses. */
@@ -75,7 +82,7 @@ test("the preview draws what the published page draws, or cannot", () => {
      throws and takes the whole editor down. */
   const drawn = previewTypes();
   const publicTypes = publicForeignTypes();
-  assert.ok(publicTypes.size >= 3, `only found ${publicTypes.size} config-shaped branches in the public renderer`);
+  assert.ok(publicTypes.size >= 2, `only found ${publicTypes.size} config-shaped branches in the public renderer`);
   for (const [type, component] of publicTypes) {
     if (drawn.has(type)) continue;
     assert.ok(
@@ -111,9 +118,11 @@ test("the partner block is drawn by the component the page uses, not a copy", ()
   /* A second partner grid living in the admin is exactly how the preview and
      the page drift apart again — which is the defect this fixes. */
   const fn = declarationText(CMS, ["LivePreviewBlock"]).get("LivePreviewBlock") ?? "";
-  assert.match(fn, /<BlockPartners\b/, "the preview no longer delegates the partner block");
+  assert.match(fn, /<ContentBlocks\b/, "the preview no longer draws through the page's own ContentBlocks");
+  const shared = readCode(PUBLIC);
+  assert.match(shared, /raw\.type === "partners"\)\s*\{\s*return <BlockPartners\b/, "ContentBlocks no longer draws partners with BlockPartners");
   assert.match(
-    readCode(CMS),
+    shared,
     /import BlockPartners from "[^"]*property\/blocks\/BlockPartners"/,
     "the partner grid is imported from somewhere other than the front end's own",
   );

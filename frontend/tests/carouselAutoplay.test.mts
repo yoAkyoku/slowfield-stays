@@ -28,7 +28,7 @@ const CAROUSELS = [
 for (const file of CAROUSELS) {
   test(`${file} auto-advances and attaches the ref`, () => {
     const src = strip(file);
-    assert.match(src, /useAutoAdvance/, "does not use the shared hook");
+    assert.match(src, /useAutoAdvance|useCardGallery/, "does not use the shared hook");
     assert.match(src, /ref=\{autoRef\}/, "the hook's ref is never attached, so nothing pauses it");
   });
 }

@@ -1,3 +1,4 @@
+import { plainText } from "./safeHtml";
 /**
  * FAQPage structured data.
  *
@@ -20,7 +21,7 @@ export function faqJsonLd(
   const clean = items
     .map((i) => ({
       question: String(i.question ?? "").trim(),
-      answer: String(i.answer ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
+      answer: plainText(i.answer),
     }))
     .filter((i) => i.question && i.answer);
   if (!clean.length) return null;

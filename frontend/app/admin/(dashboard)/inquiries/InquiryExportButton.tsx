@@ -3,6 +3,7 @@
 import { Download } from "lucide-react";
 import type { AdminInquiry } from "../../modules/adminApi";
 import { Button } from "../../ui";
+import { siteDateKey } from "../../../modules/datetime";
 
 /** A row of the merged 表單聯絡 list: an enquiry or a booking request. */
 type ExportRow = AdminInquiry & { kind?: "inquiry" | "booking"; room_type?: string };
@@ -55,7 +56,7 @@ export default function InquiryExportButton({
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `form-contacts-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `form-contacts-${siteDateKey(new Date())}.csv`;
     document.body.appendChild(link);
     link.click();
     link.remove();

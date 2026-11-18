@@ -17,5 +17,7 @@ export { CellTitle, Chips, Disclosure, InputGroup, RowActions, Segmented, TableF
 export type { SegmentedOption } from "./Controls";
 export { Dialog, DialogActions } from "./Dialog";
 export { ConfirmProvider, useConfirm } from "./Confirm";
+export { Toast } from "./Toast";
+export type { ToastTone } from "./Toast";
 export type { AskOptions } from "./Confirm";
 export { cx } from "./cx";

@@ -1,5 +1,6 @@
 import type { CmsContentBlock } from "./adminApi";
 import { pickT } from "../../modules/tr";
+import { plainText } from "../../modules/safeHtml";
 
 /**
  * Reading text out of article blocks.
@@ -35,7 +36,7 @@ export function resolveText(val: unknown, locale?: string): string {
 export function extractText(blocks: CmsContentBlock[], locale?: string): string[] {
   return blocks.filter((b) => b.enabled !== false).flatMap((b) => {
     if (b.type === "paragraph" || b.type === "heading" || b.type === "quote") {
-      const raw = resolveText((b as { text?: unknown }).text, locale).replace(/<[^>]*>/g, "").trim();
+      const raw = plainText(resolveText((b as { text?: unknown }).text, locale));
       return raw ? [raw] : [];
     }
     if (b.type === "columns" && b.items) {

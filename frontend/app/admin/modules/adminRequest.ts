@@ -3,12 +3,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { SERVER_API_URL as API_URL } from "../../modules/apiBase";
+import { currentSiteSlug } from "./adminSiteSlug";
 
 export type AdminResult = { ok: true; message?: string } | { message: string; ok: false };
-
-async function currentSiteSlug() {
-  return (await cookies()).get("admin-site")?.value ?? "slowfield";
-}
 
 function detailItemMessage(item: unknown) {
   if (typeof item === "object" && item !== null) {

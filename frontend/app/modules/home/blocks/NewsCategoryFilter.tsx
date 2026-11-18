@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import CardCover from "../../content/CardCover";
 import CardTagFilter, { type TaggedCard } from "./CardTagFilter";
+import { NewsCard } from "../../content/cards";
 
 export type NewsCard = {
   id: number;
@@ -49,15 +47,7 @@ export default function NewsCategoryFilter({
     tags: card.tags,
     filterTags: card.filterTags,
     node: (
-      <Link href={card.href} className="home-news-card">
-        <CardCover src={card.cover} alt={card.title} className="home-news-img" />
-        <div className="home-news-body">
-          {card.tags.length > 0 && <div className="tags tags--lead">{card.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div>}
-          <h3 title={card.title}>{card.title}</h3>
-          {card.summary && <p>{card.summary}</p>}
-          <span className="home-news-more">{readMore} <ArrowUpRight size={15} /></span>
-        </div>
-      </Link>
+      <NewsCard href={card.href} title={card.title} summary={card.summary} cover={card.cover} tags={card.tags} readMore={readMore} />
     ),
   }));
 

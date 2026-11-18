@@ -26,7 +26,7 @@ import { BLOCK_LABELS, BLOCK_HINTS, groupTitle } from "../../modules/blockCatalo
 import DraftPagePreview from "../../modules/DraftPagePreview";
 import UndoRedoButtons from "../../modules/UndoRedoButtons";
 import { useUndoableList } from "../../modules/useUndoableList";
-import { useFormDraft } from "../../modules/useFormDraft";
+import { draftJson, useFormDraft } from "../../modules/useFormDraft";
 import { useUnsavedGuard } from "../../modules/useUnsavedGuard";
 import type { PreviewRenderer } from "../../../modules/previewRenderer";
 import {
@@ -457,10 +457,7 @@ export default function HomepageBlockEditor({
     saveFailed,
     {
       onRestore: (d) => {
-        const json = <T,>(raw: string | undefined, fallback: T): T => {
-          if (!raw) return fallback;
-          try { return JSON.parse(raw) as T; } catch { return fallback; }
-        };
+        const json = draftJson;
         // `reset`, not `set`: a restored draft is a load, and an undo that
         // stepped back into the pre-restore state would silently re-throw away
         // the work that was just recovered.
@@ -557,7 +554,7 @@ export default function HomepageBlockEditor({
         ) : (
           <div className="hpb-stack">
             {blocks.map((block, index) => (
-              <div key={block.id} style={{ width: "100%" }}>
+              <div className="a-u-full-width" key={block.id}>
                 {dropLine(index)}
                 <div
                   className={`hpb-piece${selectedId === block.id ? " is-selected" : ""}${block.enabled === false ? " is-disabled" : ""}${dragIndex === index ? " is-dragging" : ""}`}

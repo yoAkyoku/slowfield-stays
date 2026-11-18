@@ -30,6 +30,9 @@ test("shared cover-image media picker traps focus and cancels obsolete fetches",
   assert.match(dialog, /role="dialog"/);
   assert.match(dialog, /aria-modal="true"/);
   assert.match(dialog, /trapFocus: ref/);
-  assert.match(source, /new AbortController\(\)/);
-  assert.match(source, /controller.abort\(\)/);
+  // The library fetch (and its cancellation) is the shared useMediaLibrary.
+  assert.match(source, /useMediaLibrary\(showLibrary/);
+  const library = readCode("app/admin/modules/useMediaLibrary.ts");
+  assert.match(library, /new AbortController\(\)/);
+  assert.match(library, /controller.abort\(\)/);
 });

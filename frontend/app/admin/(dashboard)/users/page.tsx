@@ -22,13 +22,10 @@ import {
   updateAdminUserStatusAction
 } from "../../modules/userActions";
 import { formatDateTime } from "../../../modules/datetime";
+import { labelFromMap } from "../../modules/adminUtils";
 
 /** For the tables that are not `roleLabels` — permission keys like
  *  `sites:read`, which have their own tables and are not role names. */
-function labelFromMap(map: Record<string, string>, value: string) {
-  return map[value] ?? value;
-}
-
 /**
  * 超級管理者 by what the role can DO, never by what it is called.
  *

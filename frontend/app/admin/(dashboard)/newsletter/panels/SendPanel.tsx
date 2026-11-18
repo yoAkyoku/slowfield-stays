@@ -5,7 +5,7 @@ import { Badge, Button, Callout, Card, Check, Field, FormGrid, FormSection, Grid
 import AdminEmptyState from "../../../modules/AdminEmptyState";
 import { useCallback, useMemo, useState } from "react";
 import type { NewsletterCampaign, NewsletterSubscriber } from "../../../modules/adminApi";
-import { formatDateTime, formatTime } from "../../../../modules/datetime";
+import { formatDateTime, formatTime, siteDateKey } from "../../../../modules/datetime";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { AdminResult } from "../../../modules/adminRequest";
@@ -365,7 +365,7 @@ export default function SendPanel({
               <FormGrid>
                 <Field label={<><Calendar size={13} /> {zh ? "日期" : "Date"}</>}>
                   <Input
-                    min={new Date().toISOString().slice(0, 10)}
+                    min={siteDateKey(new Date())}
                     onChange={(e) => setScheduleDate(e.target.value)}
                     type="date"
                     value={scheduleDate}

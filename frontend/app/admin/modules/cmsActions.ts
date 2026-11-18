@@ -1,27 +1,7 @@
 "use server";
 
-import { adminJsonDataRequest, adminJsonRequest, type AdminResult } from "./adminRequest";
-import { actionRedirect, bulkDeleteResult, stampedRedirect } from "./adminUtils";
-
-function safeReturnTo(value: string, fallback: string): string {
-  const trimmed = value.trim();
-  return trimmed.startsWith("/admin/") ? trimmed : fallback;
-}
-
-function formRedirect(result: AdminResult, formData: FormData) {
-  const returnTo = safeReturnTo(String(formData.get("return_to") ?? ""), "/admin/cms");
-  actionRedirect(result, returnTo);
-}
-
-function parseTranslations(formData: FormData): Record<string, Record<string, string>> {
-  const raw = String(formData.get("translations") ?? "{}");
-  try {
-    const parsed = JSON.parse(raw);
-    return typeof parsed === "object" && parsed !== null ? parsed : {};
-  } catch {
-    return {};
-  }
-}
+import { adminJsonDataRequest, adminJsonRequest } from "./adminRequest";
+import { actionRedirect, bulkDeleteResult, formRedirect, parseTranslations, safeReturnTo, stampedRedirect } from "./adminUtils";
 
 function parseBodyBlocks(formData: FormData) {
   const raw = String(formData.get("body_blocks") ?? "[]");
@@ -44,7 +24,7 @@ export async function createBannerAction(formData: FormData) {
     status: String(formData.get("status") ?? "draft"),
     translations: parseTranslations(formData)
   });
-  if (!result.ok) formRedirect(result, formData);
+  if (!result.ok) formRedirect(result, formData, "/admin/cms");
   const banner = result.data;
   if (!banner?.id) stampedRedirect("/admin/cms/banners/new?error=Banner+create+failed");
   actionRedirect(result, `/admin/cms/banners/${banner.id}/edit`);
@@ -65,7 +45,7 @@ export async function updateBannerAction(id: string, formData: FormData) {
     },
     "PUT"
   );
-  formRedirect(result, formData);
+  formRedirect(result, formData, "/admin/cms");
 }
 
 export async function updateBannerStatusAction(id: string, status: string) {
@@ -115,7 +95,7 @@ export async function createPageAction(formData: FormData) {
     },
     translations: parseTranslations(formData)
   });
-  if (!result.ok) formRedirect(result, formData);
+  if (!result.ok) formRedirect(result, formData, "/admin/cms");
   const page = result.data;
   if (!page?.id) stampedRedirect("/admin/cms/pages/new?error=Page+create+failed");
   // Allow caller to override redirect target (e.g. site editor tab2 wants to stay on its page)
@@ -159,7 +139,7 @@ export async function updatePageAction(id: string, formData: FormData) {
     },
     "PUT"
   );
-  formRedirect(result, formData);
+  formRedirect(result, formData, "/admin/cms");
 }
 
 function tagPayload(formData: FormData) {

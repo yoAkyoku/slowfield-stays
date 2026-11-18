@@ -2,7 +2,6 @@
    Loaded only by the admin layouts. New admin styling belongs in the UI kit
    (admin-ui.css), not here. */
 
-
 .admin-shell {
   min-height: 100vh;
   display: grid;
@@ -765,8 +764,7 @@
   margin: 0 0 12px;
 }
 
-.admin-card,
-.admin-table-wrap {
+.admin-card {
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -776,33 +774,6 @@
 .admin-card {
   padding: 20px;
   margin-bottom: 18px;
-}
-
-.admin-table-wrap {
-  overflow-x: auto;
-}
-
-.admin-table-frame {
-  display: grid;
-}
-
-.admin-table-more {
-  align-items: center;
-  background: rgba(246, 240, 230, 0.64);
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  display: flex;
-  font-family: var(--font-ui);
-  font-size: 12px;
-  gap: 12px;
-  justify-content: space-between;
-  padding: 12px 14px;
-}
-
-.admin-table-more a {
-  color: var(--ink);
-  font-weight: 900;
-  text-decoration: none;
 }
 
 .admin-pagination {
@@ -933,79 +904,6 @@
 
 .admin-empty-state-action {
   margin-top: 16px;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-.admin-table th,
-.admin-table td {
-  text-align: left;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--line);
-  overflow-wrap: anywhere;
-  vertical-align: top;
-  white-space: normal;
-}
-
-.admin-table th {
-  color: var(--muted);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.admin-status {
-  display: inline-block;
-  border-radius: 999px;
-  padding: 5px 9px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.admin-status-neutral {
-  background: #eef0ec;
-  color: #4b534d;
-}
-
-.admin-status-info {
-  background: #e4eff5;
-  color: #23506b;
-}
-
-.admin-status-success {
-  background: #e4f2e9;
-  color: #245b35;
-}
-
-.admin-status-warning {
-  background: #f6ead8;
-  color: #7a4e18;
-}
-
-.admin-deleted-badge {
-  align-items: center;
-  background: rgba(23, 25, 21, 0.08);
-  border: 1px solid rgba(23, 25, 21, 0.14);
-  color: #4a4a44;
-  display: inline-flex;
-  font-family: var(--font-ui);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  min-height: 26px;
-  padding: 0 9px;
-  text-transform: uppercase;
-}
-
-.admin-status-stack {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
 }
 
 .nl-page,
@@ -2942,117 +2840,6 @@
   justify-content: flex-end;
 }
 
-.admin-flash {
-  position: fixed;
-  top: 18px;
-  left: 50%;
-  z-index: 80;
-  display: grid;
-  grid-template-columns: 10px minmax(0, 1fr) 34px;
-  align-items: center;
-  gap: 16px;
-  width: min(680px, calc(100vw - 32px));
-  margin: 0;
-  padding: 14px 14px 14px 16px;
-  border: 1px solid rgba(41, 39, 34, 0.16);
-  border-radius: 0;
-  background: rgba(255, 253, 247, 0.94);
-  box-shadow: 0 18px 48px rgba(35, 31, 24, 0.14);
-  color: var(--ink);
-  transform: translateX(-50%);
-  animation: adminFlashIn 180ms ease-out;
-  overflow: hidden;
-}
-
-.admin-flash::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.55), transparent 46%);
-}
-
-.admin-flash-success {
-  border-color: rgba(59, 116, 82, 0.28);
-  background: rgba(244, 249, 242, 0.96);
-}
-
-.admin-flash-error {
-  border-color: rgba(153, 64, 47, 0.32);
-  background: rgba(255, 246, 241, 0.97);
-}
-
-.admin-flash-mark {
-  width: 10px;
-  height: 42px;
-  background: #3b7452;
-}
-
-.admin-flash-error .admin-flash-mark {
-  background: #99402f;
-}
-
-.admin-flash-copy {
-  position: relative;
-  min-width: 0;
-}
-
-.admin-flash-copy strong {
-  display: block;
-  font-family: var(--font-title);
-  font-size: 0.92rem;
-  letter-spacing: 0;
-  line-height: 1.2;
-}
-
-.admin-flash-copy p {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 0.88rem;
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-}
-
-.admin-flash-close {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid rgba(41, 39, 34, 0.16);
-  border-radius: 0;
-  background: rgba(255, 255, 255, 0.46);
-  color: var(--ink);
-  cursor: pointer;
-  font-size: 0.86rem;
-  line-height: 1;
-  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
-}
-
-.admin-flash-close:hover {
-  border-color: rgba(41, 39, 34, 0.36);
-  background: rgba(255, 255, 255, 0.82);
-}
-
-.admin-flash-close:active {
-  transform: translateY(1px);
-}
-
-.admin-flash-progress {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background: #3b7452;
-  transform-origin: left center;
-  animation: adminFlashProgress var(--flash-duration) linear forwards;
-}
-
-.admin-flash-error .admin-flash-progress {
-  background: #99402f;
-}
-
 .cms-editor-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
@@ -3562,10 +3349,6 @@
   .form-grid.compact {
     grid-template-columns: 1fr;
   }
-  .admin-table {
-    min-width: 720px;
-    table-layout: auto;
-  }
 
   .media-inline-library-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3603,7 +3386,7 @@
 @media print {
   .admin-sidebar,
   .admin-topbar,
-  .admin-flash {
+  .a-toast {
     display: none !important;
   }
 
@@ -4061,68 +3844,7 @@
   background: color-mix(in srgb, var(--sb-accent, #b78b58) 6%, #fff);
 }
 
-.bf-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 15, 13, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  z-index: 900;
-}
-
-.bf-modal {
-  width: min(640px, 100%);
-  max-height: 82vh;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 24px 64px rgba(15, 15, 13, 0.3);
-  overflow: hidden;
-}
-
-.bf-modal-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 18px;
-  border-bottom: 1px solid rgba(15, 15, 13, 0.1);
-  flex-shrink: 0;
-}
-
-.bf-modal-close {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  border: none;
-  background: transparent;
-  font-size: 20px;
-  line-height: 1;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.bf-modal-close:hover { background: rgba(15, 15, 13, 0.06); }
-
-.bf-modal-body {
-  padding: 16px 18px;
-  overflow-y: auto;
-}
-
-.bf-modal-body .amenity-checkgrid { margin: 0; }
-
-.amenity-checkbox:has(.admin-deleted-badge) { flex-wrap: wrap; }
-
-.amenity-checkbox .admin-deleted-badge {
-  flex: none;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  min-height: 19px;
-  padding: 0 6px;
-}
+.amenity-checkbox:has(.is-deleted-badge) { flex-wrap: wrap; }
 
 .bf-src-group {
   color: #8a857b;
@@ -4163,13 +3885,6 @@
   border-bottom-color: var(--ink);
   color: var(--ink);
   font-weight: 700;
-}
-
-.bf-modal-foot {
-  padding: 12px 18px;
-  border-top: 1px solid rgba(15, 15, 13, 0.1);
-  flex-shrink: 0;
-  text-align: right;
 }
 
 .items-editor-add {
@@ -5325,46 +5040,42 @@
   padding: 10px 0;
 }
 
-.hpb-fold { padding-bottom: 0; }
+/* The inspector's fold is the kit Disclosure (FoldSection) without the box:
+   these override .a-disclosure, which admin-ui.css loads later, so each rule
+   carries both classes. */
+.a-disclosure.hpb-fold { padding-bottom: 0; border: 0; border-radius: 0; background: none; }
 
-.hpb-fold > .hpb-fold__summary {
-  display: flex;
-  align-items: center;
+.a-disclosure.hpb-fold > summary {
   justify-content: space-between;
-  gap: 10px;
-  cursor: pointer;
-  list-style: none;
+  padding: 0;
+  font-weight: inherit;
+  font-size: inherit;
   user-select: none;
 }
 
-.hpb-fold > .hpb-fold__summary::-webkit-details-marker { display: none; }
+.a-disclosure.hpb-fold > summary::marker { content: ""; }
 
-.hpb-fold > .hpb-fold__summary::marker { content: ""; }
+.hpb-fold .hpb-fold__label { margin-bottom: 0; }
 
-.hpb-fold__summary .hpb-fold__label { margin-bottom: 0; }
-
-.hpb-fold__chevron {
+.a-disclosure.hpb-fold .a-disclosure__chev {
   width: 15px;
   height: 15px;
-  flex: none;
   color: var(--hpb-muted);
   transition: transform 0.18s ease;
 }
 
-.hpb-fold[open] > .hpb-fold__summary .hpb-fold__chevron { transform: rotate(180deg); }
+.a-disclosure.hpb-fold > summary:hover .a-disclosure__chev { color: var(--hpb-ink); }
 
-.hpb-fold__summary:hover .hpb-fold__chevron { color: var(--hpb-ink); }
-
-.hpb-fold__summary:focus-visible {
+.a-disclosure.hpb-fold > summary:focus-visible {
   outline: 2px solid var(--hpb-accent, #b78b58);
   outline-offset: 3px;
   border-radius: 4px;
 }
 
-.hpb-fold__body { padding-top: 14px; }
+.a-disclosure.hpb-fold .a-disclosure__body { padding: 14px 0 0; border-top: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  .hpb-fold__chevron { transition: none; }
+  .a-disclosure.hpb-fold .a-disclosure__chev { transition: none; }
 }
 
 .hpb-insp__row-txt { font-size: 12.5px; color: var(--hpb-ink); }

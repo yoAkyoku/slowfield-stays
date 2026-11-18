@@ -1,17 +1,15 @@
 "use client";
 
 import { ImagePlus, Images, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { useAdminSiteSlug, useAdminPermission } from "../../modules/AdminSiteContext";
+import { useRef, useState } from "react";
+import { useAdminPermission } from "../../modules/AdminSiteContext";
+import useMediaLibrary from "../../modules/useMediaLibrary";
 import MediaUploadRequirements from "../../modules/MediaUploadRequirements";
 import VideoThumbnail from "../../modules/VideoThumbnail";
 import { videoPosterUrl } from "../../../modules/media";
-import MediaPickerThumbnail, { type MediaPickerAsset } from "../../modules/MediaPickerThumbnail";
+import MediaPickerThumbnail from "../../modules/MediaPickerThumbnail";
 import { Button, buttonClass, Dialog, Field, Input, SearchInput, Stack } from "../../ui";
 import "./stays.css";
-import { adminProxyUrl as proxyUrl } from "../../../modules/apiBase";
-
-type MediaAsset = MediaPickerAsset;
 
 export default function HeroImageField({
   defaultValue,
@@ -37,73 +35,24 @@ export default function HeroImageField({
   };
   onChange?: (url: string) => void;
 }) {
-  const siteSlug = useAdminSiteSlug();
   const canUpload = useAdminPermission("media:write");
   const canBrowse = useAdminPermission("media:read");
   const [url, _setUrl] = useState(defaultValue);
   const setUrl = (v: string) => { _setUrl(v); onChange?.(v); };
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [assets, setAssets] = useState<MediaAsset[]>([]);
-  const [loadingLibrary, setLoadingLibrary] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
-  const [mediaQuery, setMediaQuery] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const filteredAssets = assets.filter((a) => {
-    if (!mediaQuery.trim()) return true;
-    const q = mediaQuery.toLowerCase();
-    const name = [a.display_name, a.alt, a.alt_text, a.url, a.file].filter(Boolean).join(" ").toLowerCase();
-    return name.includes(q);
-  });
-
-  useEffect(() => {
-    if (!showLibrary) return;
-    const controller = new AbortController();
-    const site = siteSlug;
-    setLoadingLibrary(true);
-    setError("");
-    fetch(proxyUrl("/admin/media", site), { signal: controller.signal })
-      .then(async (response) => {
-        if (response.status === 401) {
-          window.location.href = "/admin/login";
-          throw new Error("unauthorized");
-        }
-        if (!response.ok) throw new Error("failed");
-        return (await response.json()) as MediaAsset[];
-      })
-      .then((result) => { if (!controller.signal.aborted) setAssets(result); })
-      .catch(() => { if (!controller.signal.aborted) setError(labels.failed); })
-      .finally(() => { if (!controller.signal.aborted) setLoadingLibrary(false); });
-    return () => controller.abort();
-  }, [labels.failed, showLibrary, siteSlug]);
+  // The library, its search and the upload (shared with the block image field).
+  const {
+    assets, filtered: filteredAssets, loading: loadingLibrary, uploading: busy, error,
+    query: mediaQuery, setQuery: setMediaQuery, upload: uploadFile,
+  } = useMediaLibrary(showLibrary, { loadFailed: labels.failed, uploadFailed: labels.failed });
 
   async function upload() {
     const file = fileRef.current?.files?.[0];
     if (!file) return;
-    setBusy(true);
-    setError("");
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("alt_text", file.name);
-    const site = siteSlug;
-    const response = await fetch(proxyUrl("/admin/media", site), {
-      method: "POST",
-      body: formData
-    });
-    setBusy(false);
-    if (response.status === 401) {
-      window.location.href = "/admin/login";
-      setError(labels.failed);
-      return;
-    }
-    if (!response.ok) {
-      setError(labels.failed);
-      return;
-    }
-    const asset = (await response.json()) as { id?: number; url: string; file?: string; display_name?: string; alt?: string; alt_text?: string; poster_url?: string };
-    setUrl(asset.url);
-    setAssets((current) => [{ id: asset.id ?? Date.now(), url: asset.url, file: asset.file, display_name: asset.display_name, alt: asset.alt, alt_text: asset.alt_text, poster_url: asset.poster_url }, ...current]);
+    const uploaded = await uploadFile(file);
+    if (!uploaded) return;
+    setUrl(uploaded);
     setShowLibrary(true);
   }
 

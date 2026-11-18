@@ -8,6 +8,7 @@ import LanguageToggle from "../modules/LanguageToggle";
 import { useOverlay } from "../modules/useOverlay";
 import HeaderSocial from "../modules/HeaderSocial";
 import { pinnedNavLinks, type SiteNavLink } from "../modules/siteNav";
+import useHeaderScroll from "../modules/useHeaderScroll";
 
 /** The shape the layout builds. Defined with the nav rules it belongs to; the
  *  name is kept here because the layout and the footer already import it. */
@@ -42,8 +43,6 @@ export default function SiteHeaderClient({
 }: SiteHeaderClientProps) {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -56,43 +55,10 @@ export default function SiteHeaderClient({
     triggerRef.current?.focus();
   };
 
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 60);
-      // Hide on scroll down, reveal on scroll up (all viewports). Small deltas
-      // debounce jitter; always show near the top.
-      // When the bar is set to stay put, it never hides — the client asked for a
-      // nav that is reachable at any scroll position, and auto-hide means a
-      // visitor deep in a long page has to scroll up before they can navigate.
-      if (autoHide) {
-        if (y > lastY + 4 && y > 120) setHidden(true);
-        else if (y < lastY - 4 || y < 120) setHidden(false);
-      }
-      lastY = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-    // autoHide is read inside the listener, so an empty array would pin the
-    // handler to whatever the setting was at mount. The villa header already
-    // depends on it; these two drifted apart.
-  }, [autoHide]);
-
-  // Publish the real header height so the homepage hero can slide exactly under
-  // it (margin-top = -header height). Without this, a fixed margin leaves a thin
-  // strip of page background showing above the hero when the header (logo size)
-  // is taller than the assumed value.
-  useEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
-    const apply = () => document.documentElement.style.setProperty("--site-header-h", `${el.offsetHeight}px`);
-    apply();
-    const ro = new ResizeObserver(apply);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+  /* Solid once scrolled, auto-hide when the setting asks for it, and the
+     header's height as --site-header-h so the homepage hero can slide exactly
+     under it (margin-top = -header height). */
+  const { scrolled, hidden } = useHeaderScroll(headerRef, { autoHide, heightVar: "--site-header-h" });
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 

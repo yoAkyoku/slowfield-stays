@@ -63,3 +63,31 @@ export async function bulkDeleteResult(
     ? { ok: false, message: `${failed.length} of ${ids.length} items failed` }
     : { ok: true, message: `${ids.length} items ${verb}` };
 }
+
+/** A form's `return_to`, kept only if it is an admin path: anything else
+ *  would let a crafted form send a signed-in admin off-site after saving. */
+export function safeReturnTo(value: string, fallback: string): string {
+  const trimmed = value.trim();
+  return trimmed.startsWith("/admin/") ? trimmed : fallback;
+}
+
+/** Back to where the form came from (its `return_to`), or `fallback`. */
+export function formRedirect(result: AdminResult, formData: FormData, fallback: string) {
+  actionRedirect(result, safeReturnTo(String(formData.get("return_to") ?? ""), fallback));
+}
+
+/** The `translations` JSON a CMS or stay form posts; {} if it will not parse. */
+export function parseTranslations(formData: FormData): Record<string, Record<string, string>> {
+  try {
+    const parsed = JSON.parse(String(formData.get("translations") ?? "{}"));
+    return typeof parsed === "object" && parsed !== null ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+/** A key's label from a lookup table, or the key itself — permission keys are
+ *  shown as written (`sites:read`) when the table has no entry. */
+export function labelFromMap(map: Record<string, string>, value: string): string {
+  return map[value] ?? value;
+}

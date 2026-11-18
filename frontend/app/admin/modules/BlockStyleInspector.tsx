@@ -185,15 +185,14 @@ export default function BlockStyleInspector({
             (the first column supplies it), only the horizontal one. */}
         {!isPairSecond && (
         <Field label={zh ? "上下留白" : "Vertical"}>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <select
+          <div className="a-u-row-center">
+            <select className="a-u-grow"
               value={selected.config._padY === undefined ? "" : String(selected.config._padY)}
               onChange={(e) => {
                 const v = e.target.value;
                 if (v === "") { const { _padY, ...rest } = selected.config as Record<string, unknown>; void _padY; updateConfig(selected.id, rest); }
                 else updateConfig(selected.id, { ...selected.config, _padY: Number(v) });
               }}
-              style={{ flex: 1 }}
             >
               <option value="">{zh ? "預設" : "Default"}</option>
               {PAD_PRESETS.map((p) => (
@@ -203,7 +202,7 @@ export default function BlockStyleInspector({
             {/* A Field's <label> only names its FIRST control, so in
                 every one of these two-control rows the second was
                 announced as an unnamed spin button. */}
-            <input
+            <input className="a-u-w-72"
               type="number" min={0} max={400} placeholder="px"
               aria-label={bi(editLocale, "上下留白（px）", "Vertical padding (px)")}
               value={selected.config._padY === undefined ? "" : String(selected.config._padY)}
@@ -212,7 +211,6 @@ export default function BlockStyleInspector({
                 if (v === "") { const { _padY, ...rest } = selected.config as Record<string, unknown>; void _padY; updateConfig(selected.id, rest); }
                 else updateConfig(selected.id, { ...selected.config, _padY: Number(v) });
               }}
-              style={{ width: 72 }}
             />
           </div>
         </Field>
@@ -222,22 +220,21 @@ export default function BlockStyleInspector({
             never reach the page. */}
         {selected.config.full_bleed !== true && (
         <Field label={zh ? "左右留白" : "Horizontal"}>
-          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-            <select
+          <div className="a-u-row-center">
+            <select className="a-u-grow"
               value={selected.config._padX === undefined ? "" : String(selected.config._padX)}
               onChange={(e) => {
                 const v = e.target.value;
                 if (v === "") { const { _padX, ...rest } = selected.config as Record<string, unknown>; void _padX; updateConfig(selected.id, rest); }
                 else updateConfig(selected.id, { ...selected.config, _padX: Number(v) });
               }}
-              style={{ flex: 1 }}
             >
               <option value="">{zh ? "預設" : "Default"}</option>
               {PAD_PRESETS.map((p) => (
                 <option key={p.value} value={p.value}>{(zh ? p.zh : p.en) + " (" + p.value + "px)"}</option>
               ))}
             </select>
-            <input
+            <input className="a-u-w-72"
               type="number" min={0} max={400} placeholder="px"
               aria-label={bi(editLocale, "左右留白（px）", "Horizontal padding (px)")}
               value={selected.config._padX === undefined ? "" : String(selected.config._padX)}
@@ -246,7 +243,6 @@ export default function BlockStyleInspector({
                 if (v === "") { const { _padX, ...rest } = selected.config as Record<string, unknown>; void _padX; updateConfig(selected.id, rest); }
                 else updateConfig(selected.id, { ...selected.config, _padX: Number(v) });
               }}
-              style={{ width: 72 }}
             />
           </div>
         </Field>
@@ -323,13 +319,12 @@ export default function BlockStyleInspector({
         {!paintsOwnBackground(selected.type) && isBlockBgColor(selected.config._bgColor) && (
         <Field label={zh ? "透明度" : "Opacity"}>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <input
+            <input className="a-u-grow"
               type="range"
               min="0"
               max="100"
               value={Number(selected.config._bgOpacity ?? 100)}
               onChange={(e) => updateConfig(selected.id, { ...selected.config, _bgOpacity: Number(e.target.value) })}
-              style={{ flex: 1 }}
             />
             <span style={{ fontSize: 11, color: "var(--muted)", minWidth: 32, textAlign: "right" }}>
               {Number(selected.config._bgOpacity ?? 100)}%

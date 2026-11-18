@@ -58,7 +58,8 @@ function compile(file: string, imports: Record<string, unknown>): Record<string,
 
 const stub = (name: string) => ({ default: () => h("div", { "data-stub": name }) });
 
-const ContentBlockRenderer = compile("app/modules/content/ContentBlockRenderer.tsx", {
+// The blocks themselves (ContentBlockRenderer only adds the server-side oembed).
+const ContentBlockRenderer = compile("app/modules/content/ContentBlocks.tsx", {
   react: {},
   "../safeHtml": safeHtml,
   "../tr": tr,

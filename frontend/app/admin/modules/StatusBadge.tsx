@@ -1,16 +1,7 @@
-const toneByStatus: Record<string, string> = {
-  archived: "neutral",
-  closed: "neutral",
-  contacted: "info",
-  deleted: "neutral",
-  draft: "neutral",
-  new: "warning",
-  published: "success",
-  quoted: "success",
-  review: "warning"
-};
+import { Badge } from "../ui";
+import { statusTone } from "./statusTone";
 
+/** A record's status as a kit Badge, coloured by statusTone. */
 export default function StatusBadge({ labels, status }: { labels?: Record<string, string>; status: string }) {
-  const tone = toneByStatus[status] ?? "neutral";
-  return <span className={`admin-status admin-status-${tone}`}>{labels?.[status] ?? status}</span>;
+  return <Badge tone={statusTone(status)}>{labels?.[status] ?? status}</Badge>;
 }

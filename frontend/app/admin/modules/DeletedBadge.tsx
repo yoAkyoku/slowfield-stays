@@ -1,3 +1,6 @@
+import { Badge } from "../ui";
+
+/** Marks an entry that is in the bin. */
 export default function DeletedBadge({ label }: { label: string }) {
-  return <span className="admin-deleted-badge">{label}</span>;
+  return <Badge tone="neutral" className="is-deleted-badge">{label}</Badge>;
 }

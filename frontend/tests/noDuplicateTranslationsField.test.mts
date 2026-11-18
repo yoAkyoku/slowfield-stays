@@ -70,7 +70,9 @@ test("the two orphans that emitted a second one are gone", () => {
 test("the reader still takes only the first entry, which is why the rule exists", () => {
   // If cmsActions ever starts reading getAll and merging, this constraint can
   // be relaxed — but then it should be relaxed deliberately, not by drift.
-  const actions = readCode("app/admin/modules/cmsActions.ts");
+  // The CMS and stay actions share parseTranslations (adminUtils).
+  assert.match(readCode("app/admin/modules/cmsActions.ts"), /parseTranslations\(formData\)/, "cmsActions no longer reads translations through parseTranslations");
+  const actions = readCode("app/admin/modules/adminUtils.ts");
   assert.match(
     actions,
     /formData\.get\("translations"\)/,

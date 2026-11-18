@@ -1,6 +1,7 @@
 import type { Locale } from "../../i18n";
 import { t } from "../../i18n";
-import { cfgT , eyebrowT, pickT} from "../../tr";
+import { cfgT, eyebrowT } from "../../tr";
+import { galleryImages } from "../../galleryImages";
 import HomePhotoGallery, { type HomeGalleryImage } from "../HomePhotoGallery";
 
 export type BlockGalleryConfig = {
@@ -27,16 +28,7 @@ export default function BlockGallery({ locale, config }: { locale: Locale; confi
      It is a bilingual field like every other visitor-facing string — the form
      writes { zh, en } per editing locale — so it resolves through pickT rather
      than being read as a plain string. */
-  const images: HomeGalleryImage[] = (Array.isArray(c.images) ? c.images : [])
-    .map((item) => {
-      if (typeof item === "string") return { url: item, caption: "" };
-      if (item && typeof item === "object" && "url" in item) {
-        const obj = item as Record<string, unknown>;
-        return { url: String(obj.url ?? ""), caption: pickT(obj.caption, locale) };
-      }
-      return { url: "", caption: "" };
-    })
-    .filter((img) => img.url !== "");
+  const images: HomeGalleryImage[] = galleryImages(c.images, locale);
 
   return (
     <HomePhotoGallery
@@ -44,6 +36,7 @@ export default function BlockGallery({ locale, config }: { locale: Locale; confi
       eyebrow={eyebrowT(c, locale, h.galleryEyebrow)}
       title={cfgT(c, "title", locale, h.galleryTitle)}
       display={c.display === "wall" ? "wall" : "carousel"}
+      zh={locale === "zh"}
     />
   );
 }

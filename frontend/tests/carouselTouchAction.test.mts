@@ -103,7 +103,15 @@ function surfacesIn(file: string): Surface[] {
       const named = (name: string) =>
         attributes.find((a) => ts.isIdentifier(a.name) && a.name.text === name);
       const props = GESTURE_PROPS.filter((p) => named(p));
-      if (START_PROPS.some((p) => named(p))) {
+      /* The stay cards bind the shared photo-strip swipe (useCardGallery) as a
+         spread, `{...swipeHandlers}`: onTouchStart and onTouchEnd by another
+         route, and just as much a drag surface. */
+      const spreadsSwipe = node.attributes.properties.some(
+        (p) => ts.isJsxSpreadAttribute(p) && p.expression.getText(source) === "swipeHandlers",
+      );
+      if (spreadsSwipe) {
+        out.push({ file, classes: classNames(named("className")), props: ["onTouchStart", "onTouchEnd"] });
+      } else if (START_PROPS.some((p) => named(p))) {
         out.push({ file, classes: classNames(named("className")), props });
       }
     }
@@ -161,6 +169,13 @@ const KNOWN = [
     expect: "pan-y",
   },
   {
+    surface: "app/modules/stays/StayShowcaseCard.tsx [home-showcase-media] onTouchStart onTouchEnd",
+    selector: ".home-showcase-media",
+    /* One axis, the same strip as the stay card: the homepage scrolls past
+       these, so vertical has to stay with the page. */
+    expect: "pan-y",
+  },
+  {
     surface: "app/modules/home/blocks/AboutImageCarousel.tsx [block-about-image block-about-carousel] onTouchStart onTouchEnd",
     selector: ".block-about-carousel",
     /* One axis. The About image carousel belongs to the page's vertical scroll
@@ -173,7 +188,8 @@ const KNOWN = [
 const SWIPE_SURFACES = [
   "app/modules/stays/StayHeroCarousel.tsx",
   "app/modules/home/HomeHeroCarousel.tsx",
-  "app/modules/stays/StayCard.tsx",
+  // Both stay cards decide their swipe in the shared photo-strip hook.
+  "app/modules/useCardGallery.ts",
   "app/modules/home/blocks/AboutImageCarousel.tsx",
 ];
 

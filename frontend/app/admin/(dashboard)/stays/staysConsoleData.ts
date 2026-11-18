@@ -1,4 +1,5 @@
 import type { Stay } from "../../../modules/api";
+import { hasAnyLocale } from "../../modules/localeFields";
 
 export type StayWorkspaceTab = "overview" | "list" | "issues";
 export type StayVisibility = "active" | "deleted" | "all";
@@ -39,12 +40,6 @@ export function normalizeStayVisibility(value?: string): StayVisibility {
 /** Text stored for `field` in any language. `trs` reads the reader's
  *  translation, then the column, then the other locale, so one of the three is
  *  enough for every language version of the page. */
-function hasAnyLocale(stay: Partial<AdminStayRecord>, field: "name" | "summary" | "story"): boolean {
-  const own = String(stay[field] ?? "").trim();
-  if (own) return true;
-  return Object.values(stay.translations ?? {}).some((fields) => String(fields?.[field] ?? "").trim().length > 0);
-}
-
 /**
  * What this stay is actually missing, judged by what the public routes serve.
  *

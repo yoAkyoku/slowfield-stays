@@ -716,3 +716,14 @@ export function sanitizeCustomCode(input: unknown): string {
       return VOID_TAGS.has(t) || t === "meta" || t === "link" ? `${open} />` : `${open}>`;
   });
 }
+
+/**
+ * The text of an HTML fragment: tags become spaces and runs of whitespace
+ * collapse, so `<p>a</p><p>b</p>` reads "a b" rather than "ab". For deciding
+ * whether a field has any words in it, labelling a row, and writing plain-text
+ * mirrors — six places each had their own copy of the regex, half of them
+ * gluing words together across tags.
+ */
+export function plainText(html: unknown): string {
+  return String(html ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}

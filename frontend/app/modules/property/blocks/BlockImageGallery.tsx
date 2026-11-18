@@ -1,27 +1,11 @@
 import type { Locale } from "../../i18n";
-import { cfgT, eyebrowT, pickT } from "../../tr";
+import { cfgT, eyebrowT } from "../../tr";
+import { galleryImages } from "../../galleryImages";
 import LightboxGallery from "../LightboxGallery";
 import SectionHeading from "../../SectionHeading";
 
-type GalleryImage = { url: string; caption?: string | Record<string, string> };
-
-/** Normalise image entries — accept plain URL strings or { url, caption } objects */
-function normaliseImages(raw: unknown[]): GalleryImage[] {
-  return raw
-    .filter(Boolean)
-    .map((item) => {
-      if (typeof item === "string") return { url: item };
-      if (item && typeof item === "object" && "url" in item) {
-        const obj = item as Record<string, unknown>;
-        return { url: String(obj.url ?? ""), caption: obj.caption as string | Record<string, string> | undefined };
-      }
-      return null;
-    })
-    .filter((img): img is GalleryImage => img !== null && img.url !== "");
-}
-
 export default function BlockImageGallery({ locale, config }: { locale: Locale; config: Record<string, unknown> }) {
-  const images = normaliseImages(Array.isArray(config.images) ? config.images : []);
+  const images = galleryImages(config.images, locale);
   const columns = Number(config.columns ?? 2);
   const layout = String(config.layout ?? "grid");
   const isCollage = layout === "collage";
@@ -68,7 +52,7 @@ export default function BlockImageGallery({ locale, config }: { locale: Locale; 
         collage={isScatter}
         carousel={isCarousel}
         columns={cols}
-        images={images.map((img) => ({ url: img.url, caption: pickT(img.caption, locale) }))}
+        images={images}
         gridClassName={`property-image-gallery-grid${isCollage ? " property-image-gallery-grid--collage" : ""}${isCentered ? " property-image-gallery-grid--centered" : ""}`}
         gridStyle={{
           // Clamped both ends: 1 is a valid choice (one image per row) but 0 or

@@ -22,9 +22,17 @@
  */
 import path from "node:path";
 import * as apiBase from "../app/modules/apiBase.ts";
+import * as galleryLabels from "../app/modules/galleryLabels.ts";
+import * as galleryImages from "../app/modules/galleryImages.ts";
+import * as safeHtml from "../app/modules/safeHtml.ts";
+import * as heroScrollLabel from "../app/modules/heroScrollLabel.ts";
 
 const SHARED: Record<string, unknown> = {
   "app/modules/apiBase": apiBase,
+  "app/modules/galleryLabels": galleryLabels,
+  "app/modules/galleryImages": galleryImages,
+  "app/modules/safeHtml": safeHtml,
+  "app/modules/heroScrollLabel": heroScrollLabel,
 };
 
 const SHARED_COMPONENTS: Record<string, string> = {
@@ -33,7 +41,20 @@ const SHARED_COMPONENTS: Record<string, string> = {
      test has already stubbed for the renderer; remap() re-keys those stubs to
      the table's own relative paths. */
   "app/modules/blockRegistry": "app/modules/blockRegistry.tsx",
+  /* The stay cards' photo strip. Compiled with the card test's own react stub,
+     so the hook runs inside the same fake render the card does. */
+  "app/modules/useCardGallery": "app/modules/useCardGallery.ts",
+  "app/modules/FaqAccordion": "app/modules/FaqAccordion.tsx",
+  "app/modules/content/ContentBlocks": "app/modules/content/ContentBlocks.tsx",
 };
+
+/* Icons are markup with no behaviour. Each one renders as an element named
+   after the icon (<ChevronDown />), the same shape the tests' own hand-written
+   icon stubs use, so a shared component can use an icon without every test
+   that renders it listing that icon. */
+const ICONS = new Proxy({}, {
+  get: (_, key) => (typeof key === "string" && /^[A-Z]/.test(key) ? key : undefined),
+});
 
 type Imports = Record<string, unknown>;
 const dir = (p: string) => path.posix.dirname(p.split(path.sep).join("/"));
@@ -44,6 +65,7 @@ export function sharedModule(
   id: string,
   compile?: (path: string, remap: (imports: Imports) => Imports) => unknown,
 ): unknown {
+  if (id === "lucide-react") return ICONS;
   if (!id.startsWith(".")) return undefined;
   const resolved = path.posix
     .normalize(path.posix.join(path.posix.dirname(file.split(path.sep).join("/")), id))

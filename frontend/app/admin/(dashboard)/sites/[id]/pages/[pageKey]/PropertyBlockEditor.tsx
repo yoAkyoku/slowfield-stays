@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { listingArticles, listingTagOptions, matchingTagArticles, type ListingArticle } from "../../../../../modules/listingTagOptions";
 import { tagKey, trs } from "../../../../../../modules/tr";
 import Link from "next/link";
@@ -18,14 +18,13 @@ import {
 } from "lucide-react";
 import type { AdminContentTag, AdminSite } from "../../../../../modules/adminApi";
 import SubmitButton from "../../../../../modules/SubmitButton";
-import { buttonClass, Callout, Segmented, useConfirm } from "../../../../../ui";
+import { Button, Callout, Check, Dialog, DialogActions, Segmented, Stack, buttonClass, useConfirm } from "../../../../../ui";
 import ImageUploadInput from "../../../../homepage/ImageUploadInput";
 import { Field, getVal, setVal, HeadingInput } from "../../../../../modules/blockFields";
-import { useOverlay } from "../../../../../../modules/useOverlay";
 import FoldSection from "../../../../../modules/FoldSection";
 import UndoRedoButtons from "../../../../../modules/UndoRedoButtons";
 import { useUndoableList } from "../../../../../modules/useUndoableList";
-import { useFormDraft } from "../../../../../modules/useFormDraft";
+import { draftJson, useFormDraft } from "../../../../../modules/useFormDraft";
 import { useUnsavedGuard } from "../../../../../modules/useUnsavedGuard";
 import type { PreviewRenderer } from "../../../../../../modules/previewRenderer";
 import { BLOCK_LABELS, BLOCK_HINTS, blockLabel, groupTitle } from "../../../../../modules/blockCatalogue";
@@ -292,18 +291,6 @@ export default function PropertyBlockEditor({
         ? prev.filter((st) => tagKey(st.tag.zh || st.tag.en) !== tagKey(t.zh || t.en))
         : [...prev, { label: { zh: t.zh, en: t.en }, tag: { zh: t.zh, en: t.en } }],
     );
-  const tagPickerRef = useRef<HTMLDivElement>(null);
-  /* Escape, the page-behind scroll lock, focus restore AND the Tab trap all come
-     from the shared overlay hook, so this modal behaves like every other one.
-     `trapFocus` is not optional for this panel: it says `aria-modal="true"`,
-     which tells a screen reader the editor behind it is unavailable, and without
-     the trap Tab walked straight out into that editor — the reader ends up
-     typing into a form they cannot see and cannot reach with the mouse.
-
-     The trap used to be a second, hand-rolled copy sitting right here beside the
-     hook. Two keydown listeners meant two preventDefault-and-focus passes on the
-     same Tab, so wrapping at either edge jumped two controls instead of one. */
-  useOverlay(tagPickerOpen, () => setTagPickerOpen(false), { trapFocus: tagPickerRef });
   // Nav link mode + anchor (this page's nav item → sub-page, or #tag to a
   // homepage block). Seeded from the saved page config.
   const _pageCfg = (((site.settings as Record<string, unknown> | undefined)?.pages as Record<string, Record<string, unknown>> | undefined)?.[pageKey]) ?? {};
@@ -472,10 +459,7 @@ export default function PropertyBlockEditor({
      invisible on the next render — `onRestore` is what actually puts the work
      back. */
   const draftKey = `property-page-draft:${site.id}:${pageKey}`;
-  const json = <T,>(raw: string | undefined, fallback: T): T => {
-    if (!raw) return fallback;
-    try { return JSON.parse(raw) as T; } catch { return fallback; }
-  };
+  const json = draftJson;
   const { stash: stashDraft, recovered: draftRecovered, registerForm } = useFormDraft(
     draftKey,
     saveFailed,
@@ -637,7 +621,7 @@ export default function PropertyBlockEditor({
         ) : (
           <div className="hpb-stack">
             {blocks.map((block, index) => (
-              <div key={block.id} style={{ width: "100%" }}>
+              <div className="a-u-full-width" key={block.id}>
                 {dropLine(index)}
                 <div
                   className={`hpb-piece${selectedId === block.id ? " is-selected" : ""}${block.enabled === false ? " is-disabled" : ""}${dragIndex === index ? " is-dragging" : ""}`}
@@ -813,36 +797,34 @@ export default function PropertyBlockEditor({
                   />
                 </Field>
                 <Field label={zh ? "標題顏色" : "Title Color"}>
-                  <div style={{ display: "flex", gap: "8px" }}>
+                  <div className="a-u-row">
                     <input
                       type="color"
                       value={heroTitleColor}
                       onChange={(e) => setHeroTitleColor(e.target.value)}
                       style={{ width: "48px", height: "36px", cursor: "pointer", border: "1px solid var(--line)", borderRadius: "6px" }}
                     />
-                    <input
+                    <input className="a-u-grow"
                       type="text"
                       value={heroTitleColor}
                       onChange={(e) => setHeroTitleColor(e.target.value)}
                       placeholder="#ffffff"
-                      style={{ flex: 1 }}
                     />
                   </div>
                 </Field>
                 <Field label={zh ? "副標題顏色" : "Subtitle Color"}>
-                  <div style={{ display: "flex", gap: "8px" }}>
+                  <div className="a-u-row">
                     <input
                       type="color"
                       value={heroSubtitleColor}
                       onChange={(e) => setHeroSubtitleColor(e.target.value)}
                       style={{ width: "48px", height: "36px", cursor: "pointer", border: "1px solid var(--line)", borderRadius: "6px" }}
                     />
-                    <input
+                    <input className="a-u-grow"
                       type="text"
                       value={heroSubtitleColor}
                       onChange={(e) => setHeroSubtitleColor(e.target.value)}
                       placeholder="#ffffff"
-                      style={{ flex: 1 }}
                     />
                   </div>
                 </Field>
@@ -868,10 +850,9 @@ export default function PropertyBlockEditor({
                   </p>
                 </Field>
                 <Field label={zh ? "Hero 高度" : "Hero Height"}>
-                  <select
+                  <select className="a-u-full-width"
                     value={heroHeight}
                     onChange={(e) => setHeroHeight(e.target.value)}
-                    style={{ width: "100%" }}
                   >
                     {/* Not 55vh. With the height unset the winning rules are
                         `min(var(--hero-h, 78vh), …)` for a hero with a picture
@@ -902,7 +883,7 @@ export default function PropertyBlockEditor({
                         aria-label={zh ? "遮罩顏色" : "Mask colour"}
                         style={{ width: 44, height: 34, padding: 0 }}
                       />
-                      <input
+                      <input className="a-u-grow"
                         type="range"
                         min={0}
                         max={100}
@@ -916,7 +897,6 @@ export default function PropertyBlockEditor({
                           if (!heroMaskColor) setHeroMaskColor("#0a0a08");
                         }}
                         aria-label={zh ? "遮罩透明度" : "Mask opacity"}
-                        style={{ flex: 1 }}
                       />
                       <span style={{ width: 46, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>
                         {heroMaskOpacity === "" ? "0" : heroMaskOpacity}%
@@ -939,10 +919,9 @@ export default function PropertyBlockEditor({
                   </Field>
                 )}
                 <Field label={zh ? "Hero 對齊（大標／小標／CTA）" : "Hero alignment (title / subtitle / CTA)"}>
-                  <select
+                  <select className="a-u-full-width"
                     value={heroAlign}
                     onChange={(e) => setHeroAlign(e.target.value)}
-                    style={{ width: "100%" }}
                   >
                     <option value="">{zh ? "預設（置中）" : "Default (centre)"}</option>
                     <option value="left">{zh ? "靠左" : "Left"}</option>
@@ -1130,55 +1109,43 @@ export default function PropertyBlockEditor({
                       : "Counts use published articles in this page’s included categories. Unsaved article edits are not included. Filters without matches stay hidden. With no curated filters, article topics appear automatically."}
                   </p>
 
-                  {tagPickerOpen && (
-                    <div
-                      onClick={() => setTagPickerOpen(false)}
-                      style={{ position: "fixed", inset: 0, zIndex: 3000, background: "rgba(20,18,14,0.45)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
-                    >
-                      <div ref={tagPickerRef} tabIndex={-1} role="dialog" aria-modal="true" aria-label={zh ? "選擇標籤" : "Select tags"} onClick={(e) => e.stopPropagation()} style={{ background: "#fff", borderRadius: 12, width: "100%", maxWidth: 460, maxHeight: "80vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 18px", borderBottom: "1px solid #e7e3da" }}>
-                          <strong style={{ fontSize: 14 }}>{zh ? "選擇標籤（可複選）" : "Select tags (multiple)"}</strong>
-                          <button type="button" onClick={() => setTagPickerOpen(false)} aria-label={zh ? "關閉" : "Close"} style={{ background: "none", border: 0, cursor: "pointer", display: "flex", color: "#666", padding: 4 }}><X size={18} /></button>
-                        </div>
-                        <div style={{ padding: 16, overflowY: "auto" }}>
-                          {tagsLoading ? (
-                            <p style={{ color: "#999", margin: 0 }}>{zh ? "載入中…" : "Loading…"}</p>
-                          ) : tagsError ? (
-                            <div>
-                              <p style={{ color: "#a33", margin: "0 0 10px" }}>
-                                {zh ? "標籤載入失敗，請重試。" : "Could not load tags. Please try again."}
-                              </p>
-                              <button
-                                type="button"
-                                className={buttonClass({ size: "sm" })}
-                                onClick={() => { setTagsError(false); void loadTags(); }}
-                              >
-                                {zh ? "重新載入" : "Retry"}
-                              </button>
-                            </div>
-                          ) : availableTags.length === 0 ? (
-                            <p style={{ color: "#999", margin: 0 }}>{zh ? "這個分類的文章還沒有標籤。" : "This category's entries have no tags yet."}</p>
-                          ) : (
-                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                              {availableTags.map((t) => {
-                                const sel = isTagSelected(t);
-                                return (
-                                  <label key={`${t.zh}|${t.en}`} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", border: `1px solid ${sel ? "#16140f" : "#e7e3da"}`, borderRadius: 8, cursor: "pointer", background: sel ? "#faf8f3" : "#fff" }}>
-                                    <input type="checkbox" checked={sel} onChange={() => toggleTag(t)} />
-                                    <span style={{ fontSize: 13 }}>{t.zh}{t.en && t.en !== t.zh ? <span style={{ color: "#aaa" }}> / {t.en}</span> : null}</span>
-                                  </label>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                        <div style={{ padding: "12px 18px", borderTop: "1px solid #e7e3da", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <span style={{ fontSize: 12, color: "#999" }}>{zh ? `已選 ${subTabs.length}` : `${subTabs.length} selected`}</span>
-                          <button type="button" onClick={() => setTagPickerOpen(false)} style={{ padding: "8px 20px", borderRadius: 999, border: "1px solid #16140f", background: "#16140f", color: "#fff", cursor: "pointer", fontSize: 13 }}>{zh ? "完成" : "Done"}</button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {/* The kit Dialog: Escape, the Tab trap, scroll lock and focus
+                      restore like every other admin dialog. It was an inline-styled
+                      panel over the shared overlay hook. */}
+                  <Dialog
+                    open={tagPickerOpen}
+                    onClose={() => setTagPickerOpen(false)}
+                    title={zh ? "選擇標籤（可複選）" : "Select tags (multiple)"}
+                    size="sm"
+                    closeLabel={zh ? "關閉" : "Close"}
+                    footer={
+                      <DialogActions>
+                        <span className="a-field__hint">{zh ? `已選 ${subTabs.length}` : `${subTabs.length} selected`}</span>
+                        <Button variant="primary" onClick={() => setTagPickerOpen(false)}>{zh ? "完成" : "Done"}</Button>
+                      </DialogActions>
+                    }
+                  >
+                    {tagsLoading ? (
+                      <p className="a-field__hint">{zh ? "載入中…" : "Loading…"}</p>
+                    ) : tagsError ? (
+                      <Callout tone="danger" actions={<Button size="sm" onClick={() => { setTagsError(false); void loadTags(); }}>{zh ? "重新載入" : "Retry"}</Button>}>
+                        {zh ? "標籤載入失敗，請重試。" : "Could not load tags. Please try again."}
+                      </Callout>
+                    ) : availableTags.length === 0 ? (
+                      <p className="a-field__hint">{zh ? "這個分類的文章還沒有標籤。" : "This category's entries have no tags yet."}</p>
+                    ) : (
+                      <Stack gap="sm">
+                        {availableTags.map((t) => (
+                          <Check
+                            key={`${t.zh}|${t.en}`}
+                            checked={isTagSelected(t)}
+                            onChange={() => toggleTag(t)}
+                            label={t.en && t.en !== t.zh ? `${t.zh} / ${t.en}` : t.zh}
+                          />
+                        ))}
+                      </Stack>
+                    )}
+                  </Dialog>
                 </FoldSection>
               )}
 

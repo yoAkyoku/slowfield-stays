@@ -93,3 +93,39 @@ export function ArticleCard({
     </Link>
   );
 }
+
+/** A 最新消息 card: cover (or its placeholder) with an optional category over
+ *  it, an optional lead row of tags, title, summary and a read-more line. The
+ *  news block and the filtered news grid each drew their own copy; the block's
+ *  showed a blank frame for a missing cover. */
+export function NewsCard({
+  href,
+  title,
+  summary,
+  cover,
+  category,
+  tags = [],
+  readMore,
+}: {
+  href: string;
+  title: string;
+  summary?: string;
+  cover?: string | null;
+  category?: string;
+  tags?: string[];
+  readMore: string;
+}) {
+  return (
+    <Link href={href} className="home-news-card">
+      <CardCover src={cover ?? ""} alt={title} className="home-news-img">
+        {category && <span className="home-news-cat">{category}</span>}
+      </CardCover>
+      <div className="home-news-body">
+        {tags.length > 0 && <div className="tags tags--lead">{tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div>}
+        <h3 title={title}>{title}</h3>
+        {summary && <p>{summary}</p>}
+        <span className="home-news-more">{readMore} <ArrowUpRight size={15} /></span>
+      </div>
+    </Link>
+  );
+}

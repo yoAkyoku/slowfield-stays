@@ -11,6 +11,7 @@ import LanguageToggle from "../LanguageToggle";
 import { useOverlay } from "../useOverlay";
 import type { BookingConfig, NavItem, PropertyPageConfig } from "./types";
 import { bookingLabel, isLivePage, navLabel } from "./types";
+import useHeaderScroll from "../useHeaderScroll";
 
 export default function PropertyHeader({
   siteName,
@@ -43,45 +44,14 @@ export default function PropertyHeader({
 }) {
   const pathname = usePathname();
   const base = `/stays/${slug}`;
-  const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const menuPanelRef = useRef<HTMLElement>(null);
 
-  // Publish the real header height so the full-screen hero can be sized exactly
-  // (100dvh minus the header) — the header is in-flow/sticky, so without this the
-  // hero overflowed by the header height and its bottom copy/dots were covered.
-  useEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
-    const apply = () => document.documentElement.style.setProperty("--property-header-h", `${el.offsetHeight}px`);
-    apply();
-    const ro = new ResizeObserver(apply);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  useEffect(() => {
-    let lastY = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 60);
-      // With auto-hide on: hide on scroll down (past the hero band), reveal on
-      // scroll up. The small deltas debounce trackpad jitter; near the top the
-      // bar always shows. When the bar is set to stay put, it never hides — the client asked for a
-      // nav that is reachable at any scroll position, and auto-hide means a
-      // visitor deep in a long page has to scroll up before they can navigate.
-      if (autoHide) {
-        if (y > lastY + 4 && y > 120) setHidden(true);
-        else if (y < lastY - 4 || y < 120) setHidden(false);
-      }
-      lastY = y;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [autoHide]);
+  /* Solid once scrolled, auto-hide when the setting asks for it, and the
+     header's height as --property-header-h so the full-screen hero can be
+     sized exactly (100dvh minus the header). */
+  const { scrolled, hidden } = useHeaderScroll(headerRef, { autoHide, heightVar: "--property-header-h" });
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 

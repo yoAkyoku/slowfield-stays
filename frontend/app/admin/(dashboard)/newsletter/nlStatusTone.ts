@@ -1,20 +1,7 @@
 import type { Tone } from "../../ui";
+import { statusTone } from "../../modules/statusTone";
 
-/** Badge tone for a campaign or subscriber status. */
+/** Badge tone for a campaign or subscriber status — the admin-wide table. */
 export function nlStatusTone(status: string): Tone {
-  switch (status) {
-    case "sent":
-    case "subscribed":
-      return "success";
-    case "queued":
-      return "info";
-    case "scheduled":
-      return "brand";
-    case "sending":
-      return "warning";
-    case "failed":
-      return "danger";
-    default:
-      return "neutral";
-  }
+  return statusTone(status);
 }

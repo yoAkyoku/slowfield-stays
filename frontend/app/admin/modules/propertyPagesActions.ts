@@ -2,9 +2,7 @@
 
 import { adminJsonRequest } from "./adminRequest";
 import { actionRedirect, stampedRedirect } from "./adminUtils";
-import { getAdminSite } from "./adminApi";
-import type { AdminSite } from "./adminApi";
-import { DEFAULT_ACCENT_COLOR, DEFAULT_PRIMARY_COLOR } from "../../modules/fontPresets";
+import { loadSite, siteReplacePayload } from "./sitePayload";
 
 /**
  * Save a single property page's blocks + SEO into site.settings.pages.{pageKey}
@@ -115,7 +113,7 @@ export async function updatePropertyPageAction(formData: FormData) {
   // For homepage, store under settings.homepage
   if (pageKey === "homepage") {
     const existingHomepage = (existingSettings.homepage ?? {}) as Record<string, unknown>;
-    const payload = buildSitePayload(site, {
+    const payload = siteReplacePayload(site, {
       ...existingSettings,
       homepage: { ...existingHomepage, blocks, seo, show_cms_list: showCmsList },
     });
@@ -128,7 +126,7 @@ export async function updatePropertyPageAction(formData: FormData) {
   const existingPages = (existingSettings.pages ?? {}) as Record<string, unknown>;
   const existingPage = (existingPages[pageKey] ?? {}) as Record<string, unknown>;
 
-  const payload = buildSitePayload(site, {
+  const payload = siteReplacePayload(site, {
     ...existingSettings,
     pages: {
       ...existingPages,
@@ -230,7 +228,7 @@ export async function addPropertyPageAction(formData: FormData) {
     article_categories: existing?.article_categories ?? [],
   };
 
-  const payload = buildSitePayload(site, {
+  const payload = siteReplacePayload(site, {
     ...existingSettings,
     pages: {
       ...existingPages,
@@ -268,7 +266,7 @@ export async function deletePropertyPageAction(formData: FormData) {
     nav = nav.filter((item) => (item as Record<string, unknown>)?.key !== pageKey);
   }
 
-  const payload = buildSitePayload(site, {
+  const payload = siteReplacePayload(site, {
     ...existingSettings,
     pages: existingPages,
     ...(nav ? { nav } : {}),
@@ -278,60 +276,4 @@ export async function deletePropertyPageAction(formData: FormData) {
   actionRedirect(result, `/admin/sites/${siteId}`);
 }
 
-/**
- * Load the site the save is about, from the API rather than from the copy the
- * browser posted back.
- *
- * These forms carry the whole site object in a hidden field and the payload
- * below is a full replace, so trusting it had two consequences: an admin
- * editing one page silently reverted another admin's edits to a *different*
- * page, because their snapshot of settings was already stale by the time they
- * saved; and every field in the payload — slug, domain, status, theme — was
- * whatever the browser chose to send. The posted copy is used only if the
- * refetch fails, so a transient API error degrades to the old behaviour rather
- * than wiping settings.
- */
-async function loadSite(siteId: string, posted: FormDataEntryValue | null): Promise<AdminSite> {
-  const fresh = await getAdminSite(siteId);
-  if (fresh) return fresh;
-  return JSON.parse(String(posted ?? "{}")) as AdminSite;
-}
 
-function buildSitePayload(site: AdminSite, settings: Record<string, unknown>) {
-  return {
-    name: site.name ?? "",
-    slug: site.slug ?? "",
-    domain: site.domain ?? "",
-    status: site.status ?? "active",
-    default_locale: site.default_locale ?? "zh",
-    primary_color: site.theme_config?.primaryColor ?? DEFAULT_PRIMARY_COLOR,
-    accent_color: site.theme_config?.accentColor ?? DEFAULT_ACCENT_COLOR,
-    nav_bg: site.theme_config?.navBg ?? "",
-    nav_text: site.theme_config?.navText ?? "",
-    footer_bg: site.theme_config?.footerBg ?? "",
-    footer_text: site.theme_config?.footerText ?? "",
-    button_bg: site.theme_config?.buttonBg ?? "",
-
-    button_text: site.theme_config?.buttonText ?? "",
-
-    /* Carried through: this payload is a full replace, so a field it does
-       not name is cleared — saving something unrelated would wipe these. */
-    nav_button_bg: site.theme_config?.navButtonBg ?? "",
-    nav_button_text: site.theme_config?.navButtonText ?? "",
-    footer_button_bg: site.theme_config?.footerButtonBg ?? "",
-    footer_button_text: site.theme_config?.footerButtonText ?? "",
-    // The PUT replaces theme_config wholesale; omitting page_bg here reset the
-    // site background to default on every property-page save (this builder backs
-    // five actions incl. drag-reorder and visibility toggle).
-    page_bg: site.theme_config?.pageBg ?? "",
-    contact_email: site.contact_config?.email ?? "",
-    contact_line: site.contact_config?.line ?? "",
-    seo_title: site.seo_defaults?.title ?? "",
-    seo_description: site.seo_defaults?.description ?? "",
-    parent_site_id: site.parent_site_id ?? null,
-    template_site_id: site.template_site_id ?? null,
-    is_template: site.is_template ?? false,
-    template_version: site.template_version ?? "v1",
-    settings,
-  };
-}

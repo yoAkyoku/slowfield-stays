@@ -5,12 +5,9 @@ import { type Banner, type Stay } from "../../modules/api";
 import { ADMIN_DATA_DIGEST, ADMIN_FORBIDDEN_DIGEST, ADMIN_SITE_MISSING_DIGEST } from "./adminErrorDigests";
 import { collectAllPages } from "./adminPagePagination";
 import { SERVER_API_URL as API_URL } from "../../modules/apiBase";
+import { currentSiteSlug } from "./adminSiteSlug";
 
 export { ADMIN_DATA_DIGEST, ADMIN_FORBIDDEN_DIGEST, ADMIN_SITE_MISSING_DIGEST };
-
-async function currentSiteSlug() {
-  return (await cookies()).get("admin-site")?.value ?? "slowfield";
-}
 
 async function withSite(path: string, siteSlug?: string) {
   const separator = path.includes("?") ? "&" : "?";

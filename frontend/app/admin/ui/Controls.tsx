@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cx } from "./cx";
@@ -105,7 +106,7 @@ export function Disclosure({ summary, children, defaultOpen, className, hint }: 
       <summary>
         <span className="a-disclosure__summary">{summary}</span>
         {hint ? <span className="a-disclosure__hint">{hint}</span> : null}
-        <svg aria-hidden="true" className="a-disclosure__chev" fill="none" height="16" stroke="currentColor" strokeLinecap="round" strokeWidth="2" viewBox="0 0 24 24" width="16"><path d="m6 9 6 6 6-6" /></svg>
+        <ChevronDown aria-hidden="true" className="a-disclosure__chev" size={16} />
       </summary>
       <div className="a-disclosure__body">{children}</div>
     </details>

@@ -275,7 +275,6 @@
 .a-card__actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .a-card__body { padding: 20px; }
 .a-card__body--flush { padding: 0; }
-.a-card__body--flush > .admin-table-frame { border: 0; border-radius: 0 0 var(--a-radius-lg) var(--a-radius-lg); box-shadow: none; }
 
 /* ----------------------------------------------------------------- Button */
 
@@ -450,6 +449,10 @@
 
 .a-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .a-field--full { grid-column: 1 / -1; }
+/* Block editor fields (blockFields.Field): the inspector's compact small-caps label. */
+.a-field--inspector { gap: 4px; margin-bottom: 10px; }
+.a-field--inspector > .a-field__label,
+.a-field__label--inspector { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .a-field__label { font-size: var(--a-fs-sm); font-weight: 600; color: var(--a-text); }
 .a-field__req { color: var(--a-danger); margin-left: 3px; }
 .a-field__hint { font-size: var(--a-fs-xs); color: var(--a-text-3); }
@@ -521,59 +524,6 @@
 .a-callout--warning { background: var(--a-warning-soft); color: #6d3f05; border-color: #f2dcb4; }
 .a-callout--danger { background: var(--a-danger-soft); color: #7d1810; border-color: #f6cbc7; }
 .a-callout--neutral, .a-callout--brand { background: var(--a-surface-2); color: var(--a-text-2); border-color: var(--a-border); }
-
-/* -------------------------------------- Existing shared modules, restyled */
-
-/* AdminTable */
-.admin-shell .admin-table-frame {
-  background: var(--a-surface);
-  border: 1px solid var(--a-border);
-  border-radius: var(--a-radius-lg);
-  box-shadow: var(--a-shadow-sm);
-  overflow: hidden;
-}
-.admin-shell .admin-table-wrap { overflow-x: auto; }
-.admin-shell .admin-table { width: 100%; border-collapse: collapse; font-size: var(--a-fs-sm); }
-.admin-shell .admin-table th {
-  position: sticky;
-  top: 0;
-  text-align: left;
-  font-size: var(--a-fs-xs);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--a-text-2);
-  background: var(--a-surface-2);
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--a-border);
-  white-space: nowrap;
-}
-.admin-shell .admin-table td {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--a-border);
-  vertical-align: middle;
-  color: var(--a-text);
-}
-.admin-shell .admin-table tbody tr:last-child td { border-bottom: 0; }
-.admin-shell .admin-table tbody tr:hover td { background: var(--a-surface-2); }
-.admin-shell .admin-table-more {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 16px; font-size: var(--a-fs-sm); color: var(--a-text-2);
-  border-top: 1px solid var(--a-border); background: var(--a-surface-2);
-}
-
-/* StatusBadge */
-.admin-shell .admin-status {
-  display: inline-flex; align-items: center; gap: 5px;
-  height: 22px; padding: 0 8px; border-radius: 999px; border: 0;
-  font-size: var(--a-fs-xs); font-weight: 600; letter-spacing: 0; text-transform: none;
-  color: var(--a-text-2); background: var(--a-surface-3);
-}
-.admin-shell .admin-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.admin-shell .admin-status-success { color: var(--a-success); background: var(--a-success-soft); }
-.admin-shell .admin-status-warning { color: var(--a-warning); background: var(--a-warning-soft); }
-.admin-shell .admin-status-info { color: var(--a-info); background: var(--a-info-soft); }
-.admin-shell .admin-status-danger { color: var(--a-danger); background: var(--a-danger-soft); }
 
 /* AdminEmptyState */
 .admin-shell .admin-empty-state {
@@ -854,8 +804,6 @@ a.a-list__link:hover { background: var(--a-surface-2); }
 .a-dialog-layer { white-space: normal; text-align: left; }
 /* Secondary text in a cell, toolbar or card (a dash for "none", a sub-line). */
 .admin-shell .a-muted { display: block; margin: 0; font-size: var(--a-fs-xs); color: var(--a-text-3); }
-/* A flush Card body holding a filter row then a table: rule between them. */
-.a-card__body--flush > :is(.admin-table-frame, .a-table-frame):not(:first-child) { border-top: 1px solid var(--a-border); }
 .admin-shell .a-table code { font-family: var(--a-font-mono); font-size: var(--a-fs-xs); }
 
 /* Portaled preview overlay chrome: kit type on the bar only. */
@@ -917,3 +865,169 @@ a.a-list__link:hover { background: var(--a-surface-2); }
 /* Confirm / notice dialogs (Confirm.tsx). Their messages were written for
    window.confirm, some with a line break in them, so the title keeps it. */
 .a-confirm .a-dialog__title { white-space: pre-line; }
+
+/* ── Toast ─────────────────────────────────────────────────────────────────
+   The saved / failed message after an action (Toast.tsx; AdminFlash on every
+   page). It was the admin's own legacy component; the kit owns it now. */
+.a-toast {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  z-index: 80;
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 16px;
+  width: min(680px, calc(100vw - 32px));
+  margin: 0;
+  padding: 14px 14px 14px 16px;
+  border: 1px solid rgba(41, 39, 34, 0.16);
+  border-radius: 0;
+  background: rgba(255, 253, 247, 0.94);
+  box-shadow: 0 18px 48px rgba(35, 31, 24, 0.14);
+  color: var(--ink);
+  transform: translateX(-50%);
+  animation: aToastIn 180ms ease-out;
+  overflow: hidden;
+}
+
+.a-toast::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.55), transparent 46%);
+}
+
+.a-toast-success {
+  border-color: rgba(59, 116, 82, 0.28);
+  background: rgba(244, 249, 242, 0.96);
+}
+
+.a-toast-error {
+  border-color: rgba(153, 64, 47, 0.32);
+  background: rgba(255, 246, 241, 0.97);
+}
+
+.a-toast-mark {
+  width: 10px;
+  height: 42px;
+  background: #3b7452;
+}
+
+.a-toast-error .a-toast-mark {
+  background: #99402f;
+}
+
+.a-toast-copy {
+  position: relative;
+  min-width: 0;
+}
+
+.a-toast-copy strong {
+  display: block;
+  font-family: var(--font-title);
+  font-size: 0.92rem;
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.a-toast-copy p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.a-toast-close {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(41, 39, 34, 0.16);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.46);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.86rem;
+  line-height: 1;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.a-toast-close:hover {
+  border-color: rgba(41, 39, 34, 0.36);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.a-toast-close:active {
+  transform: translateY(1px);
+}
+
+.a-toast-progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: #3b7452;
+  transform-origin: left center;
+  animation: aToastProgress var(--a-toast-duration) linear forwards;
+}
+
+.a-toast-error .a-toast-progress {
+  background: #99402f;
+}
+
+@keyframes aToastIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes aToastProgress {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* ── Layout utilities ──────────────────────────────────────────────────────
+   The block forms and the site editor repeated the same handful of inline
+   style objects dozens of times (flex: 1 twenty times, a two-control row
+   fourteen). Named once here instead; anything one-off stays inline.
+   !important on purpose: these replace inline styles, which outrank every
+   stylesheet rule, so without it a component rule could win where the inline
+   style used to. */
+.a-u-grow { flex: 1 !important; }
+.a-u-row { display: flex !important; gap: 8px !important; }
+.a-u-row-center { display: flex !important; gap: 6px !important; align-items: center !important; }
+.a-u-row-tight { display: flex !important; gap: 4px !important; align-items: center !important; }
+.a-u-row-heading { display: flex !important; align-items: center !important; gap: 8px !important; margin: 16px 0 8px !important; }
+.a-u-row-note { display: flex !important; align-items: center !important; gap: 8px !important; margin: 0 0 12px !important; font-size: 13px !important; }
+.a-u-col { display: flex !important; flex-direction: column !important; gap: 4px !important; }
+.a-u-span { grid-column: 1 / -1 !important; }
+.a-u-subhead { margin: 0 0 8px 0 !important; font-size: 16px !important; font-weight: 600 !important; }
+.a-u-note { margin: 0 !important; color: var(--muted) !important; font-size: 13px !important; }
+.a-u-label-strong { font-size: 13px !important; font-weight: 600 !important; margin: 0 !important; color: var(--ink) !important; }
+.a-u-mb-16 { margin-bottom: 16px !important; }
+.a-u-mb-20 { margin-bottom: 20px !important; }
+.a-u-mt-6 { margin-top: 6px !important; }
+.a-u-mt-8 { margin-top: 8px !important; }
+.a-u-mt-10 { margin-top: 10px !important; }
+.a-u-full-width { width: 100% !important; }
+.a-u-auto-width { width: auto !important; }
+.a-u-w-72 { width: 72px !important; }
+.a-u-right { text-align: right !important; }
+.a-u-swatch { width: 48px !important; height: 36px !important; cursor: pointer !important; }
+.a-u-swatch-sm { width: 44px !important; height: 32px !important; cursor: pointer !important; }

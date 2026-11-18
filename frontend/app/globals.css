@@ -1175,7 +1175,8 @@ img {
   overflow: hidden;
   background: var(--line);
 }
-.home-collection-card-img img {
+.home-collection-card-img img,
+.journal-mag-card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1501,12 +1502,15 @@ img {
   position: relative; aspect-ratio: 5 / 4; overflow: hidden;
   border-radius: 16px;
   box-shadow: 0 36px 80px -40px rgba(15, 20, 14, 0.55);
+  /* The photo strip reads a left/right swipe (useCardGallery); vertical and
+     pinching stay with the page, as on the stay card. */
+  touch-action: pan-y pinch-zoom;
 }
 .home-showcase-stage { position: absolute; inset: 0; display: block; }
 .home-showcase-stage.is-empty { background: oklch(0.92 0.01 90); }
 .home-showcase-slide {
   position: absolute; inset: 0;
-  background-size: cover; background-position: center;
+  width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;
   opacity: 0; transition: opacity 700ms ease;
 }
 .home-showcase-slide.is-active { opacity: 1; }
@@ -1629,13 +1633,18 @@ img {
 /* No rule under the row: the full-width line drew a box the section did not need
    and separated the tags from the cards they filter (客戶: 標籤下面那條線拿掉).
    The active item keeps its own short underline — that is the state indicator. */
-.home-news-filter {
+/* The CMS list's tag row (.facets-tagrow / .facets-tagchip, in the content
+   index) shares every rule here; only its gap to the list differs. */
+.home-news-filter,
+.facets-tagrow {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: clamp(20px, 2.4vw, 30px);
 }
-.home-news-filter button {
+.facets-tagrow { margin-bottom: clamp(18px, 2.6vw, 30px); }
+.home-news-filter button,
+.facets-tagchip {
   appearance: none;
   background: none;
   border: 0;
@@ -1649,7 +1658,8 @@ img {
   white-space: nowrap;
   transition: color 200ms;
 }
-.home-news-filter button + button::before {
+.home-news-filter button + button::before,
+.facets-tagchip + .facets-tagchip::before {
   content: "";
   position: absolute;
   left: 0;
@@ -1660,8 +1670,11 @@ img {
   background: var(--line);
 }
 .home-news-filter button:hover,
-.home-news-filter button.is-active { color: var(--ink); }
-.home-news-filter button.is-active::after {
+.home-news-filter button.is-active,
+.facets-tagchip:hover,
+.facets-tagchip.is-active { color: var(--ink); }
+.home-news-filter button.is-active::after,
+.facets-tagchip.is-active::after {
   content: "";
   position: absolute;
   left: clamp(14px, 2.2vw, 28px);
@@ -1671,7 +1684,8 @@ img {
   background: var(--ink);
 }
 @media (max-width: 640px) {
-  .home-news-filter {
+  .home-news-filter,
+  .facets-tagrow {
     flex-wrap: nowrap;
     /* safe: still centred when the tags fit (客戶: 分類要置中), but a row too long
        for the screen falls back to the left edge rather than centring itself and
@@ -1680,8 +1694,10 @@ img {
     overflow-x: auto;
     scrollbar-width: none;
   }
-  .home-news-filter::-webkit-scrollbar { display: none; }
-  .home-news-filter button { flex: 0 0 auto; }
+  .home-news-filter::-webkit-scrollbar,
+  .facets-tagrow::-webkit-scrollbar { display: none; }
+  .home-news-filter button,
+  .facets-tagchip { flex: 0 0 auto; }
 }
 .home-news-grid {
   display: grid;
@@ -3345,7 +3361,8 @@ img {
   text-decoration: none;
 }
 
-.content-video-embed > a span {
+.content-video-embed > a span,
+.content-detail-next-panel span {
   color: #d9b98d;
   font-family: var(--font-ui);
   font-size: 12px;
@@ -3441,15 +3458,6 @@ img {
   padding: clamp(22px, 4vw, 38px);
 }
 
-.content-detail-next-panel span {
-  color: #d9b98d;
-  font-family: var(--font-ui);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .content-detail-next-panel strong {
   font-family: var(--font-title);
   font-size: clamp(30px, 4vw, 52px);
@@ -3531,7 +3539,9 @@ img {
   overflow: hidden;
 }
 
-.journal-feature-image img {
+.journal-feature-image img,
+.activity-featured-image img,
+.article-feature-img img {
   filter: saturate(0.88) contrast(1.04);
   height: 100%;
   object-fit: cover;
@@ -3639,14 +3649,6 @@ img {
 .activity-featured-image {
   aspect-ratio: 4 / 3;
   overflow: hidden;
-}
-
-.activity-featured-image img {
-  filter: saturate(0.88) contrast(1.04);
-  height: 100%;
-  object-fit: cover;
-  transition: filter 300ms ease, transform 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  width: 100%;
 }
 
 .activity-featured-panel:hover .activity-featured-image img {
@@ -4614,7 +4616,8 @@ img {
   padding: 24px;
 }
 
-.stay-info-panel h2 {
+.stay-info-panel h2,
+.stay-faq-accordion h2 {
   font-family: var(--font-title);
   font-size: 38px;
   font-weight: 500;
@@ -4813,12 +4816,6 @@ img {
 }
 
 /* ── Stay FAQ Accordion ── */
-.stay-faq-accordion h2 {
-  font-family: var(--font-title);
-  font-size: 38px;
-  font-weight: 500;
-  margin: 0 0 16px;
-}
 .stay-faq-item {
   border-top: 1px solid rgba(17, 17, 17, 0.14);
 }
@@ -5294,28 +5291,6 @@ img {
 
 /* ── Admin Modal Dialog ── */
 
-@keyframes adminFlashIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -6px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-@keyframes adminFlashProgress {
-  from {
-    transform: scaleX(1);
-  }
-
-  to {
-    transform: scaleX(0);
-  }
-}
-
 @keyframes adminConfirmIn {
   from {
     opacity: 0;
@@ -5708,26 +5683,6 @@ button.is-pending {
   .home-booking-flow-steps div {
     min-height: auto;
   }
-
-  /* Every .admin-table has this trap, not just the contact list: the table is
-     `table-layout: fixed; width: 100%`, so its columns can only ever divide the
-     wrapper — they can never push it wider, and the `overflow-x: auto` on
-     .admin-table-wrap never engages. 帳號權限 has 7 columns, which at 375px
-     left 13.3px of content per column: an email address rendered one character
-     per line about 19 rows tall, and the 停用 button spilling out of its own
-     border into the next cell. 登入分析 (4 columns) is the same, milder. */
-
-  /* Let the contact list scroll instead of dividing the phone in six.
-     .admin-table is `table-layout: fixed; width: 100%`, and the six columns
-     carry percentage widths (20/20/14/10/24/12). Percentages of a fixed table
-     can only ever divide the wrapper — they cannot push it wider — so the
-     `overflow-x: auto` on .admin-table-wrap never engaged. At 375px the content
-     box is 319px, which left 狀態 with 3.9px of usable width after its 28px of
-     padding and 聯絡人 with 35.8px for a 24px font: one CJK glyph per line, and
-     the action buttons spilling out of the cell entirely.
-     `table-layout: auto` + a min-width larger than the phone hands the columns
-     back their natural widths and lets the wrapper scroll — the same shape
-     .cms-record-table already uses. */
 
   .grid,
   .stay-detail-hero,
@@ -6492,20 +6447,9 @@ button.is-pending {
    ════════════════════════════════════════════════════════════════ */
 
 /* ── 1. Edge-to-edge heroes ──────────────────────────────────── */
-/* Break out of .content-index parent padding with negative margins */
-.content-index .content-index-hero {
-  /* The same figure the parent pads by, or the two stop cancelling. The
-     parent moved to --site-gutter and these did not, so a site that set a
-     wide 左右留白 indented the page by up to 220px while the hero pulled back
-     only 56px — the hero stopped reaching the edge and its inner padding no
-     longer lined up with the copy below it. */
-  margin-left: calc(-1 * var(--site-gutter, clamp(20px, 4vw, 56px)));
-  margin-right: calc(-1 * var(--site-gutter, clamp(20px, 4vw, 56px)));
-  padding-left: var(--site-gutter, clamp(20px, 4vw, 56px));
-  padding-right: var(--site-gutter, clamp(20px, 4vw, 56px));
-}
-
-/* Contact hero: break out of .contact-page padding */
+/* Break out of the parent padding with negative margins: .content-index for
+   the list heroes, .contact-page for the contact hero. */
+.content-index .content-index-hero,
 .contact-page .contact-hero {
   /* The same figure the parent pads by, or the two stop cancelling. The
      parent moved to --site-gutter and these did not, so a site that set a
@@ -7674,14 +7618,6 @@ button.is-pending {
   overflow: hidden;
 }
 
-.article-feature-img img {
-  filter: saturate(0.88) contrast(1.04);
-  height: 100%;
-  object-fit: cover;
-  transition: filter 300ms ease, transform 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  width: 100%;
-}
-
 .article-feature-main:hover .article-feature-img img {
   filter: saturate(1) contrast(1.02);
   transform: scale(1.03);
@@ -8681,13 +8617,6 @@ button.is-pending {
   position: relative;
   overflow: hidden;
   background: var(--line);
-}
-.journal-mag-card-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .journal-mag-card:hover .journal-mag-card-image img {
   transform: scale(1.04);
@@ -10181,7 +10110,8 @@ html { scroll-behavior: smooth; overflow-x: clip; }
   max-width: var(--block-measure, 1200px);
 }
 
-.property-rich-text.is-centered .eyebrow {
+.property-rich-text.is-centered .eyebrow,
+.property-contact > .eyebrow {
   font-family: var(--r-eyebrow-font, var(--type-small-family, var(--font-ui)));
   font-size: var(--r-eyebrow-size, var(--type-small-size, 12px));
   letter-spacing: 0.24em;
@@ -10279,7 +10209,8 @@ html { scroll-behavior: smooth; overflow-x: clip; }
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
 }
-.property-map-frame iframe {
+.property-map-frame iframe,
+.map-embed-wrap iframe {
   width: 100%;
   height: 100%;
   border: 0;
@@ -10437,7 +10368,6 @@ a.map-popup:hover .map-popup-cta { opacity: 0.9; }
 /* Google Maps iframe shield — scroll over the map scrolls the page (no zoom
    hijack); click once to interact. */
 .map-embed-wrap { position: relative; display: block; width: 100%; height: 100%; }
-.map-embed-wrap iframe { width: 100%; height: 100%; border: 0; display: block; }
 .map-embed-wrap.is-branded {
   isolation: isolate;
   background: #d9d5c9;
@@ -10729,7 +10659,8 @@ h2.property-attraction-num,
   min-height: clamp(280px, 44vw, 560px);
 }
 
-.property-image-gallery-item img {
+.property-image-gallery-item img,
+.property-image-gallery-zoom img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -10800,12 +10731,6 @@ h2.property-attraction-num,
   border: 0;
   background: none;
   cursor: zoom-in;
-}
-.property-image-gallery-zoom img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 500ms ease;
 }
 .property-image-gallery-item.is-zoomable:hover .property-image-gallery-zoom img {
   transform: scale(1.04);
@@ -10910,7 +10835,8 @@ h2.property-attraction-num,
   transform: none;
 }
 .property-scatter .property-scatter-item img,
-.property-scatter .property-scatter-item .property-image-gallery-zoom {
+.property-scatter .property-scatter-item .property-image-gallery-zoom,
+.property-partner-img img {
   width: 100%; height: 100%; object-fit: cover; display: block;
 }
 
@@ -11695,15 +11621,6 @@ h2.property-attraction-num,
    one-page section style used by rich_text. */
 .property-contact:has(> .eyebrow) {
   text-align: center;
-}
-
-.property-contact > .eyebrow {
-  font-family: var(--r-eyebrow-font, var(--type-small-family, var(--font-ui)));
-  font-size: var(--r-eyebrow-size, var(--type-small-size, 12px));
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--r-eyebrow-color, var(--accent-text, #8b6a43));
-  /* No margin override — the shared .eyebrow value is the one gap. */
 }
 
 .property-contact:has(> .eyebrow) > h2 {
@@ -12838,6 +12755,7 @@ h2.property-attraction-num,
 .page-block-contact-info p { margin: 4px 0; }
 .page-block-contact-info a { color: var(--accent); }
 .page-block-contact-map { margin-top: 24px; }
+.page-block-contact-map .map-embed-wrap { height: 300px; }
 
 .page-block-badge-icon { font-size: 18px; }
 
@@ -13285,13 +13203,6 @@ a.property-partner-card:hover {
   aspect-ratio: 4 / 3;
   overflow: hidden;
   background: #f4f2ee;
-}
-
-.property-partner-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
 }
 
 .property-partner-body {
@@ -14731,65 +14642,11 @@ a.property-partner-card,
 }
 .facets-cat-toolbar .facets-search-field { flex: 0 1 320px; }
 
-/* Curated tag filter row — the same look the section bar had (客戶: tags 做成之前
-   大分類的樣式): a centred row with hairline dividers between items and an
-   underline under the active one, no pills. On a phone it becomes one sideways-
-   scrolling strip so a long list never pushes the articles down the page (RWD). */
-/* No rule under the row (客戶: 標籤下面的那條線拿掉) — the dividers between items
-   already group them, and the line boxed the list off from the articles. */
-.facets-tagrow {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: clamp(18px, 2.6vw, 30px);
-}
-.facets-tagchip {
-  appearance: none;
-  background: none;
-  border: 0;
-  cursor: pointer;
-  color: var(--muted);
-  font-family: var(--font-ui);
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  padding: 14px clamp(14px, 2.2vw, 28px);
-  position: relative;
-  white-space: nowrap;
-  transition: color 200ms;
-}
-.facets-tagchip + .facets-tagchip::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  height: 15px;
-  width: 1px;
-  transform: translateY(-50%);
-  background: var(--line);
-}
-.facets-tagchip:hover,
-.facets-tagchip.is-active { color: var(--ink); }
-.facets-tagchip.is-active::after {
-  content: "";
-  position: absolute;
-  left: clamp(14px, 2.2vw, 28px);
-  right: clamp(14px, 2.2vw, 28px);
-  bottom: 4px;
-  height: 2px;
-  background: var(--ink);
-}
-@media (max-width: 640px) {
-  .facets-tagrow {
-    flex-wrap: nowrap;
-    /* safe: centred while the tags fit, left-aligned once the row scrolls — see
-       .home-news-filter for the same reasoning. */
-    justify-content: safe center;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .facets-tagrow::-webkit-scrollbar { display: none; }
-  .facets-tagchip { flex: 0 0 auto; }
-}
+/* Curated tag filter row (.facets-tagrow / .facets-tagchip): the same look the
+   section bar had (客戶: tags 做成之前大分類的樣式) — centred, hairline dividers,
+   an underline under the active one, no rule under the row (客戶: 標籤下面的那條
+   線拿掉), one sideways-scrolling strip on a phone. Styled with the home page's
+   category row (.home-news-filter), which is the same design. */
 .facets-cat-main { min-width: 0; }
 
 /* ── 卡片區與內文同宽置中（後台：頁面編輯 → 卡片區對齊內文）─────────

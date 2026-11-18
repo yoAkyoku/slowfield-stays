@@ -2,6 +2,7 @@ import type { Page } from "../api";
 import type { Locale } from "../i18n";
 import { buildContentHref } from "../contentRoutes";
 import { tagsT, trs } from "../tr";
+import { siteDateKey } from "../datetime";
 
 export type ArticleLink = { href: string; title: string };
 export type RelatedArticle = { href: string; title: string; image: string; category: string; date: string };
@@ -11,12 +12,14 @@ function dateVal(p: Page): number {
   return Number.isNaN(t) ? 0 : t;
 }
 
-/** YYYY.MM.DD — the quiet numeric stamp used across the article layout. */
+/** YYYY.MM.DD — the quiet numeric stamp used across the article layout.
+ *
+ *  The calendar day in Taipei. It read the day in the server's own zone, which
+ *  in the container is UTC, so an article published before 08:00 Taipei time
+ *  was dated the day before. */
 export function formatArticleDate(iso?: string | null): string {
   if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+  return siteDateKey(iso).replaceAll("-", ".");
 }
 
 /**

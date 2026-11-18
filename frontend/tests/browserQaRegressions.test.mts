@@ -57,9 +57,12 @@ test("subscriber mobile tables retain readable columns and a scroll region", () 
 });
 
 test("homepage news cards render every selected card label", () => {
+  /* The grid hands every label to the shared NewsCard, which prints them all. */
   const news = readCode("app/modules/home/blocks/NewsCategoryFilter.tsx");
-  assert.match(news, /card\.tags\.map\(/);
+  assert.match(news, /tags=\{card\.tags\}/);
   assert.doesNotMatch(news, /card\.tags\[0\]/);
+  const card = readCode("app/modules/content/cards.tsx");
+  assert.match(card.slice(card.indexOf("export function NewsCard")), /tags\.map\(/);
 });
 import { localizeAmenity } from "../app/modules/tr.ts";
 

@@ -1,6 +1,8 @@
 "use server";
 
 import { cookies } from "next/headers";
+import type { AdminSite } from "./adminApi";
+import { siteReplacePayload } from "./sitePayload";
 import { adminJsonDataRequest, adminJsonRequest } from "./adminRequest";
 import { actionRedirect, stampedRedirect } from "./adminUtils";
 import { INQUIRY_SOURCES } from "./blockForms";
@@ -343,41 +345,7 @@ export async function updatePageSettingsAction(
     existingPages[key] = { ...(existingPages[key] ?? {}), ...overrides };
   }
 
-  const payload = {
-    name: site.name,
-    slug: site.slug,
-    domain: site.domain || "",
-    status: site.status,
-    default_locale: site.default_locale,
-    primary_color: site.theme_config?.primaryColor ?? DEFAULT_PRIMARY_COLOR,
-    accent_color: site.theme_config?.accentColor ?? DEFAULT_ACCENT_COLOR,
-    nav_bg: site.theme_config?.navBg ?? "",
-    nav_text: site.theme_config?.navText ?? "",
-    footer_bg: site.theme_config?.footerBg ?? "",
-    footer_text: site.theme_config?.footerText ?? "",
-    button_bg: site.theme_config?.buttonBg ?? "",
-    button_text: site.theme_config?.buttonText ?? "",
-    /* Carried through: this payload is a full replace, so a field it does
-       not name is cleared — saving something unrelated would wipe these. */
-    nav_button_bg: site.theme_config?.navButtonBg ?? "",
-    nav_button_text: site.theme_config?.navButtonText ?? "",
-    footer_button_bg: site.theme_config?.footerButtonBg ?? "",
-    footer_button_text: site.theme_config?.footerButtonText ?? "",
-    // The backend PUT replaces theme_config wholesale, so every colour the form
-    // does not echo back is reset to its default. page_bg was the one field
-    // missing here, so a page reorder or visibility toggle silently wiped the
-    // site background an admin had set on the settings form.
-    page_bg: site.theme_config?.pageBg ?? "",
-    contact_email: site.contact_config?.email ?? "",
-    contact_line: site.contact_config?.line ?? "",
-    seo_title: site.seo_defaults?.title ?? "",
-    seo_description: site.seo_defaults?.description ?? "",
-    parent_site_id: site.parent_site_id ?? null,
-    template_site_id: site.template_site_id ?? null,
-    is_template: site.is_template ?? false,
-    template_version: site.template_version ?? "v1",
-    settings: { ...existingSettings, pages: existingPages },
-  };
+  const payload = siteReplacePayload(site as unknown as AdminSite, { ...existingSettings, pages: existingPages });
 
   await adminJsonRequest(`/sites/${siteId}`, payload, "PUT", "Page settings save failed");
 }

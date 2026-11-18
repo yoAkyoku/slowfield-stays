@@ -21,5 +21,5 @@ test("public hero and both editors preserve the difference between blank and mis
   assert.match(hero, /active\?\.translations\?\.\[locale\]\?\.scroll_label \?\? active\?\.scroll_label/);
   assert.doesNotMatch(hero, /\) \|\| blockScrollLabel/);
   assert.match(readCode("app/admin/(dashboard)/cms/BannerFormEditor.tsx"), /resolveHeroScrollLabel\(i18nFields\[editLocale\]\?\.scroll_label, editLocale\)/);
-  assert.match(readCode("app/admin/modules/blockForms.tsx"), /resolveHeroScrollLabel\(c.scroll_label, editLocale\)/);
+  assert.match(readCode("app/admin/modules/blockForms.tsx"), /editableHeroScrollLabel\(c.scroll_label, editLocale\)/);
 });

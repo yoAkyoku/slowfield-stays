@@ -13,7 +13,7 @@ import {
   X
 } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { useFormDraft } from "../../modules/useFormDraft";
+import { draftJson, useFormDraft } from "../../modules/useFormDraft";
 import type { Stay } from "../../../modules/api";
 import HeroImageField from "./HeroImageField";
 import ConfirmSubmitButton from "../../modules/ConfirmSubmitButton";
@@ -218,9 +218,6 @@ export default function StayEditor({
   const [images, setImages] = useState<StayImage[]>(
     stay?.images?.length ? stay.images : []
   );
-  /* Gallery card editing state */
-  const [editingGallery, setEditingGallery] = useState<number | null>(null);
-
   /* ── Tab 5: SEO ── */
   const seo = stay?.seo ?? {};
   const [seoTitle, setSeoTitle] = useState((seo as Record<string, string>).title ?? stay?.name ?? "");
@@ -292,10 +289,7 @@ export default function StayEditor({
     saveFailed,
     {
       onRestore: (d) => {
-        const json = <T,>(v: string | undefined, fallback: T): T => {
-          if (!v) return fallback;
-          try { return JSON.parse(v) as T; } catch { return fallback; }
-        };
+        const json = draftJson;
         const lines_ = (v: string | undefined) => (v ?? "").split("\n").map((x) => x.trim()).filter(Boolean);
         // `translations` carries name / summary / story / destination / region.
         if (d.translations) setI18nFields(json(d.translations, {} as Record<string, Record<string, string>>));
@@ -381,11 +375,11 @@ export default function StayEditor({
   }, []);
 
   /* ── Image management ── */
+  /* An editing index was kept here and never read; the gallery cards edit in
+     place, so there is nothing to track. */
   const addImage = useCallback(() => {
-    const newIdx = images.length;
     setImages((prev) => [...prev, { image_url: "", alt_text: "", sort_order: prev.length }]);
-    setEditingGallery(newIdx);
-  }, [images.length]);
+  }, []);
 
   const updateImage = useCallback((index: number, field: keyof StayImage, value: string | number) => {
     setImages((prev) => prev.map((img, i) => (i === index ? { ...img, [field]: value } : img)));
@@ -393,7 +387,6 @@ export default function StayEditor({
 
   const removeImage = useCallback((index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
-    setEditingGallery(null);
   }, []);
 
   /* ── Tab labels ── */

@@ -24,11 +24,8 @@ import {
   Trash2
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { platformForUrl, youtubeEmbedUrl } from "../../../modules/media";
-import type { Locale } from "../../../modules/i18n";
-import BlockPartners from "../../../modules/property/blocks/BlockPartners";
-import BlockRichText from "../../../modules/property/blocks/BlockRichText";
-import { sanitizeInlineHtml } from "../../../modules/safeHtml";
+import { platformForUrl } from "../../../modules/media";
+import { sanitizeInlineHtml, plainText } from "../../../modules/safeHtml";
 import RichTextEditor from "../../modules/RichTextEditor";
 import type { CmsContentBlock } from "../../modules/adminApi";
 import ImageUploadInput from "../homepage/ImageUploadInput";
@@ -41,6 +38,8 @@ import { extractText, resolveText } from "../../modules/blockText";
 import { useUndoableList } from "../../modules/useUndoableList";
 import { useUnsavedGuard } from "../../modules/useUnsavedGuard";
 import { useConfirm } from "../../ui";
+import ContentBlocks from "../../../modules/content/ContentBlocks";
+import { activateOnKey, bi } from "../../modules/blockEditorUtils";
 
 /* ────────────────────────────────────────────
    Types
@@ -111,10 +110,6 @@ function blockId() {
 
 /** Everything in this admin is zh/en; the block controls were the one corner
  *  still emitting raw enum values ("left", "Desktop") as their only label. */
-function bi(editLocale: string, zh: string, en: string): string {
-  return editLocale === "zh" ? zh : en;
-}
-
 /* ── Bilingual helpers ── */
 
 /* Article blocks keep their text at the top level rather than under `config`,
@@ -283,7 +278,7 @@ function cloneBlock(block: CmsContentBlock): CmsContentBlock {
  *  added by a misclick goes without one. */
 function blockHasContent(block: CmsContentBlock): boolean {
   const b = block as Record<string, unknown>;
-  const filled = (v: unknown) => resolveText(v).replace(/<[^>]*>/g, "").trim().length > 0;
+  const filled = (v: unknown) => plainText(resolveText(v)).length > 0;
   if (filled(b.text) || filled(b.label) || filled(b.source) || filled(b.title) || filled(b.caption)) return true;
   if (typeof b.url === "string" && b.url.trim()) return true;
   if (typeof b.href === "string" && b.href.trim()) return true;
@@ -332,12 +327,6 @@ function scrollBehaviour(): ScrollBehavior {
 /** Enter/Space on a role="button" element, which the browser only does for real
  *  buttons. The row cannot BE a button: its preview renders headings and
  *  paragraphs, which are invalid inside one and lose their styling there. */
-function activateOnKey(e: React.KeyboardEvent, run: () => void) {
-  if (e.key !== "Enter" && e.key !== " ") return;
-  e.preventDefault(); // Space would otherwise scroll the page
-  run();
-}
-
 /** Accessible name for the row that opens a block's settings. Without it the
  *  row announces its whole preview text with no hint that it is a control. */
 function openBlockLabel(block: CmsContentBlock, copy: BlockEditorCopy, editLocale: string): string {
@@ -346,7 +335,7 @@ function openBlockLabel(block: CmsContentBlock, copy: BlockEditorCopy, editLocal
 }
 
 function stripHtmlForPreview(html: string): string {
-  return html.replace(/<[^>]*>/g, "").trim() || "…";
+  return plainText(html) || "…";
 }
 
 /* ────────────────────────────────────────────
@@ -1151,189 +1140,11 @@ function ColumnsForm({
    Live Preview Modal
    ──────────────────────────────────────────── */
 
+/* The block as the published page draws it: the same ContentBlocks the public
+   renderer uses (see that file). oembed is the one thing it cannot show here —
+   it is fetched by a server component — so it previews as nothing, as before. */
 function LivePreviewBlock({ block, locale }: { block: CmsContentBlock; locale?: string }) {
-  const alignClass = "align" in block && (block as any).align && (block as any).align !== "left"
-    ? ` content-align-${(block as any).align}` : "";
-
-  /* Config-shaped blocks, drawn by the same components the published page uses.
-   *
-   * These three are not in the CmsContentBlock union — they are stored in the
-   * property/homepage `{ type, enabled, config }` shape — so every branch below
-   * missed them and the function fell through to `return null`. 合作品牌 is in
-   * PRIMARY_TYPES, i.e. a block this editor offers on its own palette: an
-   * author added one, filled in eight brands, opened 編輯中（未儲存）and saw
-   * nothing, while 已儲存的頁面 showed it correctly. Two preview tabs
-   * contradicting each other is worse than one that is merely wrong, because
-   * neither can be believed afterwards.
-   *
-   * rich_text is here for the same reason one step further out: this editor
-   * NAMES it in its block list (FOREIGN_BLOCK_LABELS) so nobody deletes one to
-   * find out what it is, seeded content pages and journals are full of them,
-   * and the public renderer draws them — so a blank preview said "this block
-   * does nothing" about a block that does.
-   *
-   * `oembed`, the third of that set, is deliberately NOT delegated and falls
-   * through to the null at the bottom: BlockOembed is an async SERVER component
-   * (it fetches the provider's oEmbed endpoint while rendering), so rendering
-   * it from this client component throws "An unknown Component is an async
-   * Client Component" and takes the whole editor down with it — verified, not
-   * assumed. Previewing it needs a client-side fetch this file does not have,
-   * which is a change of a different size.
-   *
-   * Delegating rather than re-implementing: a second copy of the partner grid
-   * living in the admin is exactly how the preview and the page drift apart
-   * again. */
-  const foreign = block as unknown as { type?: string; config?: Record<string, unknown> };
-  const foreignLocale: Locale = locale === "en" ? "en" : "zh";
-  if (foreign.type === "partners") {
-    return <BlockPartners locale={foreignLocale} config={foreign.config ?? {}} />;
-  }
-  if (foreign.type === "rich_text") {
-    return <BlockRichText locale={foreignLocale} config={foreign.config ?? {}} />;
-  }
-
-  if (block.type === "heading") {
-    const cls = alignClass;
-    const txt = resolveText(block.text, locale) || "…";
-    return block.level === "h3"
-      ? <h3 className={cls || undefined} dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(txt) }} />
-      : <h2 className={cls || undefined} dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(txt) }} />;
-  }
-
-  if (block.type === "paragraph") {
-    const txt = resolveText(block.text, locale);
-    if (!txt) return null;
-    const fs = block.fontSize;
-    const sizeClass = typeof fs === "string" && fs !== "base" ? ` content-text-${fs}` : "";
-    const sizeStyle: React.CSSProperties | undefined = typeof fs === "number" && fs !== 16 ? { fontSize: `${fs}px` } : undefined;
-    const cls = `${alignClass}${sizeClass}`.trim() || undefined;
-    const hasBlockEl = /<blockquote/i.test(txt);
-    if (hasBlockEl) {
-      return <div className={`content-paragraph${cls ? ` ${cls}` : ""}`} style={sizeStyle} dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(txt) }} />;
-    }
-    return <p className={cls} style={sizeStyle} dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(txt) }} />;
-  }
-
-  if (block.type === "image" && block.url) {
-    const sizeClass = block.size ? ` is-${block.size}` : "";
-    const alt = resolveText(block.alt, locale);
-    const caption = resolveText(block.caption, locale);
-    return (
-      <figure className={`content-image-block${sizeClass}`}>
-        <img src={block.url} alt={alt || caption || ""} />
-        {caption ? <figcaption>{caption}</figcaption> : null}
-      </figure>
-    );
-  }
-
-  if (block.type === "image_grid" && block.images?.length) {
-    const cols = block.columns ?? 2;
-    const gap = block.gap ?? "normal";
-    // Same empty-url filter as the public renderer, so the preview does not
-    // show a blank cell the page will not have (or hide one it will).
-    const images = block.images.filter((img) => img.url);
-    if (!images.length) return null;
-    return (
-      <div className={`content-image-grid cols-${cols} gap-${gap}`}>
-        {images.map((img, i) => {
-          // Mirrors the public renderer, which resolves these per locale: read
-          // as plain strings they rendered "[object Object]" once bilingual.
-          const cap = resolveText(img.caption, locale);
-          return (
-            <figure key={i} className="content-image-block">
-              <img src={img.url} alt={resolveText(img.alt, locale) || cap} />
-              {cap ? <figcaption>{cap}</figcaption> : null}
-            </figure>
-          );
-        })}
-      </div>
-    );
-  }
-
-  if (block.type === "columns" && block.items?.length) {
-    const gridCols = block.items.map((c) => `${c.flex}fr`).join(" ");
-    return (
-      <div className="content-columns" style={{ gridTemplateColumns: gridCols }}>
-        {block.items.map((col, i) => (
-          <div key={i} className="content-columns-col">
-            {col.blocks.map((b, j) => <LivePreviewBlock key={`col-${i}-${j}`} block={b} locale={locale} />)}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (block.type === "video_embed" && block.url) {
-    const title = resolveText(block.title, locale);
-    const caption = resolveText(block.caption, locale);
-    if (block.cover) {
-      return (
-        <figure className="content-video-embed">
-          <a href={block.url} target="_blank" rel="noreferrer" className="content-video-cover-link">
-            <img src={block.cover} alt={title || "Video"} />
-            <span className="content-video-play-icon">&#9654;</span>
-          </a>
-          {caption ? <figcaption>{caption}</figcaption> : null}
-        </figure>
-      );
-    }
-    /* The same two branches, resolved by the same function, as the published
-       page — see youtubeEmbedUrl. This preview used to draw the link-out tile
-       for every URL, so a YouTube video that plays in place on the site looked
-       here like something that opens a new tab (客戶: 希望點進文章後直接在頁面
-       內觀看，不要每次都跳轉 YouTube). It already did; the preview was what
-       said otherwise. */
-    const platform = platformForUrl(block.url);
-    const youtubeUrl = youtubeEmbedUrl(block.url);
-    return (
-      <figure className={`content-video-embed content-video-${platform}`}>
-        {youtubeUrl ? (
-          <iframe
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-            src={youtubeUrl}
-            title={title || "Embedded video"}
-          />
-        ) : (
-          <a href={block.url} rel="noreferrer" target="_blank">
-            <span>{platform === "unknown" ? "Video" : platform}</span>
-            <strong>{title || block.url}</strong>
-          </a>
-        )}
-        {caption ? <figcaption>{caption}</figcaption> : null}
-      </figure>
-    );
-  }
-
-  if (block.type === "quote") {
-    const txt = resolveText(block.text, locale);
-    if (!txt) return null;
-    const source = resolveText(block.source, locale);
-    return (
-      <blockquote>
-        <p dangerouslySetInnerHTML={{ __html: sanitizeInlineHtml(txt) }} />
-        {source ? <cite>{source}</cite> : null}
-      </blockquote>
-    );
-  }
-
-  if (block.type === "cta" && block.href) {
-    const styleClass = block.style && block.style !== "primary" ? ` is-${block.style}` : "";
-    const label = resolveText(block.label, locale);
-    return (
-      <a className={`content-detail-cta content-block-cta${styleClass}`} href={block.href} onClick={(e) => e.preventDefault()}>
-        {label || block.href}
-      </a>
-    );
-  }
-
-  if (block.type === "spacer") {
-    return <div className={`content-spacer is-${block.size ?? "medium"}`} />;
-  }
-
-  return null;
+  return <ContentBlocks blocks={[block]} locale={locale === "en" ? "en" : "zh"} />;
 }
 
 /* ────────────────────────────────────────────

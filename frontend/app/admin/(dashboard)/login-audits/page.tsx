@@ -8,19 +8,22 @@ import LoginCharts from "./LoginCharts";
 import type { ChartPoint, IpEntry } from "./LoginCharts";
 import { LogIn, Search, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Button, ButtonLink, Card, Grid, Input, Page, PageHeader, SearchInput, Select, StatCard, Toolbar } from "../../ui";
-import { formatDateTime } from "../../../modules/datetime";
+import { formatDateTime, siteDateKey } from "../../../modules/datetime";
 
-function dateValue(value?: string) {
-  if (!value) return "";
-  return value.slice(0, 10);
+/* Days and months are Taipei calendar days. The audit timestamps are UTC
+   instants; slicing them, or "today" from the server clock, filed every login
+   between 00:00 and 08:00 Taipei time under the previous day. */
+function dateValue(value?: string | null) {
+  return value ? siteDateKey(value) : "";
 }
+
+const DAY_MS = 86_400_000;
+const daysAgoKey = (n: number) => siteDateKey(new Date(Date.now() - n * DAY_MS));
 
 /** Generate last 30 days as chart points */
 function last30Days(rows: { created_at?: string }[]): ChartPoint[] {
   return Array.from({ length: 30 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (29 - i));
-    const key = d.toISOString().slice(0, 10);
+    const key = daysAgoKey(29 - i);
     const count = rows.filter((r) => dateValue(r.created_at) === key).length;
     return { label: key.slice(5), value: count };
   });
@@ -28,11 +31,11 @@ function last30Days(rows: { created_at?: string }[]): ChartPoint[] {
 
 /** Generate last 12 months as chart points */
 function last12Months(rows: { created_at?: string }[]): ChartPoint[] {
+  const [y, m] = daysAgoKey(0).split("-").map(Number);
   return Array.from({ length: 12 }, (_, i) => {
-    const d = new Date();
-    d.setMonth(d.getMonth() - (11 - i));
-    const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const count = rows.filter((r) => (r.created_at ?? "").slice(0, 7) === ym).length;
+    const total = y * 12 + (m - 1) - (11 - i);
+    const ym = `${Math.floor(total / 12)}-${String((total % 12) + 1).padStart(2, "0")}`;
+    const count = rows.filter((r) => dateValue(r.created_at).slice(0, 7) === ym).length;
     return { label: ym.slice(2), value: count };
   });
 }
@@ -58,10 +61,8 @@ function computeTopIps(rows: AuditRow[], noIpLabel: string): IpEntry[] {
 
 /** Filter rows by days ago */
 function filterByDaysAgo(rows: AuditRow[], days: number): AuditRow[] {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - days);
-  const cutoffStr = cutoff.toISOString().slice(0, 10);
-  return rows.filter((r) => dateValue(r.created_at ?? undefined) >= cutoffStr);
+  const cutoffStr = daysAgoKey(days);
+  return rows.filter((r) => dateValue(r.created_at) >= cutoffStr);
 }
 
 export default async function AdminLoginAuditsPage(
@@ -105,7 +106,7 @@ export default async function AdminLoginAuditsPage(
 
   // IP data per time range
   const noIpLabel = zh ? "無紀錄" : "Unknown";
-  const today = new Date().toISOString().slice(0, 10);
+  const today = daysAgoKey(0);
   const ipToday = computeTopIps(rows.filter((r) => dateValue(r.created_at) === today), noIpLabel);
   const ipWeek = computeTopIps(filterByDaysAgo(rows, 7), noIpLabel);
   const ipMonth = computeTopIps(filterByDaysAgo(rows, 30), noIpLabel);

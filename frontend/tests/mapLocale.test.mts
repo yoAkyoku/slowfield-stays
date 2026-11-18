@@ -66,7 +66,14 @@ test("both map iframes are keyed on the localised src they frame", () => {
 
      What actually has to hold: the iframe's key and its src are the same
      expression, and that expression is what mapSrcForLocale returned. */
-  for (const f of ["app/modules/MapEmbed.tsx", "app/modules/content/PageBlocks.tsx"]) {
+  /* The content pages' contact map used to frame Google itself; it is the
+     shared MapEmbed now, so that one iframe is the one to check, and the page
+     must not grow a second, unkeyed one. */
+  const pageBlocks = readFileSync("app/modules/content/PageBlocks.tsx", "utf8");
+  const pageCode = pageBlocks.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  assert.ok(!/<iframe\b/.test(pageCode), "PageBlocks frames a map itself again");
+  assert.match(pageBlocks, /<MapEmbed\b/, "PageBlocks no longer draws its map through MapEmbed");
+  for (const f of ["app/modules/MapEmbed.tsx"]) {
     const source = readFileSync(f, "utf8")
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/\/\/[^\n]*/g, "");

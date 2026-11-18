@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { readFileSync } from "node:fs";
+import ts from "typescript";
 import { jsxTags, evaluateExpression } from "./sourceEval";
 import { swipeDirection, swipePoint } from "../app/modules/swipe.ts";
 
@@ -167,21 +169,58 @@ test("homepage hero: a tap still reaches the CTA", () => {
 
 /* ── the stay card gallery ────────────────────────────────────────────────── */
 
-const STAY_CARD = "app/modules/stays/StayCard.tsx";
+/* Both stay cards (StayCard, StayShowcaseCard) take their swipe from the shared
+   useCardGallery hook. The hook is compiled and run here against a minimal
+   React: useState records the moves it is asked for, useRef hands back plain
+   ref objects in call order, so these are the hook's real handlers. */
+const CARD_GALLERY = "app/modules/useCardGallery.ts";
+
+function runCardGallery(photos: number) {
+  const steps: number[] = [];
+  const refs: Array<{ current: unknown }> = [];
+  const react = {
+    useState: (init: unknown) => [init, (next: unknown) => {
+      if (typeof next !== "function") return;
+      const moved = (next as (c: number) => unknown)(0);
+      if (typeof moved === "number") steps.push(moved === photos - 1 && photos > 1 ? -1 : moved);
+    }],
+    useRef: (value: unknown) => { const r = { current: value }; refs.push(r); return r; },
+    useMemo: (make: () => unknown) => make(),
+  };
+  const js = ts.transpileModule(readFileSync(CARD_GALLERY, "utf8"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const mod = { exports: {} as Record<string, unknown> };
+  const stubs: Record<string, unknown> = {
+    react,
+    "./useAutoAdvance": { default: () => ({ current: null }) },
+    "./swipe": { swipePoint, swipeDirection },
+  };
+  new Function("exports", "require", "module", js)(mod.exports, (id: string) => stubs[id], mod);
+  const gallery = (mod.exports.default as (p: Array<{ src: string }>) => {
+    swipeHandlers: { onTouchStart: (e: unknown) => void; onTouchEnd: (e: unknown) => void; onClickCapture: (e: unknown) => void };
+  })(Array.from({ length: photos }, (_, i) => ({ src: "/p" + i + ".jpg" })));
+  // refs in call order: userDrivenRef, touchRef, swipedRef
+  return { steps, swipedRef: refs[2], gallery };
+}
 
 function stayCard({ photos = 4 } = {}) {
-  const steps: number[] = [];
-  const swipedRef = ref(false);
-  const ctx = {
-    touchRef: ref<unknown>(null),
-    swipedRef,
-    swipePoint,
-    swipeDirection,
-    gallery: { length: photos },
-    step: (direction: number) => steps.push(direction),
+  const { steps, swipedRef, gallery } = runCardGallery(photos);
+  const handlers: Handlers = {
+    start: gallery.swipeHandlers.onTouchStart,
+    end: gallery.swipeHandlers.onTouchEnd,
+    click: gallery.swipeHandlers.onClickCapture,
   };
-  return { steps, swipedRef, handlers: handlersOf(STAY_CARD, ctx) };
+  return { steps, swipedRef, handlers };
 }
+
+test("both stay cards bind the shared swipe to their photo", () => {
+  for (const file of ["app/modules/stays/StayCard.tsx", "app/modules/stays/StayShowcaseCard.tsx"]) {
+    const src = readFileSync(file, "utf8");
+    assert.match(src, /useCardGallery\(/, `${file} no longer uses the shared photo strip`);
+    assert.match(src, /\{\.\.\.swipeHandlers\}/, `${file} does not bind the swipe to its photo`);
+  }
+});
 
 test("stay card: dragging the photo moves the gallery both ways", () => {
   const next = stayCard();

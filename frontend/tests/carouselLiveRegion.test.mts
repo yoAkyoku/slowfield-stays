@@ -15,11 +15,14 @@ import { readCode } from "./readCode";
  * the result of an action, and there was no action.
  *
  * The rule this file pins is about which code path may write it, not about the
- * wording: the two click handlers arm the announcement, the timer callback
+ * wording: the reader's own moves arm the announcement, the timer callback
  * disarms it, and the region renders nothing while disarmed.
  */
 
+/* The card renders the region; the flag lives in the shared photo-strip hook
+   (useCardGallery), which both stay cards use. */
 const SRC = readCode("app/modules/stays/StayCard.tsx");
+const HOOK = readCode("app/modules/useCardGallery.ts");
 
 /** The source between `from` and its matching close, brackets balanced. */
 function balanced(src: string, from: number, open: string, close: string): string {
@@ -36,107 +39,49 @@ function balanced(src: string, from: number, open: string, close: string): strin
   assert.fail("unbalanced " + open + " from offset " + start);
 }
 
-/** The JSX element carrying aria-live, from its opening `<` to its close. */
-function liveRegion(): string {
+/** What the card's live region renders: between its opening tag and </div>. */
+function liveChildren(): string {
   const at = SRC.indexOf('aria-live="polite"');
   assert.ok(at !== -1, "the card no longer has a polite live region");
-  const open = SRC.lastIndexOf("<", at);
   const end = SRC.indexOf("</div>", at);
   assert.ok(end !== -1, "the live region is not a div any more");
-  return SRC.slice(open, end);
-}
-
-/** What the live region actually renders: everything between the end of its
- *  opening tag and its closing tag. */
-function liveChildren(): string {
-  const region = liveRegion();
-  const gt = region.indexOf(">");
-  assert.ok(gt !== -1, "the live region's opening tag is unterminated");
-  return region.slice(gt + 1).trim();
-}
-
-/** The name of the flag the live region's content is conditional on. */
-function gate(): string {
-  const region = liveRegion();
-  const match = /\{\s*([A-Za-z_$][\w$]*)\.current\s*\?/.exec(region);
-  assert.ok(
-    match,
-    "the live region's content is not conditional on anything — it writes on every render, autoplay included:\n" + region,
-  );
-  return match[1];
+  const region = SRC.slice(SRC.lastIndexOf("<", at), end);
+  return region.slice(region.indexOf(">") + 1).trim();
 }
 
 test("the live region says nothing unless a reader asked for it", () => {
-  const flag = gate();
   const children = liveChildren();
-
   /* One expression and nothing else. A guard with any text beside it announces
      on every render regardless — the guard would be decoration. */
   assert.ok(
     children.startsWith("{") && children.endsWith("}"),
-    "the live region renders something outside its guard, which is announced whatever the guard says:\n" + children,
+    "the live region renders something outside its guard:\n" + children,
   );
-  const inner = children.slice(1, -1).trim();
-  const split = new RegExp("^" + flag + "\\.current\\s*\\?([\\s\\S]*?):([\\s\\S]*)$").exec(inner);
-  assert.ok(split, "the live region's only child is not a `" + flag + ".current ? … : …` choice:\n" + inner);
-
+  const split = /^userDriven\s*\?([\s\S]*?):([\s\S]*)$/.exec(children.slice(1, -1).trim());
+  assert.ok(split, "the live region's only child is not a `userDriven ? … : …` choice:\n" + children);
   const [, announced, silent] = split;
-  assert.match(
-    announced,
-    /activeIndex/,
-    "the branch taken after a click does not name the image being shown",
-  );
-  // The silent branch matters as much as the guard: it is what lets the region
-  // fall quiet again once the timer takes over.
-  assert.match(
-    silent.trim(),
-    /^("" *|'' *|`` *)$/,
-    "the branch taken while autoplay is running is not empty, so the last announcement stays behind and can be re-read",
-  );
+  assert.match(announced, /activeIndex/, "the branch taken after a click does not name the image being shown");
+  // The silent branch is what lets the region fall quiet once the timer takes over.
+  assert.match(silent.trim(), /^("" *|'' *|`` *)$/, "the branch taken while autoplay runs is not empty, so the last announcement stays behind");
+  assert.match(HOOK, /userDriven:\s*userDrivenRef\.current/, "the hook no longer reports whether the reader drove the change");
 });
 
-test("the autoplay tick disarms it and the click handlers arm it", () => {
-  const flag = gate();
-
-  const autoplay = balanced(SRC, SRC.indexOf("useAutoAdvance("), "(", ")");
-  assert.ok(autoplay.includes("setActiveIndex"), "useAutoAdvance no longer advances the index — check this test");
-  assert.match(
-    autoplay,
-    new RegExp(flag + "\\.current\\s*=\\s*false"),
-    "the autoplay callback does not disarm the announcement, so every 3s tick is spoken again",
-  );
-  assert.doesNotMatch(
-    autoplay,
-    new RegExp(flag + "\\.current\\s*=\\s*true"),
-    "the autoplay callback arms the announcement",
-  );
-
-  const arms = (text: string) => new RegExp(flag + "\\.current\\s*=\\s*true").test(text);
-
-  for (const handler of ["move", "selectImage"]) {
-    const at = SRC.indexOf("function " + handler + "(");
-    assert.ok(at !== -1, handler + "() is gone — the dots/arrows changed shape");
-    const body = balanced(SRC, at, "{", "}");
-    /* One hop through a local function, because `move` now delegates to the
-       shared `step` that the swipe also goes through — the arming moved there
-       with it. Reading only the handler's own body would report that as a
-       regression when the announcement is armed exactly as before; what the
-       invariant is about is the control arming it, not which line does. */
-    const delegates = [...body.matchAll(/\b([a-z][\w$]*)\s*\(/g)]
-      .map((m) => m[1])
-      .filter((name) => SRC.includes("function " + name + "("))
-      .map((name) => balanced(SRC, SRC.indexOf("function " + name + "("), "{", "}"));
-    assert.ok(
-      arms(body) || delegates.some(arms),
-      handler + "() does not arm the announcement, so using the control says nothing",
-    );
+test("the autoplay tick disarms it and the reader's moves arm it", () => {
+  const autoplay = balanced(HOOK, HOOK.indexOf("useAutoAdvance("), "(", ")");
+  assert.ok(autoplay.includes("setSelectedIndex"), "useAutoAdvance no longer advances the index — check this test");
+  assert.match(autoplay, /userDrivenRef\.current\s*=\s*false/, "the autoplay callback does not disarm the announcement, so every tick is spoken again");
+  assert.doesNotMatch(autoplay, /userDrivenRef\.current\s*=\s*true/, "the autoplay callback arms the announcement");
+  /* step() is what the arrows and the swipe call; select() is what the dots call. */
+  for (const name of ["step", "select"]) {
+    const at = HOOK.indexOf("const " + name + " = ");
+    assert.ok(at !== -1, name + "() is gone — the arrows/dots/swipe changed shape");
+    assert.match(balanced(HOOK, at, "{", "}"), /userDrivenRef\.current\s*=\s*true/, name + "() does not arm the announcement, so using the control says nothing");
   }
 });
 
 test("nothing else writes the flag", () => {
-  /* A third writer would put the two states out of step with the index they
-     describe. Only the three call sites above may set it. */
-  const flag = gate();
-  const writes = [...SRC.matchAll(new RegExp(flag + "\\.current\\s*=", "g"))].length;
-  assert.equal(writes, 3, "expected exactly 3 writes (move, selectImage, the timer) but found " + writes);
+  /* A third writer would put the flag out of step with the index it describes. */
+  const writes = [...HOOK.matchAll(/userDrivenRef\.current\s*=/g)].length;
+  assert.equal(writes, 3, "expected exactly 3 writes (step, select, the timer) but found " + writes);
+  assert.doesNotMatch(SRC, /userDrivenRef/, "the card writes the flag itself again");
 });

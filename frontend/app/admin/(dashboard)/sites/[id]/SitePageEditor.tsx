@@ -881,12 +881,12 @@ export default function SitePageEditor({
           {site?.is_template && <input type="hidden" name="is_template" value="on" />}
           <div className="admin-compact-form">
               {/* Section 1: Site Identity (Name, Slug, Logo, Domain, Status) */}
-              <section className="admin-card" style={{ marginBottom: "20px" }}>
-                <div style={{ marginBottom: "16px" }}>
+              <section className="admin-card a-u-mb-20">
+                <div className="a-u-mb-16">
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "網站識別" : "Site Identity"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh" ? "設定網站名稱、Slug、Logo 與基本資訊" : "Configure site name, slug, logo, and basic settings"}
                   </p>
                 </div>
@@ -977,12 +977,12 @@ export default function SitePageEditor({
               </section>
 
               {/* Section 3: Color Theme */}
-              <section className="admin-card" style={{ marginBottom: "20px" }}>
-                <div style={{ marginBottom: "16px" }}>
+              <section className="admin-card a-u-mb-20">
+                <div className="a-u-mb-16">
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "主題顏色" : "Theme Colors"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh" ? "基礎色和各區域細分配色" : "Base colors and per-region overrides"}
                   </p>
                 </div>
@@ -1003,16 +1003,16 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   <label>
                     <span>{editLocale === "zh" ? "主色" : "Primary"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" aria-label={editLocale === "zh" ? "主色（色票）" : "Primary (swatch)"} value={swatchValue(primaryColor, DEFAULT_PRIMARY_COLOR)} onChange={(e) => setPrimaryColor(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="primary_color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} placeholder={DEFAULT_PRIMARY_COLOR} style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" aria-label={editLocale === "zh" ? "主色（色票）" : "Primary (swatch)"} value={swatchValue(primaryColor, DEFAULT_PRIMARY_COLOR)} onChange={(e) => setPrimaryColor(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="primary_color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} placeholder={DEFAULT_PRIMARY_COLOR} />
                     </div>
                   </label>
                   <label>
                     <span>{editLocale === "zh" ? "強調色" : "Accent"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" aria-label={editLocale === "zh" ? "強調色（色票）" : "Accent (swatch)"} value={swatchValue(accentColor, DEFAULT_ACCENT_COLOR)} onChange={(e) => setAccentColor(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="accent_color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} placeholder={DEFAULT_ACCENT_COLOR} style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" aria-label={editLocale === "zh" ? "強調色（色票）" : "Accent (swatch)"} value={swatchValue(accentColor, DEFAULT_ACCENT_COLOR)} onChange={(e) => setAccentColor(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="accent_color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} placeholder={DEFAULT_ACCENT_COLOR} />
                     </div>
                   </label>
                 </div>
@@ -1023,7 +1023,7 @@ export default function SitePageEditor({
                 </p>
                 {/* Page background */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "16px 0 8px" }}>
-                  <p style={{ fontSize: "13px", fontWeight: 600, margin: 0, color: "var(--ink)" }}>
+                  <p className="a-u-label-strong">
                     {editLocale === "zh" ? "頁面背景" : "Page background"}
                   </p>
                   {pageBg && (
@@ -1035,15 +1035,15 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   <label style={{ gridColumn: "1 / -1" }}>
                     <span>{editLocale === "zh" ? "全站背景色（區塊背景可局部覆蓋）" : "Site background (block bg overrides locally)"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={pageBg || "#f7f5ef"} onChange={(e) => setPageBg(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="page_bg" value={pageBg} onChange={(e) => setPageBg(e.target.value)} placeholder={editLocale === "zh" ? "預設暖白 #f7f5ef" : "Default #f7f5ef"} style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={pageBg || "#f7f5ef"} onChange={(e) => setPageBg(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="page_bg" value={pageBg} onChange={(e) => setPageBg(e.target.value)} placeholder={editLocale === "zh" ? "預設暖白 #f7f5ef" : "Default #f7f5ef"} />
                     </div>
                   </label>
                 </div>
                 {/* Nav / Menu */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "16px 0 8px" }}>
-                  <p style={{ fontSize: "13px", fontWeight: 600, margin: 0, color: "var(--ink)" }}>
+                  <p className="a-u-label-strong">
                     {editLocale === "zh" ? "導航列 / 選單" : "Nav / Menu"}
                   </p>
                   {(navBg || navText) && (
@@ -1055,16 +1055,16 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   <label>
                     <span>{editLocale === "zh" ? "背景" : "Background"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={navBg || primaryColor} onChange={(e) => setNavBg(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="nav_bg" value={navBg} onChange={(e) => setNavBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用主色" : "Inherit primary"} style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={navBg || primaryColor} onChange={(e) => setNavBg(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="nav_bg" value={navBg} onChange={(e) => setNavBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用主色" : "Inherit primary"} />
                     </div>
                   </label>
                   <label>
                     <span>{editLocale === "zh" ? "文字" : "Text"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={navText || "#ffffff"} onChange={(e) => setNavText(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="nav_text" value={navText} onChange={(e) => setNavText(e.target.value)} placeholder="#ffffff" style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={navText || "#ffffff"} onChange={(e) => setNavText(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="nav_text" value={navText} onChange={(e) => setNavText(e.target.value)} placeholder="#ffffff" />
                     </div>
                   </label>
                 </div>
@@ -1075,7 +1075,7 @@ export default function SitePageEditor({
                 </p>
                 {/* Footer */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "16px 0 8px" }}>
-                  <p style={{ fontSize: "13px", fontWeight: 600, margin: 0, color: "var(--ink)" }}>
+                  <p className="a-u-label-strong">
                     {editLocale === "zh" ? "頁尾" : "Footer"}
                   </p>
                   {(footerBg || footerText) && (
@@ -1087,16 +1087,16 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   <label>
                     <span>{editLocale === "zh" ? "背景" : "Background"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={footerBg || primaryColor} onChange={(e) => setFooterBg(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="footer_bg" value={footerBg} onChange={(e) => setFooterBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用主色" : "Inherit primary"} style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={footerBg || primaryColor} onChange={(e) => setFooterBg(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="footer_bg" value={footerBg} onChange={(e) => setFooterBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用主色" : "Inherit primary"} />
                     </div>
                   </label>
                   <label>
                     <span>{editLocale === "zh" ? "文字" : "Text"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={footerText || "#ffffff"} onChange={(e) => setFooterText(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="footer_text" value={footerText} onChange={(e) => setFooterText(e.target.value)} placeholder="#ffffff" style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={footerText || "#ffffff"} onChange={(e) => setFooterText(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="footer_text" value={footerText} onChange={(e) => setFooterText(e.target.value)} placeholder="#ffffff" />
                     </div>
                   </label>
                 </div>
@@ -1114,7 +1114,7 @@ export default function SitePageEditor({
                     The exclusion stays; the heading and the hint say what is
                     left, on both kinds of site. */}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "16px 0 8px" }}>
-                  <p style={{ fontSize: "13px", fontWeight: 600, margin: 0, color: "var(--ink)" }}>
+                  <p className="a-u-label-strong">
                     {editLocale === "zh" ? "按鈕（預設色）" : "Buttons (default)"}
                   </p>
                   {(buttonBg || buttonText) && (
@@ -1126,16 +1126,16 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   <label>
                     <span>{editLocale === "zh" ? "背景" : "Background"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={buttonBg || accentColor} onChange={(e) => setButtonBg(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="button_bg" value={buttonBg} onChange={(e) => setButtonBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用強調色" : "Inherit accent"} style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={buttonBg || accentColor} onChange={(e) => setButtonBg(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="button_bg" value={buttonBg} onChange={(e) => setButtonBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用強調色" : "Inherit accent"} />
                     </div>
                   </label>
                   <label>
                     <span>{editLocale === "zh" ? "文字" : "Text"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={buttonText || "#ffffff"} onChange={(e) => setButtonText(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="button_text" value={buttonText} onChange={(e) => setButtonText(e.target.value)} placeholder="#ffffff" style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={buttonText || "#ffffff"} onChange={(e) => setButtonText(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="button_text" value={buttonText} onChange={(e) => setButtonText(e.target.value)} placeholder="#ffffff" />
                     </div>
                   </label>
                 </div>
@@ -1191,16 +1191,16 @@ export default function SitePageEditor({
                 <div className="form-grid compact" style={{ marginTop: "12px" }}>
                   <label>
                     <span>{editLocale === "zh" ? "背景" : "Background"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={navButtonBg || primaryColor} onChange={(e) => setNavButtonBg(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="nav_button_bg" value={navButtonBg} onChange={(e) => setNavButtonBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用主色" : "Inherit"} style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={navButtonBg || primaryColor} onChange={(e) => setNavButtonBg(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="nav_button_bg" value={navButtonBg} onChange={(e) => setNavButtonBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用主色" : "Inherit"} />
                     </div>
                   </label>
                   <label>
                     <span>{editLocale === "zh" ? "文字" : "Text"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={navButtonText || "#ffffff"} onChange={(e) => setNavButtonText(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="nav_button_text" value={navButtonText} onChange={(e) => setNavButtonText(e.target.value)} placeholder="#ffffff" style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={navButtonText || "#ffffff"} onChange={(e) => setNavButtonText(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="nav_button_text" value={navButtonText} onChange={(e) => setNavButtonText(e.target.value)} placeholder="#ffffff" />
                     </div>
                   </label>
                 </div>
@@ -1210,16 +1210,16 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   <label>
                     <span>{editLocale === "zh" ? "背景" : "Background"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={footerButtonBg || (buttonBg || accentColor)} onChange={(e) => setFooterButtonBg(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="footer_button_bg" value={footerButtonBg} onChange={(e) => setFooterButtonBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用按鈕色" : "Inherit"} style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={footerButtonBg || (buttonBg || accentColor)} onChange={(e) => setFooterButtonBg(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="footer_button_bg" value={footerButtonBg} onChange={(e) => setFooterButtonBg(e.target.value)} placeholder={editLocale === "zh" ? "沿用按鈕色" : "Inherit"} />
                     </div>
                   </label>
                   <label>
                     <span>{editLocale === "zh" ? "文字" : "Text"}</span>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <input type="color" value={footerButtonText || "#ffffff"} onChange={(e) => setFooterButtonText(e.target.value)} style={{ width: "48px", height: "36px", cursor: "pointer" }} />
-                      <input type="text" name="footer_button_text" value={footerButtonText} onChange={(e) => setFooterButtonText(e.target.value)} placeholder="#ffffff" style={{ flex: 1 }} />
+                    <div className="a-u-row">
+                      <input className="a-u-swatch" type="color" value={footerButtonText || "#ffffff"} onChange={(e) => setFooterButtonText(e.target.value)} />
+                      <input className="a-u-grow" type="text" name="footer_button_text" value={footerButtonText} onChange={(e) => setFooterButtonText(e.target.value)} placeholder="#ffffff" />
                     </div>
                   </label>
                 </div>
@@ -1227,11 +1227,11 @@ export default function SitePageEditor({
 
               {/* Section 4: Contact Info */}
               <section className="admin-card">
-                <div style={{ marginBottom: "16px" }}>
+                <div className="a-u-mb-16">
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "聯繫方式" : "Contact Information"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh" ? "設定網站聯絡資訊和社群鏈接" : "Configure contact details and social links"}
                   </p>
                 </div>
@@ -1274,19 +1274,19 @@ export default function SitePageEditor({
 
         {/* Tab 3: 權限管理 — 帳戶表格 */}
         {tab === 2 && (
-          <div className="se-panel" style={{ width: "100%" }}>
-            <div style={{ width: "100%" }}>
+          <div className="se-panel a-u-full-width">
+            <div className="a-u-full-width">
               {/* Header + actions */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", marginBottom: "18px", flexWrap: "wrap" }}>
                 <div>
                   <h3 style={{ margin: "0 0 6px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "帳戶權限" : "Account Permissions"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh" ? "管理此網站的帳戶、角色與存取狀態" : "Manage accounts, roles, and access for this site"}
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="a-u-row">
                   <button
                     type="button"
                     onClick={() => {
@@ -1368,7 +1368,7 @@ export default function SitePageEditor({
                       ].map((h) => (
                         <th key={h}>{h}</th>
                       ))}
-                      <th className="is-shrink" style={{ textAlign: "right" }}>{editLocale === "zh" ? "操作" : "Actions"}</th>
+                      <th className="is-shrink a-u-right">{editLocale === "zh" ? "操作" : "Actions"}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1409,7 +1409,7 @@ export default function SitePageEditor({
                                 {editLocale === "zh" ? st.zh : st.en}
                               </span>
                             </td>
-                            <td className="is-shrink" style={{ textAlign: "right" }}>
+                            <td className="is-shrink a-u-right">
                               <button
                                 type="button"
                                 className={buttonClass({ size: "sm" })}
@@ -1615,13 +1615,13 @@ export default function SitePageEditor({
 
         {/* Tab 2: 頁面管理 */}
         {tab === 1 && (
-          <div className="se-panel" style={{ width: "100%" }}>
+          <div className="se-panel a-u-full-width">
             <div className="article-placement-preview">
               <h3>{editLocale === "zh" ? "先選擇要更新的內容" : "Choose what to update"}</h3>
               <p>{editLocale === "zh" ? "區塊頁：編輯整頁文字、圖片與版面。文章列表頁：版面在這裡設定，每篇文章到文章工作台編輯。網站名稱、配色與權限在上方分頁。" : "Block pages contain page copy, images and layout. Article listing pages have layout settings here; individual articles are edited in the article workspace. Site identity, colors and access have separate tabs above."}</p>
               <Link className={buttonClass({ size: "sm" })} href="/admin/cms?tab=pages">{editLocale === "zh" ? "前往文章工作台" : "Open article workspace"}</Link>
             </div>
-            <div style={{ width: "100%" }}>
+            <div className="a-u-full-width">
               {/* Header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                 <div>
@@ -1666,7 +1666,7 @@ export default function SitePageEditor({
                       <th>
                         {editLocale === "zh" ? "導航顯示" : "Nav / Footer"}
                       </th>
-                      <th style={{ textAlign: "right" }}>{editLocale === "zh" ? "操作" : "Actions"}</th>
+                      <th className="a-u-right">{editLocale === "zh" ? "操作" : "Actions"}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2087,11 +2087,11 @@ export default function SitePageEditor({
         <div className="se-panel" style={{ display: tab === 3 ? undefined : "none" }}>
           <div className="admin-compact-form">
               <section className="admin-card">
-                <div style={{ marginBottom: "16px" }}>
+                <div className="a-u-mb-16">
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "SEO 設置" : "SEO Settings"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh" ? "設定網站搜尋引擎優化" : "Configure search engine optimization"}
                   </p>
                 </div>
@@ -2144,12 +2144,12 @@ export default function SitePageEditor({
           {(() => { const adv = (site?.settings ?? {}) as Record<string, unknown>; const advStr = (k: string) => String(adv[k] ?? ""); return (
           <div className="admin-compact-form">
               {/* 字體設定 */}
-              <section className="admin-card" style={{ marginBottom: "20px" }}>
-                <div style={{ marginBottom: "16px" }}>
+              <section className="admin-card a-u-mb-20">
+                <div className="a-u-mb-16">
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "網站字體" : "Site Typography"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh"
                       ? "套用後，此站所有頁面（含首頁與內容頁／CMS）的字體都會變更。母站與子站各自獨立設定，互不影響。"
                       : "Applies to every page of this site (incl. homepage and CMS content). Parent and child sites are configured independently."}
@@ -2234,12 +2234,12 @@ export default function SitePageEditor({
               </section>
 
             {/* 字級：標題與內文各層級的大小、字重、行高 */}
-            <section className="admin-card" style={{ marginBottom: "20px" }}>
-              <div style={{ marginBottom: "16px" }}>
+            <section className="admin-card a-u-mb-20">
+              <div className="a-u-mb-16">
                 <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                   {editLocale === "zh" ? "字級" : "Type Scale"}
                 </h3>
-                <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                <p className="a-u-note">
                   {editLocale === "zh"
                     ? "每個層級的大小、字重與行高，套用到全站所有內容區塊（含 CMS 文章）。留空則沿用主題預設。"
                     : "Size, weight and line height per level, applied to every content block on the site including CMS articles. Blank keeps the theme default."}
@@ -2419,12 +2419,12 @@ export default function SitePageEditor({
 
 
               {/* 數據分析與廣告 */}
-              <section className="admin-card" style={{ marginBottom: "20px" }}>
-                <div style={{ marginBottom: "16px" }}>
+              <section className="admin-card a-u-mb-20">
+                <div className="a-u-mb-16">
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "數據分析與廣告" : "Analytics & Ads"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh" ? "設定後才會在前台輸出對應追蹤碼。" : "Tracking scripts only render on the public site when set."}
                   </p>
                 </div>
@@ -2443,12 +2443,12 @@ export default function SitePageEditor({
               </section>
 
               {/* 法規 / 隱私 */}
-              <section className="admin-card" style={{ marginBottom: "20px" }}>
-                <div style={{ marginBottom: "16px" }}>
+              <section className="admin-card a-u-mb-20">
+                <div className="a-u-mb-16">
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "法規 / 隱私" : "Legal / Privacy"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh" ? "Cookie 提示、GDPR 告知與頁尾法律聲明。" : "Cookie banner, GDPR notice, and footer legal statement."}
                   </p>
                 </div>
@@ -2530,11 +2530,11 @@ export default function SitePageEditor({
                     <div style={{ margin: "4px 0" }}>
                       <label style={{ display: editLocale === "zh" ? "block" : "none", marginBottom: 8 }}>
                         <span style={{ display: "block", fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>頁尾法律聲明</span>
-                        <textarea name="footer_notice_zh" rows={3} defaultValue={fnZh} placeholder="本官網相關圖文皆為..." style={{ width: "100%" }} />
+                        <textarea className="a-u-full-width" name="footer_notice_zh" rows={3} defaultValue={fnZh} placeholder="本官網相關圖文皆為..." />
                       </label>
                       <label style={{ display: editLocale === "en" ? "block" : "none" }}>
                         <span style={{ display: "block", fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>Footer legal notice</span>
-                        <textarea name="footer_notice_en" rows={3} defaultValue={fnEn} placeholder="All content and images on this site are the intellectual property of..." style={{ width: "100%" }} />
+                        <textarea className="a-u-full-width" name="footer_notice_en" rows={3} defaultValue={fnEn} placeholder="All content and images on this site are the intellectual property of..." />
                       </label>
                     </div>
                   );
@@ -2543,11 +2543,11 @@ export default function SitePageEditor({
 
               {/* 自訂程式碼 */}
               <section className="admin-card">
-                <div style={{ marginBottom: "16px" }}>
+                <div className="a-u-mb-16">
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
                     {editLocale === "zh" ? "自訂程式碼" : "Custom Code"}
                   </h3>
-                  <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+                  <p className="a-u-note">
                     {editLocale === "zh" ? "插入 <head> 與頁尾的自訂腳本（請僅貼信任來源）。" : "Custom scripts injected into <head> and footer (trusted sources only)."}
                   </p>
                 </div>

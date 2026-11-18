@@ -1,12 +1,11 @@
 "use client";
 
 import { Mail } from "lucide-react";
-import { useState } from "react";
 import type { Locale } from "../../i18n";
 import { cfgT , eyebrowT} from "../../tr";
 import { safeCssBackground, safeCssColor } from "../../fontPresets";
 import { safeHtml } from "../../safeHtml";
-import { PUBLIC_API_URL as API_URL } from "../../apiBase";
+import useNewsletterSignup from "../../newsletter/useNewsletterSignup";
 import SectionHeading from "../../SectionHeading";
 
 export type BlockNewsletterConfig = {
@@ -55,26 +54,7 @@ export default function BlockNewsletter({
     (typeof c.bg_color === "string" && c.bg_color ? c.bg_color : "");
   const fullBleed = c.full_bleed === true;
 
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-
-  async function submit(formData: FormData) {
-    setStatus("sending");
-    try {
-      const params = siteSlug ? `?site=${encodeURIComponent(siteSlug)}` : "";
-      const response = await fetch(`${API_URL}/newsletter/subscribe${params}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: String(formData.get("email") ?? ""),
-          name: String(formData.get("name") ?? ""),
-          groups: ["public"],
-        }),
-      });
-      setStatus(response.ok ? "sent" : "error");
-    } catch {
-      setStatus("error");
-    }
-  }
+  const { status, submit } = useNewsletterSignup(siteSlug);
 
   const style: React.CSSProperties = {};
   // `background` is the shorthand, so an unvalidated value here accepts

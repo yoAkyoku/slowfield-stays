@@ -1,16 +1,14 @@
 "use client";
 
 import { Search, Upload, X } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
-import { useAdminSiteSlug, useAdminPermission } from "../../modules/AdminSiteContext";
+import { useId, useRef, useState } from "react";
+import { useAdminPermission } from "../../modules/AdminSiteContext";
+import useMediaLibrary from "../../modules/useMediaLibrary";
 import { isVideoUrl, videoPosterUrl } from "../../../modules/media";
 import MediaUploadRequirements from "../../modules/MediaUploadRequirements";
 import VideoThumbnail from "../../modules/VideoThumbnail";
-import MediaPickerThumbnail, { type MediaPickerAsset } from "../../modules/MediaPickerThumbnail";
+import MediaPickerThumbnail from "../../modules/MediaPickerThumbnail";
 import { Button, buttonClass, Dialog, Field, Input, SearchInput, Stack } from "../../ui";
-import { adminProxyUrl as proxyUrl } from "../../../modules/apiBase";
-
-type MediaAsset = MediaPickerAsset;
 
 export default function ImageUploadInput({
   value,
@@ -27,63 +25,22 @@ export default function ImageUploadInput({
   libraryLabel?: string;
   hideRemove?: boolean;
 }) {
-  const siteSlug = useAdminSiteSlug();
   const canUpload = useAdminPermission("media:write");
   const canBrowse = useAdminPermission("media:read");
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [showLibrary, setShowLibrary] = useState(false);
-  const [assets, setAssets] = useState<MediaAsset[]>([]);
-  const [loadingLibrary, setLoadingLibrary] = useState(false);
-  const [mediaQuery, setMediaQuery] = useState("");
   const urlId = useId();
-
-  const filteredAssets = assets.filter((a) => {
-    if (!mediaQuery.trim()) return true;
-    const q = mediaQuery.toLowerCase();
-    const name = [a.display_name, a.alt, a.alt_text, a.url, a.file].filter(Boolean).join(" ").toLowerCase();
-    return name.includes(q);
-  });
-
-  /* The library picker is the kit Dialog: focus moves in, Tab stays inside,
+  /* The library, its search and the upload (shared with the stay hero field).
+     The picker itself is the kit Dialog: focus moves in, Tab stays inside,
      Escape closes it and the page behind holds still. */
-
-  useEffect(() => {
-    if (!showLibrary || assets.length) return;
-    const site = siteSlug;
-    setLoadingLibrary(true);
-    setError("");
-    fetch(proxyUrl("/admin/media", site))
-      .then(async (response) => {
-        if (response.status === 401) {
-          window.location.href = "/admin/login";
-          throw new Error("unauthorized");
-        }
-        if (!response.ok) throw new Error("failed");
-        return (await response.json()) as MediaAsset[];
-      })
-      .then((result) => setAssets(result))
-      .catch(() => setError("媒體庫載入失敗 Failed to load library"))
-      .finally(() => setLoadingLibrary(false));
-  }, [assets.length, showLibrary, siteSlug]);
+  const {
+    assets, filtered: filteredAssets, loading: loadingLibrary, uploading, error,
+    query: mediaQuery, setQuery: setMediaQuery, upload: uploadFile,
+  } = useMediaLibrary(showLibrary, { loadFailed: "媒體庫載入失敗 Failed to load library", uploadFailed: "上傳失敗 Upload failed" });
 
   async function upload(file: File) {
-    setUploading(true);
-    setError("");
-    const site = siteSlug;
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("alt_text", file.name);
-    const res = await fetch(proxyUrl("/admin/media", site), {
-      method: "POST",
-      body: fd
-    });
-    setUploading(false);
-    if (!res.ok) { setError("上傳失敗 Upload failed"); return; }
-    const data = (await res.json()) as { id?: number; url: string; file?: string; display_name?: string; alt?: string; alt_text?: string; poster_url?: string };
-    onChange(data.url);
-    setAssets((current) => [{ id: data.id ?? Date.now(), url: data.url, file: data.file, display_name: data.display_name, alt: data.alt, alt_text: data.alt_text, poster_url: data.poster_url }, ...current]);
+    const url = await uploadFile(file);
+    if (url) onChange(url);
   }
 
   const isVideo = isVideoUrl(value);

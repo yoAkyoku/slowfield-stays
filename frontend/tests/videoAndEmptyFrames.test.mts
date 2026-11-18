@@ -36,20 +36,16 @@ test("one function decides what is embeddable", () => {
 
 test("the admin preview shows what the page will render", () => {
   const editor = readCode("app/admin/(dashboard)/cms/PageBlockEditor.tsx");
-  // The preview must resolve the embed the same way, not with its own test.
+  /* The preview draws through the page's own ContentBlocks now, so it resolves
+     the embed exactly as the page does — there is no second video branch in
+     the editor to drift. */
   assert.ok(
     !/block\.url\.includes\("youtube"\)/.test(editor),
     "the preview is back to its own `includes(\"youtube\")` test",
   );
-  assert.match(editor, /const youtubeUrl = youtubeEmbedUrl\(block\.url\)/, "the preview no longer resolves an embed URL");
-  assert.match(editor, /\{youtubeUrl \? \(\s*<iframe/, "the preview renders a link-out tile for an embeddable video again");
-  /* And that the iframe is pointed at the RESOLVED url. Grepping only for the
-     ternary let `src={block.url}` through — a watch?v= address, which YouTube
-     refuses to frame, so the preview would go blank while this test stayed
-     green. Proven by mutation. */
-  assert.match(editor, /src=\{youtubeUrl\}/, "the preview iframe is not using the resolved embed URL");
-  // …and the page it is previewing must use the same import, not a local copy.
-  const page = readCode("app/modules/content/ContentBlockRenderer.tsx");
+  assert.match(editor, /<ContentBlocks blocks=\{\[block\]\}/, "the preview no longer draws through ContentBlocks");
+  // …and the page it is previewing must use the shared resolver, not a local copy.
+  const page = readCode("app/modules/content/ContentBlocks.tsx");
   assert.ok(!/function youtubeEmbedUrl/.test(page), "the renderer grew its own copy of the resolver again");
   assert.match(page, /from "\.\.\/media"/, "the renderer no longer shares the resolver");
 });
@@ -109,9 +105,9 @@ test("nothing draws a frame for a picture that is not there", () => {
   /* An image grid row exists before its picture is chosen. The single-image
      branch has always checked the url; the grid checked only that the array was
      non-empty, so an unfilled row drew a blank cell. */
+  // The editor's preview draws these through ContentBlocks too (see above).
   for (const path of [
-    "app/modules/content/ContentBlockRenderer.tsx",
-    "app/admin/(dashboard)/cms/PageBlockEditor.tsx",
+    "app/modules/content/ContentBlocks.tsx",
   ]) {
     const src = readCode(path);
     assert.match(src, /const images = block\.images\.filter\(\(img\) => img\.url\)/, `${path} no longer filters empty rows`);

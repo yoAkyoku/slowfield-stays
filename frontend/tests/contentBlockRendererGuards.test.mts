@@ -20,7 +20,8 @@ import { readCode } from "./readCode";
  * noUnawaitedInterpolation.test.mts takes for a bug types cannot catch.
  */
 
-const SOURCE = readCode("app/modules/content/ContentBlockRenderer.tsx");
+// The recursion lives in ContentBlocks; ContentBlockRenderer only wraps it.
+const SOURCE = readCode("app/modules/content/ContentBlocks.tsx");
 
 test("the renderer refuses a non-array instead of throwing", () => {
   assert.match(
@@ -31,7 +32,7 @@ test("the renderer refuses a non-array instead of throwing", () => {
 });
 
 test("every recursive call passes an array", () => {
-  const recursions = SOURCE.match(/<ContentBlockRenderer\s+blocks=\{([^}]*)\}/g) ?? [];
+  const recursions = SOURCE.match(/<ContentBlocks\s+oembed=\{oembed\}\s+blocks=\{([^}]*)\}/g) ?? [];
 
   assert.ok(recursions.length >= 3, `expected the columns branches to recurse, found ${recursions.length}`);
   for (const call of recursions) {

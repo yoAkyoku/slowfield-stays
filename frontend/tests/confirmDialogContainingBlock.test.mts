@@ -195,5 +195,6 @@ test("the panels that host a confirm dialog are not animated with a transform", 
 });
 
 test("a progress bar may still animate a transform — the rule is scoped", () => {
-  assert.ok(keyframesBody("adminFlashProgress")?.includes("transform:"));
+  // The toast's progress bar (the kit Toast, aToastProgress in admin-ui.css).
+  assert.ok(keyframesBody("aToastProgress")?.includes("transform:"));
 });
