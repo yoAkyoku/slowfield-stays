@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, type ReactNode } from "react";
 import PreviewOverlay, { previewDeviceClass } from "../../../modules/PreviewOverlay";
 import SearchOptionsField from "./SearchOptionsField";
 import GuestRangeField from "./GuestRangeField";
@@ -19,6 +19,7 @@ import { useFormDraft } from "../../../modules/useFormDraft";
 import { formSnapshot, useUnsavedGuard } from "../../../modules/useUnsavedGuard";
 import SubmitButton from "../../../modules/SubmitButton";
 import { Badge, Callout, Card, CellTitle, Dialog, DialogActions, Field, Input, ListRow, ListRows, Progress, RowActions, Segmented, Select, Stack, TableFrame, buttonClass, useConfirm } from "../../../ui";
+import { cx } from "../../../ui/cx";
 import AdminFlash from "../../../modules/AdminFlash";
 import HeroImageField from "../../stays/HeroImageField";
 import ConfirmSubmitButton from "../../../modules/ConfirmSubmitButton";
@@ -127,6 +128,12 @@ interface SitePageEditorProps {
 function swatchValue(raw: string, fallback: string): string {
   const v = raw.trim();
   return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v) ? v : fallback;
+}
+
+/** One language's half of a bilingual field. Both halves stay in the form,
+ *  because the save reads both; only the language being edited shows. */
+function LocaleLabel({ show, span, className, children }: { show: boolean; span?: boolean; className?: string; children: ReactNode }) {
+  return <label className={cx(span && "a-u-span", show ? "a-u-block" : "a-u-hidden", className)}>{children}</label>;
 }
 
 function splitBilingualSeo(value: unknown, defaultLocale: "zh" | "en"): { zh: string; en: string } {
@@ -883,7 +890,7 @@ export default function SitePageEditor({
               {/* Section 1: Site Identity (Name, Slug, Logo, Domain, Status) */}
               <section className="admin-card a-u-mb-20">
                 <div className="a-u-mb-16">
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "網站識別" : "Site Identity"}
                   </h3>
                   <p className="a-u-note">
@@ -954,21 +961,19 @@ export default function SitePageEditor({
                         searchPlaceholder: editLocale === "zh" ? "搜尋..." : "Search..."
                       }}
                     />
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px", fontSize: "13px", cursor: "pointer" }}>
-                      <input
+                    <label className="a-u-row-mid a-u-mt-10 a-u-fs-13 a-u-pointer">
+                      <input className="a-u-check"
                         type="checkbox"
                         name="header_logo_only"
                         defaultChecked={Boolean((site?.settings as any)?.header_logo_only)}
-                        style={{ width: "16px", height: "16px", cursor: "pointer" }}
                       />
                       <span>{editLocale === "zh" ? "只顯示 Logo，隱藏網站名稱（網頁標題不受影響）" : "Show logo only, hide site name (page title unaffected)"}</span>
                     </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "10px", fontSize: "13px", cursor: "pointer" }}>
-                      <input
+                    <label className="a-u-row-mid a-u-mt-10 a-u-fs-13 a-u-pointer">
+                      <input className="a-u-check"
                         type="checkbox"
                         name="header_auto_hide"
                         defaultChecked={Boolean((site?.settings as any)?.header_auto_hide)}
-                        style={{ width: "16px", height: "16px", cursor: "pointer" }}
                       />
                       <span>{editLocale === "zh" ? "向下捲動時隱藏導覽列（預設一直顯示）" : "Hide the nav bar on scroll down (default: always visible)"}</span>
                     </label>
@@ -979,7 +984,7 @@ export default function SitePageEditor({
               {/* Section 3: Color Theme */}
               <section className="admin-card a-u-mb-20">
                 <div className="a-u-mb-16">
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "主題顏色" : "Theme Colors"}
                   </h3>
                   <p className="a-u-note">
@@ -1016,13 +1021,13 @@ export default function SitePageEditor({
                     </div>
                   </label>
                 </div>
-                <p style={{ fontSize: "11px", color: "var(--muted)", margin: "6px 0 0", lineHeight: 1.6 }}>
+                <p className="a-u-hint a-u-hint-below a-u-lh-16">
                   {editLocale === "zh"
                     ? "色碼、rgb()、rgba()、transparent 都接受；留空＝使用預設色。左側色票只能表示純色碼，填了其他寫法它會顯示黑色，以右邊的文字為準。"
                     : "Hex, rgb(), rgba() and transparent are all accepted; blank means the default. The swatch can only show a plain hex — with anything else it reads black, and the text box is what counts."}
                 </p>
                 {/* Page background */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "16px 0 8px" }}>
+                <div className="a-u-row-heading">
                   <p className="a-u-label-strong">
                     {editLocale === "zh" ? "頁面背景" : "Page background"}
                   </p>
@@ -1033,7 +1038,7 @@ export default function SitePageEditor({
                   )}
                 </div>
                 <div className="form-grid compact">
-                  <label style={{ gridColumn: "1 / -1" }}>
+                  <label className="a-u-span">
                     <span>{editLocale === "zh" ? "全站背景色（區塊背景可局部覆蓋）" : "Site background (block bg overrides locally)"}</span>
                     <div className="a-u-row">
                       <input className="a-u-swatch" type="color" value={pageBg || "#f7f5ef"} onChange={(e) => setPageBg(e.target.value)} />
@@ -1042,7 +1047,7 @@ export default function SitePageEditor({
                   </label>
                 </div>
                 {/* Nav / Menu */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "16px 0 8px" }}>
+                <div className="a-u-row-heading">
                   <p className="a-u-label-strong">
                     {editLocale === "zh" ? "導航列 / 選單" : "Nav / Menu"}
                   </p>
@@ -1068,13 +1073,13 @@ export default function SitePageEditor({
                     </div>
                   </label>
                 </div>
-                <p style={{ fontSize: "11px", color: "var(--muted)", margin: "6px 0 0", lineHeight: 1.6 }}>
+                <p className="a-u-hint a-u-hint-below a-u-lh-16">
                   {editLocale === "zh"
                     ? "留空＝沿用原本的設計（頁首在大圖上是透明的）。要固定成透明也可以直接填 transparent；色碼、rgb()、rgba() 都接受。"
                     : "Blank keeps the original design (the header is transparent over the hero). You can also type transparent; hex, rgb() and rgba() are accepted."}
                 </p>
                 {/* Footer */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "16px 0 8px" }}>
+                <div className="a-u-row-heading">
                   <p className="a-u-label-strong">
                     {editLocale === "zh" ? "頁尾" : "Footer"}
                   </p>
@@ -1113,7 +1118,7 @@ export default function SitePageEditor({
                     buttons have their own settings below, which win.
                     The exclusion stays; the heading and the hint say what is
                     left, on both kinds of site. */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "16px 0 8px" }}>
+                <div className="a-u-row-heading">
                   <p className="a-u-label-strong">
                     {editLocale === "zh" ? "按鈕（預設色）" : "Buttons (default)"}
                   </p>
@@ -1144,7 +1149,7 @@ export default function SitePageEditor({
                     ? "只有「訂閱」按鈕會用到這兩個顏色：頁尾的訂閱鈕，以及頁面上的訂閱區塊（聯絡頁的訂閱區塊有自己的配色，不受影響）。民宿站台還會套用到導覽列的「立即預約」。下面的「導覽列按鈕」「頁尾按鈕」有填就以它們為準。內文中一般的按鈕維持主題原色，不會跟著改。"
                     : "Only the subscribe buttons use these two colours: the one in the footer and the one in a 訂閱 block (the contact page's band has a palette of its own and is unaffected). On a villa site they also reach the header 立即預約 button. 導覽列按鈕 and 頁尾按鈕 below win wherever they are filled in. Ordinary buttons in the page body keep the theme's own colours."}
                 </p>
-                <p style={{ fontSize: "13px", fontWeight: 600, margin: "18px 0 8px", color: "var(--ink)" }}>
+                <p className="a-u-label-strong a-u-label-gap">
                   {editLocale === "zh" ? "導覽列按鈕（立即預約）" : "Header button (Reserve)"}
                 </p>
                 {/* Wording and destination, not only colour. Both have been read
@@ -1182,7 +1187,7 @@ export default function SitePageEditor({
                     defaultValue={String(bookingCfg.href ?? "")}
                     placeholder="https://booking.example.com"
                   />
-                  <small style={{ color: "var(--muted)", fontSize: "12px" }}>
+                  <small className="a-u-hint-12">
                     {editLocale === "zh"
                       ? "填入訂房系統網址即可直接連過去；留空則依序使用 LINE、電話、民宿聯絡頁。"
                       : "A booking-system URL sends guests straight there; blank falls back to LINE, then phone, then the villa's contact page."}
@@ -1204,7 +1209,7 @@ export default function SitePageEditor({
                     </div>
                   </label>
                 </div>
-                <p style={{ fontSize: "13px", fontWeight: 600, margin: "18px 0 8px", color: "var(--ink)" }}>
+                <p className="a-u-label-strong a-u-label-gap">
                   {editLocale === "zh" ? "頁尾按鈕（訂閱）" : "Footer button (Subscribe)"}
                 </p>
                 <div className="form-grid compact">
@@ -1228,7 +1233,7 @@ export default function SitePageEditor({
               {/* Section 4: Contact Info */}
               <section className="admin-card">
                 <div className="a-u-mb-16">
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "聯繫方式" : "Contact Information"}
                   </h3>
                   <p className="a-u-note">
@@ -1248,7 +1253,7 @@ export default function SitePageEditor({
                     <span>LINE ID</span>
                     <input type="text" name="contact_line" defaultValue={String(site?.contact_config?.line ?? site?.settings?.contact_line ?? "")} placeholder="@example" />
                   </label>
-                  <label style={{ gridColumn: "1 / -1" }}>
+                  <label className="a-u-span">
                     <span>{editLocale === "zh" ? "社群鏈接" : "Social Links"}</span>
                   </label>
                   <label>
@@ -1458,11 +1463,11 @@ export default function SitePageEditor({
 
               {/* Footer / pagination */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "14px", flexWrap: "wrap", gap: "8px" }}>
-                <span style={{ fontSize: "12px", color: "var(--muted)" }}>
+                <span className="a-u-hint-12">
                   {editLocale === "zh" ? `共 ${filteredAccounts.length} 筆帳戶` : `${filteredAccounts.length} accounts`}
                 </span>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "12px", color: "var(--muted)" }}>{editLocale === "zh" ? "每頁 20 筆" : "20 / page"}</span>
+                  <span className="a-u-hint-12">{editLocale === "zh" ? "每頁 20 筆" : "20 / page"}</span>
                   <button type="button" disabled className={buttonClass({ size: "sm" })}>
                     {editLocale === "zh" ? "上一頁" : "Prev"}
                   </button>
@@ -1625,7 +1630,7 @@ export default function SitePageEditor({
               {/* Header */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                 <div>
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "網站頁面" : "Site Pages"}
                   </h3>
                   <p style={{ margin: 0, color: "var(--muted)", fontSize: "13px", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -1722,7 +1727,7 @@ export default function SitePageEditor({
                       >
                         <td className="is-shrink" style={{ textAlign: "center", cursor: "grab" }}>⋮⋮</td>
                         <td><strong>{page.name}</strong></td>
-                        <td className="a-field__hint" style={{ fontFamily: "var(--a-font-mono)" }}>{page.slug || "/"}</td>
+                        <td className="a-field__hint a-u-font-mono">{page.slug || "/"}</td>
                         <td>
                           <span style={{
                             display: "inline-block",
@@ -1744,7 +1749,7 @@ export default function SitePageEditor({
                           ) : (
                           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                             <label style={{ display: "flex", alignItems: "center", gap: "4px", cursor: "pointer", fontSize: "12px", minHeight: 24, padding: "3px 0", color: page.showInNav ? "var(--forest)" : "var(--muted)" }}>
-                              <input
+                              <input className="a-u-accent"
                                 type="checkbox"
                                 checked={page.showInNav}
                                 onChange={() => {
@@ -1762,12 +1767,11 @@ export default function SitePageEditor({
                                   }));
                                   autoSavePages({ [key]: patch });
                                 }}
-                                style={{ accentColor: "var(--accent)", cursor: "pointer" }}
                               />
                               Nav
                             </label>
                             <label style={{ display: "flex", alignItems: "center", gap: "4px", cursor: "pointer", fontSize: "12px", minHeight: 24, padding: "3px 0", color: page.showInFooter ? "var(--forest)" : "var(--muted)" }}>
-                              <input
+                              <input className="a-u-accent"
                                 type="checkbox"
                                 checked={page.showInFooter}
                                 onChange={() => {
@@ -1785,7 +1789,6 @@ export default function SitePageEditor({
                                   }));
                                   autoSavePages({ [key]: patch });
                                 }}
-                                style={{ accentColor: "var(--accent)", cursor: "pointer" }}
                               />
                               Footer
                             </label>
@@ -1940,7 +1943,7 @@ export default function SitePageEditor({
                         hint={slugFixed ? (editLocale === "zh" ? "（預設頁面無法更改 slug）" : "(default page slug is fixed)") : undefined}
                         label="Slug"
                       >
-                        <Input
+                        <Input className="a-u-font-mono"
                           value={pageForm.slug}
                           onChange={(e) =>
                             setPageForm({
@@ -1950,7 +1953,6 @@ export default function SitePageEditor({
                           }
                           placeholder="experience"
                           readOnly={slugFixed}
-                          style={{ fontFamily: "var(--a-font-mono)" }}
                         />
                       </Field>
                     );
@@ -2088,7 +2090,7 @@ export default function SitePageEditor({
           <div className="admin-compact-form">
               <section className="admin-card">
                 <div className="a-u-mb-16">
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "SEO 設置" : "SEO Settings"}
                   </h3>
                   <p className="a-u-note">
@@ -2098,12 +2100,12 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   <input type="hidden" name="seo_title" value={cleanBilingualSeo(seoTitle)} />
                   <input type="hidden" name="seo_description" value={cleanBilingualSeo(seoDescription)} />
-                  <p className="so-language-hint" style={{ gridColumn: "1 / -1" }}>
+                  <p className="so-language-hint a-u-span">
                     {editLocale === "zh"
                       ? "中文與英文 SEO 需分別填寫；切換上方語言後可編輯另一版本。Canonical URL 由各頁網址自動產生。"
                       : "Fill Chinese and English SEO separately. Switch the language above to edit the other version. Canonical URLs are generated from each page URL."}
                   </p>
-                  <label style={{ gridColumn: "1 / -1" }}>
+                  <label className="a-u-span">
                     <span>{editLocale === "zh" ? "Meta 標題" : "Meta Title"}</span>
                     <input
                       value={splitBilingualSeo(seoTitle, defaultLocale)[editLocale]}
@@ -2111,7 +2113,7 @@ export default function SitePageEditor({
                       placeholder={editLocale === "zh" ? "例如：思選旅宿｜宜蘭精品包棟" : "e.g. Slowfield Stays | Yilan Private Villas"}
                     />
                   </label>
-                  <label style={{ gridColumn: "1 / -1" }}>
+                  <label className="a-u-span">
                     <span>{editLocale === "zh" ? "Meta 描述" : "Meta Description"}</span>
                     <textarea
                       value={splitBilingualSeo(seoDescription, defaultLocale)[editLocale]}
@@ -2120,14 +2122,14 @@ export default function SitePageEditor({
                       rows={3}
                     />
                   </label>
-                  <label style={{ gridColumn: "1 / -1" }}>
+                  <label className="a-u-span">
                     <span>{editLocale === "zh" ? "預設分享圖片（og:image）" : "Default share image (og:image)"}</span>
                     <input
                       name="seo_og_image"
                       defaultValue={String((site?.settings as Record<string, unknown> | undefined)?.seo_og_image ?? "")}
                       placeholder={editLocale === "zh" ? "https://… 或 /uploads/…（建議 1200×630）" : "https://… or /uploads/… (1200×630 recommended)"}
                     />
-                    <small style={{ color: "var(--muted)", fontSize: "12px" }}>
+                    <small className="a-u-hint-12">
                       {editLocale === "zh"
                         ? "分享到 LINE、Facebook 時，沒有自己圖片的頁面會使用這張。"
                         : "Used when a page shared to LINE or Facebook has no image of its own."}
@@ -2146,7 +2148,7 @@ export default function SitePageEditor({
               {/* 字體設定 */}
               <section className="admin-card a-u-mb-20">
                 <div className="a-u-mb-16">
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "網站字體" : "Site Typography"}
                   </h3>
                   <p className="a-u-note">
@@ -2158,7 +2160,7 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   {/* Quick preset — fills the four granular selects below. Still saved
                       as font_preset so un-migrated fallback + "last preset" works. */}
-                  <label style={{ gridColumn: "1 / -1" }}>
+                  <label className="a-u-span">
                     <span>{editLocale === "zh" ? "快速套用範本（可再微調）" : "Quick preset (then fine-tune)"}</span>
                     <select name="font_preset" defaultValue={advStr("font_preset") || "classic"}
                       onChange={(e) => applyFontPreset(e.target.value)}>
@@ -2236,7 +2238,7 @@ export default function SitePageEditor({
             {/* 字級：標題與內文各層級的大小、字重、行高 */}
             <section className="admin-card a-u-mb-20">
               <div className="a-u-mb-16">
-                <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                <h3 className="a-u-subhead">
                   {editLocale === "zh" ? "字級" : "Type Scale"}
                 </h3>
                 <p className="a-u-note">
@@ -2251,7 +2253,7 @@ export default function SitePageEditor({
                   />
 
               <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid var(--line)" }}>
-                <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                <h3 className="a-u-subhead">
                   {editLocale === "zh" ? "版面" : "Layout"}
                 </h3>
                 <p style={{ margin: "0 0 16px", color: "var(--muted)", fontSize: "13px" }}>
@@ -2421,7 +2423,7 @@ export default function SitePageEditor({
               {/* 數據分析與廣告 */}
               <section className="admin-card a-u-mb-20">
                 <div className="a-u-mb-16">
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "數據分析與廣告" : "Analytics & Ads"}
                   </h3>
                   <p className="a-u-note">
@@ -2445,7 +2447,7 @@ export default function SitePageEditor({
               {/* 法規 / 隱私 */}
               <section className="admin-card a-u-mb-20">
                 <div className="a-u-mb-16">
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "法規 / 隱私" : "Legal / Privacy"}
                   </h3>
                   <p className="a-u-note">
@@ -2469,31 +2471,31 @@ export default function SitePageEditor({
                   const footerCopyright = biln("footer_copyright");
                   return (
                     <div className="form-grid compact">
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "zh" ? "block" : "none" }}>
+                      <LocaleLabel show={editLocale === "zh"} span>
                         <span>頁尾品牌標題（中文）</span>
                         <input name="footer_title_zh" defaultValue={footerTitle.zh} placeholder="留空使用站點名稱" />
-                      </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "en" ? "block" : "none" }}>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "en"} span>
                         <span>Footer brand title (English)</span>
                         <input name="footer_title_en" defaultValue={footerTitle.en} placeholder="Leave blank to use the site name" />
-                      </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "zh" ? "block" : "none" }}>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "zh"} span>
                         <span>頁尾左側文字（中文）</span>
                         <textarea name="footer_description_zh" defaultValue={footerDescription.zh} rows={2} placeholder="在此輸入頁尾品牌文字；留空使用系統預設。" />
-                      </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "en" ? "block" : "none" }}>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "en"} span>
                         <span>Footer left copy (English)</span>
                         <textarea name="footer_description_en" defaultValue={footerDescription.en} rows={2} placeholder="Footer brand copy; leave blank to use the default." />
-                      </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "zh" ? "block" : "none" }}>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "zh"} span>
                         <span>頁尾版權文字（中文）</span>
                         <input name="footer_copyright_zh" defaultValue={footerCopyright.zh} placeholder="留空使用 © 年份＋站點名稱" />
-                      </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "en" ? "block" : "none" }}>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "en"} span>
                         <span>Footer copyright line (English)</span>
                         <input name="footer_copyright_en" defaultValue={footerCopyright.en} placeholder="Leave blank to use © year + site name" />
-                      </label>
-                      <label className="admin-switch-row" style={{ gridColumn: "1 / -1" }}>
+                      </LocaleLabel>
+                      <label className="admin-switch-row a-u-span">
                         <input
                           type="checkbox"
                           name="show_footer_phone"
@@ -2502,22 +2504,22 @@ export default function SitePageEditor({
                         <span className="admin-switch-track" aria-hidden="true"><span /></span>
                         <span>{editLocale === "zh" ? "在頁尾顯示聯絡電話" : "Show contact phone in the footer"}</span>
                       </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "zh" ? "block" : "none" }}>
+                      <LocaleLabel show={editLocale === "zh"} span>
                         <span>Cookie 提示文案（中文）</span>
                         <input name="cookie_notice_zh" defaultValue={cookie.zh} placeholder="本網站使用 Cookie 以提升瀏覽體驗。" />
-                      </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "en" ? "block" : "none" }}>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "en"} span>
                         <span>Cookie notice (English)</span>
                         <input name="cookie_notice_en" defaultValue={cookie.en} placeholder="This site uses cookies to improve your experience." />
-                      </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "zh" ? "block" : "none" }}>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "zh"} span>
                         <span>GDPR / 隱私告知（中文）</span>
                         <textarea name="gdpr_notice_zh" defaultValue={gdpr.zh} rows={2} placeholder="隱私與資料使用告知。" />
-                      </label>
-                      <label style={{ gridColumn: "1 / -1", display: editLocale === "en" ? "block" : "none" }}>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "en"} span>
                         <span>GDPR / privacy notice (English)</span>
                         <textarea name="gdpr_notice_en" defaultValue={gdpr.en} rows={2} placeholder="Privacy and data-use notice." />
-                      </label>
+                      </LocaleLabel>
                     </div>
                   );
                 })()}
@@ -2528,14 +2530,14 @@ export default function SitePageEditor({
                   const fnEn = typeof fn === "object" && fn ? (fn.en ?? "") : "";
                   return (
                     <div style={{ margin: "4px 0" }}>
-                      <label style={{ display: editLocale === "zh" ? "block" : "none", marginBottom: 8 }}>
-                        <span style={{ display: "block", fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>頁尾法律聲明</span>
+                      <LocaleLabel show={editLocale === "zh"} className="a-u-mb-8">
+                        <span className="a-u-caption">頁尾法律聲明</span>
                         <textarea className="a-u-full-width" name="footer_notice_zh" rows={3} defaultValue={fnZh} placeholder="本官網相關圖文皆為..." />
-                      </label>
-                      <label style={{ display: editLocale === "en" ? "block" : "none" }}>
-                        <span style={{ display: "block", fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>Footer legal notice</span>
+                      </LocaleLabel>
+                      <LocaleLabel show={editLocale === "en"}>
+                        <span className="a-u-caption">Footer legal notice</span>
                         <textarea className="a-u-full-width" name="footer_notice_en" rows={3} defaultValue={fnEn} placeholder="All content and images on this site are the intellectual property of..." />
-                      </label>
+                      </LocaleLabel>
                     </div>
                   );
                 })()}
@@ -2544,7 +2546,7 @@ export default function SitePageEditor({
               {/* 自訂程式碼 */}
               <section className="admin-card">
                 <div className="a-u-mb-16">
-                  <h3 style={{ margin: "0 0 8px 0", fontSize: "16px", fontWeight: "600" }}>
+                  <h3 className="a-u-subhead">
                     {editLocale === "zh" ? "自訂程式碼" : "Custom Code"}
                   </h3>
                   <p className="a-u-note">
@@ -2554,13 +2556,13 @@ export default function SitePageEditor({
                 <div className="form-grid compact">
                   {canSetScriptCode ? (
                     <>
-                      <label style={{ gridColumn: "1 / -1" }}>
+                      <label className="a-u-span">
                         <span>{editLocale === "zh" ? "Head 程式碼" : "Head code"}</span>
-                        <textarea name="head_code" defaultValue={advStr("head_code")} rows={4} placeholder={'<script src="..."></script>'} style={{ fontFamily: "monospace", fontSize: 12 }} />
+                        <textarea className="a-u-mono" name="head_code" defaultValue={advStr("head_code")} rows={4} placeholder={'<script src="..."></script>'} />
                       </label>
-                      <label style={{ gridColumn: "1 / -1" }}>
+                      <label className="a-u-span">
                         <span>{editLocale === "zh" ? "Body 程式碼" : "Body code"}</span>
-                        <textarea name="body_code" defaultValue={advStr("body_code")} rows={4} placeholder={'<script>...</script>'} style={{ fontFamily: "monospace", fontSize: 12 }} />
+                        <textarea className="a-u-mono" name="body_code" defaultValue={advStr("body_code")} rows={4} placeholder={'<script>...</script>'} />
                       </label>
                     </>
                   ) : (

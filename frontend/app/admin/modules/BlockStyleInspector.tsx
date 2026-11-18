@@ -11,6 +11,7 @@
 import { Field } from "./blockFields";
 import { PAD_PRESETS, isBlockBgColor, paintsOwnBackground } from "../../modules/blockStyle";
 import FoldSection from "./FoldSection";
+import { Switch } from "../ui";
 import BlockBackgroundImage from "./BlockBackgroundImage";
 import { groupTitle } from "./blockCatalogue";
 import { RoleTypeControls, radioGroupKeys, showsVAlign } from "./blockForms";
@@ -35,7 +36,7 @@ export default function BlockStyleInspector({
       {/* Text formatting */}
       <FoldSection title={groupTitle("text", zh)}>
         {selected.type === "rich_text" ? (
-          <p style={{ fontSize: 11, color: "var(--muted)", margin: "0 0 8px" }}>
+          <p className="a-u-hint a-u-hint-above">
             {zh ? "字體大小／顏色等請用上方文字工具列（WYSIWYG）的「字級」設定。" : "Use the rich-text toolbar (font size / colour) inside the text block above."}
           </p>
         ) : (
@@ -56,7 +57,7 @@ export default function BlockStyleInspector({
             panel below. 行距 is a ratio and cannot flatten anything, so
             that one does cover the headings; saying so here is cheaper
             than leaving an editor to discover the difference. */}
-        <p style={{ fontSize: 11, color: "var(--muted)", margin: "0 0 8px" }}>
+        <p className="a-u-hint a-u-hint-above">
           {zh
             ? "基準字級只動內文（含內文裡的小標，會等比跟著）；區塊標題請用下方「標題」的字級。行距則整塊套用，標題也會跟著。"
             : "The base size drives body copy only (sub-headings scale with it); a block title has its own size under the 標題 role below. Line height applies to the whole block, headings included."}
@@ -151,7 +152,7 @@ export default function BlockStyleInspector({
       {/* Section tag (anchor id) — nav links can jump here via #tag */}
       <FoldSection title={groupTitle("anchor", zh)}>
         <Field label={zh ? "標記名稱（導覽列可用 #標記 跳到此區塊）" : "Anchor id (nav can link via #tag)"}>
-          <input
+          <input className="a-u-full-width a-u-mono"
             type="text"
             value={String(selected.config.anchor ?? "")}
             onChange={(e) => {
@@ -167,7 +168,6 @@ export default function BlockStyleInspector({
               updateConfig(selected.id, { ...selected.config, anchor: v || undefined });
             }}
             placeholder={zh ? "例如 about、rooms、contact" : "e.g. about, rooms, contact"}
-            style={{ width: "100%", fontFamily: "monospace", fontSize: 12 }}
           />
         </Field>
       </FoldSection>
@@ -263,20 +263,19 @@ export default function BlockStyleInspector({
             one IS this panel's to set. */}
         {!paintsOwnBackground(selected.type) && (
         <Field label={zh ? "背景顏色" : "Background Color"}>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div className="a-u-row-mid">
             <input
               type="color"
               value={String(selected.config._bgColor ?? "#ffffff")}
               onChange={(e) => updateConfig(selected.id, { ...selected.config, _bgColor: e.target.value })}
               style={{ width: 40, height: 32, cursor: "pointer", border: "1px solid var(--line)", borderRadius: 4 }}
             />
-            <input
+            <input className="a-u-grow a-u-mono"
               type="text"
               value={String(selected.config._bgColor ?? "")}
               onChange={(e) => updateConfig(selected.id, { ...selected.config, _bgColor: e.target.value || undefined })}
               placeholder="#ffffff"
               aria-label={bi(editLocale, "背景顏色代碼", "Background colour hex code")}
-              style={{ flex: 1, fontFamily: "monospace", fontSize: 12 }}
             />
             {typeof selected.config._bgColor === "string" && selected.config._bgColor && (
               <button
@@ -301,7 +300,7 @@ export default function BlockStyleInspector({
           {typeof selected.config._bgColor === "string"
             && selected.config._bgColor.trim() !== ""
             && !isBlockBgColor(selected.config._bgColor) && (
-            <p style={{ color: "#b3261e", fontSize: 11, lineHeight: 1.5, margin: "-6px 0 10px" }}>
+            <p className="a-u-field-error">
               {zh
                 ? "色碼要寫成 #ffffff 或 #fff。照現在這樣存檔，這個區塊不會有背景色。"
                 : "The code must be written as #ffffff or #fff. Saved as written, this block gets no background at all."}
@@ -318,7 +317,7 @@ export default function BlockStyleInspector({
             slider back either. */}
         {!paintsOwnBackground(selected.type) && isBlockBgColor(selected.config._bgColor) && (
         <Field label={zh ? "透明度" : "Opacity"}>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div className="a-u-row-mid">
             <input className="a-u-grow"
               type="range"
               min="0"
@@ -352,7 +351,7 @@ export default function BlockStyleInspector({
             decides how far the background it sits under reaches. Two
             folds for one decision meant an editor could set a colour
             and not see the control that makes it span the window. */}
-        <div style={{ marginTop: 14 }}>
+        <div className="a-u-mt-14">
           <div className="hpb-insp__row-txt" style={{ marginBottom: 6 }}>
             {zh ? "版面寬度" : "Width"}
           </div>
@@ -383,14 +382,7 @@ export default function BlockStyleInspector({
             <div className="hpb-insp__row-txt">{zh ? "與下一個區塊並列" : "Pair with next block"}</div>
             <div className="hpb-insp__row-sub">{zh ? "啟用後兩個區塊左右並排" : "Two blocks side by side"}</div>
           </div>
-          <button
-            type="button"
-            className={`hpb-switch${selected.config._pairNext ? " is-on" : ""}`}
-            onClick={() => updateConfig(selected.id, { ...selected.config, _pairNext: !selected.config._pairNext || undefined })}
-            role="switch"
-            aria-checked={!!selected.config._pairNext}
-            aria-label={zh ? "並列開關" : "Pair toggle"}
-          />
+          <Switch checked={!!selected.config._pairNext} onChange={() => updateConfig(selected.id, { ...selected.config, _pairNext: !selected.config._pairNext || undefined })} label={zh ? "並列開關" : "Pair toggle"} />
         </div>
         {!!selected.config._pairNext && (
           <>
@@ -419,14 +411,7 @@ export default function BlockStyleInspector({
                   {zh ? ((selected.config._pairDirection === "column") ? "上下對調" : "左右對調") : (selected.config._pairDirection === "column" ? "Swap top/bottom" : "Swap left/right")}
                 </div>
               </div>
-              <button
-                type="button"
-                className={`hpb-switch${selected.config._pairReverse ? " is-on" : ""}`}
-                onClick={() => updateConfig(selected.id, { ...selected.config, _pairReverse: !selected.config._pairReverse || undefined })}
-                role="switch"
-                aria-checked={!!selected.config._pairReverse}
-                aria-label={zh ? "對調開關" : "Reverse toggle"}
-              />
+              <Switch checked={!!selected.config._pairReverse} onChange={() => updateConfig(selected.id, { ...selected.config, _pairReverse: !selected.config._pairReverse || undefined })} label={zh ? "對調開關" : "Reverse toggle"} />
             </div>
           </>
         )}
@@ -440,14 +425,7 @@ export default function BlockStyleInspector({
               {zh ? "接在上一個區塊下方，共用同一欄" : "Stacks under the previous block, same column"}
             </div>
           </div>
-          <button
-            type="button"
-            className={`hpb-switch${selected.config._pairJoin ? " is-on" : ""}`}
-            onClick={() => updateConfig(selected.id, { ...selected.config, _pairJoin: !selected.config._pairJoin || undefined })}
-            role="switch"
-            aria-checked={!!selected.config._pairJoin}
-            aria-label={zh ? "併入開關" : "Join toggle"}
-          />
+          <Switch checked={!!selected.config._pairJoin} onChange={() => updateConfig(selected.id, { ...selected.config, _pairJoin: !selected.config._pairJoin || undefined })} label={zh ? "併入開關" : "Join toggle"} />
         </div>
       </FoldSection>
     </>

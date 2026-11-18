@@ -12,11 +12,11 @@
 import Link from "next/link";
 import { useState, useEffect, useMemo, useId } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
-import { ChevronDown, ChevronUp, GripVertical, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, GripVertical, Trash2, X } from "lucide-react";
 import type { AdminSite } from "./adminApi";
 import { siteContentTypesFromConfig } from "./siteContentTypes";
 import { PUBLIC_API_URL as API_URL } from "../../modules/apiBase";
-import { Button, Dialog, DialogActions, useConfirm } from "../ui";
+import { Button, Dialog, DialogActions, Switch, useConfirm } from "../ui";
 import { plainText } from "../../modules/safeHtml";
 import { editableHeroScrollLabel } from "../../modules/heroScrollLabel";
 
@@ -249,9 +249,9 @@ export function HeroBannerConfigForm({
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+      <div className="a-u-row-between">
         <FieldLabel>{zh ? "輪播圖片（2 張以上自動輪播）" : "Carousel images (2+ auto-rotate)"}</FieldLabel>
-        <span style={{ fontSize: 11, color: "var(--muted)" }}>{images.length}</span>
+        <span className="a-u-hint">{images.length}</span>
       </div>
       <ItemsEditor
         items={images}
@@ -340,30 +340,28 @@ export function HeroBannerConfigForm({
             : "Blank is the 6.5s default. Only applies with two or more slides — set it to a video’s length so a clip is not cut off part-way."}
         </p>
       </Field>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+      <div className="a-u-grid-2">
         {/* A Field is a <label>, and a label names only its first control — so
             the hex box beside each swatch had no accessible name at all. Both
             halves are named explicitly rather than relying on that. */}
         <Field label={zh ? "標題顏色" : "Title colour"}>
           <div className="a-u-row-center">
-            <input
+            <input className="a-u-swatch-box"
               type="color"
               aria-label={zh ? "標題顏色（色票）" : "Title colour (swatch)"}
               value={titleColor}
               onChange={(e) => onChange({ ...c, titleColor: e.target.value })}
-              style={{ width: 40, height: 32, border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer" }}
             />
             <input className="a-u-grow" type="text" aria-label={zh ? "標題顏色（色碼）" : "Title colour (hex)"} value={titleColor} onChange={(e) => onChange({ ...c, titleColor: e.target.value })} />
           </div>
         </Field>
         <Field label={zh ? "副標顏色" : "Subtitle colour"}>
           <div className="a-u-row-center">
-            <input
+            <input className="a-u-swatch-box"
               type="color"
               aria-label={zh ? "副標顏色（色票）" : "Subtitle colour (swatch)"}
               value={subtitleColor}
               onChange={(e) => onChange({ ...c, subtitleColor: e.target.value })}
-              style={{ width: 40, height: 32, border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer" }}
             />
             <input className="a-u-grow" type="text" aria-label={zh ? "副標顏色（色碼）" : "Subtitle colour (hex)"} value={subtitleColor} onChange={(e) => onChange({ ...c, subtitleColor: e.target.value })} />
           </div>
@@ -554,7 +552,7 @@ export function NewsletterConfigForm({
       <Field label={zh ? "Email 欄位提示文字" : "Email placeholder"}>
         <input type="text" value={getVal(c, "email_placeholder", editLocale)} onChange={e => onChange(setVal(c, "email_placeholder", editLocale, e.target.value))} placeholder={zh ? "輸入您的 Email" : "you@example.com"} />
       </Field>
-      <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 12px", fontSize: 13 }}>
+      <label className="a-u-row-note">
         <input type="checkbox" checked={c.show_icon === true} onChange={e => onChange({ ...c, show_icon: e.target.checked })} />
         <span>{zh ? "顯示左側信封圖示（聯絡頁版面）" : "Show the envelope disc"}</span>
       </label>
@@ -562,13 +560,13 @@ export function NewsletterConfigForm({
         <input type="text" value={getVal(c, "submit_label", editLocale)} onChange={e => onChange(setVal(c, "submit_label", editLocale, e.target.value))} />
       </Field>
       <Field label={zh ? "背景顏色" : "Background colour"}>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="a-u-row">
           <input className="a-u-swatch-sm" type="color" aria-label={zh ? "背景顏色（色票）" : "Background colour (swatch)"} value={bgColor || "#ffffff"} onChange={e => setBg(e.target.value)} />
           <input className="a-u-grow" type="text" aria-label={zh ? "背景顏色（色碼）" : "Background colour (hex)"} value={bgColor} onChange={e => setBg(e.target.value)} placeholder={zh ? "預設" : "Default"} />
         </div>
       </Field>
       <Field label={zh ? "文字顏色" : "Text colour"}>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="a-u-row">
           <input className="a-u-swatch-sm" type="color" aria-label={zh ? "文字顏色（色票）" : "Text colour (swatch)"} value={textColor || "#3a322b"} onChange={e => onChange({ ...c, text_color: e.target.value })} />
           <input className="a-u-grow" type="text" aria-label={zh ? "文字顏色（色碼）" : "Text colour (hex)"} value={textColor} onChange={e => onChange({ ...c, text_color: e.target.value })} placeholder={zh ? "預設" : "Default"} />
         </div>
@@ -669,20 +667,18 @@ export function RichTextConfigForm({
             {/* FieldLabel is a <span>, so these swatches sat beside a caption
                 that names nothing: without an explicit label they read out as
                 bare colour pickers. */}
-            <input
+            <input className="a-u-swatch-mini"
               type="color"
               aria-label={zh ? "標題色" : "Heading colour"}
               value={headingColor || "#283d34"}
               onChange={(e) => onChange({ ...c, heading_color: e.target.value })}
-              style={{ width: 32, height: 30, border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer", padding: 0 }}
             />
             {headingColor && (
-              <button
+              <button className="a-u-clear-btn"
                 type="button"
                 title={zh ? "清除標題色" : "Clear heading colour"}
                 aria-label={zh ? "清除標題色" : "Clear heading colour"}
                 onClick={() => { const { heading_color, ...rest } = c as Record<string, unknown>; void heading_color; onChange(rest); }}
-                style={{ border: "1px solid var(--line)", background: "var(--bg)", width: 22, height: 22, borderRadius: 3, cursor: "pointer", fontSize: 11 }}
               >×</button>
             )}
           </div>
@@ -690,20 +686,18 @@ export function RichTextConfigForm({
         <div className="a-u-col">
           <FieldLabel>{zh ? "內文色" : "Body"}</FieldLabel>
           <div className="a-u-row-tight">
-            <input
+            <input className="a-u-swatch-mini"
               type="color"
               aria-label={zh ? "內文色" : "Body colour"}
               value={bodyColor || "#666666"}
               onChange={(e) => onChange({ ...c, body_color: e.target.value })}
-              style={{ width: 32, height: 30, border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer", padding: 0 }}
             />
             {bodyColor && (
-              <button
+              <button className="a-u-clear-btn"
                 type="button"
                 title={zh ? "清除內文色" : "Clear body colour"}
                 aria-label={zh ? "清除內文色" : "Clear body colour"}
                 onClick={() => { const { body_color, ...rest } = c as Record<string, unknown>; void body_color; onChange(rest); }}
-                style={{ border: "1px solid var(--line)", background: "var(--bg)", width: 22, height: 22, borderRadius: 3, cursor: "pointer", fontSize: 11 }}
               >×</button>
             )}
           </div>
@@ -711,20 +705,18 @@ export function RichTextConfigForm({
         <div className="a-u-col">
           <FieldLabel>{zh ? "區塊背景" : "Background"}</FieldLabel>
           <div className="a-u-row-tight">
-            <input
+            <input className="a-u-swatch-mini"
               type="color"
               aria-label={zh ? "區塊背景色" : "Block background colour"}
               value={bgColor || "#ffffff"}
               onChange={(e) => onChange({ ...c, _bgColor: e.target.value })}
-              style={{ width: 32, height: 30, border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer", padding: 0 }}
             />
             {bgColor && (
-              <button
+              <button className="a-u-clear-btn"
                 type="button"
                 title={zh ? "清除背景色" : "Clear background colour"}
                 aria-label={zh ? "清除背景色" : "Clear background colour"}
                 onClick={() => { const { _bgColor, ...rest } = c as Record<string, unknown>; void _bgColor; onChange(rest); }}
-                style={{ border: "1px solid var(--line)", background: "var(--bg)", width: 22, height: 22, borderRadius: 3, cursor: "pointer", fontSize: 11 }}
               >×</button>
             )}
           </div>
@@ -819,9 +811,9 @@ export function FlowConfigForm({
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+      <div className="a-u-row-between">
         <FieldLabel>{zh ? "步驟（留空則使用預設）" : "Steps (leave empty for defaults)"}</FieldLabel>
-        <span style={{ fontSize: 11, color: "var(--muted)" }}>{steps.length}</span>
+        <span className="a-u-hint">{steps.length}</span>
       </div>
       <ItemsEditor
         items={steps}
@@ -959,7 +951,7 @@ export function MapConfigForm({
       {mode === "embed" ? (
         <>
           <Field label={zh ? "Google 地圖嵌入碼 / 網址" : "Google Map embed code / URL"}>
-            <textarea rows={4} style={{ fontFamily: "monospace", fontSize: 11 }} value={String(c.embed ?? c.map_embed ?? "")} onChange={(e) => onChange({ ...c, embed: e.target.value })} placeholder={'<iframe src="https://www.google.com/maps/d/embed?mid=…"></iframe>'} />
+            <textarea className="a-u-mono-11" rows={4} value={String(c.embed ?? c.map_embed ?? "")} onChange={(e) => onChange({ ...c, embed: e.target.value })} placeholder={'<iframe src="https://www.google.com/maps/d/embed?mid=…"></iframe>'} />
           </Field>
           <p style={{ fontSize: 11, color: "#888", margin: "4px 0 10px" }}>
             {zh ? "用 Google「我的地圖」建立座標 → 分享 → 嵌入地圖，貼上 <iframe>。" : "Build a Google “My Maps” map, then paste its Embed <iframe>."}
@@ -1166,15 +1158,14 @@ export function AboutConfigForm({
                 />
                 <div className="about-image-list__actions">
                   <span>{zh ? `第 ${index + 1} 張` : `Image ${index + 1}`}</span>
-                  <button type="button" style={{ ...rowToolButtonStyle, opacity: index === 0 ? 0.4 : 1 }} disabled={index === 0} aria-label={zh ? `第 ${index + 1} 張上移` : `Move image ${index + 1} up`} onClick={() => moveImage(index, -1)}>
-                    <ChevronUp size={14} />
-                  </button>
-                  <button type="button" style={{ ...rowToolButtonStyle, opacity: index === images.length - 1 ? 0.4 : 1 }} disabled={index === images.length - 1} aria-label={zh ? `第 ${index + 1} 張下移` : `Move image ${index + 1} down`} onClick={() => moveImage(index, 1)}>
-                    <ChevronDown size={14} />
-                  </button>
-                  <button type="button" className="items-editor-remove" style={{ ...rowToolButtonStyle, position: "static" }} aria-label={zh ? `移除第 ${index + 1} 張圖片` : `Remove image ${index + 1}`} onClick={() => removeImage(index)}>
-                    <Trash2 size={14} />
-                  </button>
+                  <RowTools
+                    index={index}
+                    count={images.length}
+                    name={{ zh: `第 ${index + 1} 張圖片`, en: `image ${index + 1}` }}
+                    zh={zh}
+                    onMove={(delta) => moveImage(index, delta)}
+                    onRemove={() => removeImage(index)}
+                  />
                 </div>
               </div>
               <label className="about-image-list__alt">
@@ -1482,21 +1473,36 @@ function repeatedItemSummary(
   return zh ? "（尚未填寫）" : "(empty)";
 }
 
-/** Square icon buttons for the row toolbar. Inline because this file has no
- *  stylesheet of its own and the shared admin CSS is another agent's file. */
-const rowToolButtonStyle: React.CSSProperties = {
-  background: "none",
-  border: "1px solid var(--line, #ddd)",
-  borderRadius: 4,
-  color: "var(--muted)",
-  cursor: "pointer",
-  flexShrink: 0,
-  fontSize: 12,
-  height: 24,
-  lineHeight: 1,
-  padding: 0,
-  width: 24,
-};
+/**
+ * Move up, move down and remove for one row of a list. The image list, the
+ * repeating items and the gallery each wrote these three buttons out with
+ * their own glyphs (chevrons, arrows, a bin, an ×) and their own dimming at
+ * the ends. Up is disabled on the first row and down on the last, so a row
+ * never wraps around. `name` is how the labels refer to the row
+ * ("第 2 張圖片" / "image 2").
+ */
+function RowTools({ index, count, name, zh, onMove, onRemove }: {
+  index: number;
+  count: number;
+  name: { zh: string; en: string };
+  zh: boolean;
+  onMove: (delta: -1 | 1) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <>
+      <button type="button" className="a-row-tool" disabled={index === 0} aria-label={zh ? `${name.zh} 上移` : `Move ${name.en} up`} onClick={() => onMove(-1)}>
+        <ChevronUp size={14} aria-hidden="true" />
+      </button>
+      <button type="button" className="a-row-tool" disabled={index === count - 1} aria-label={zh ? `${name.zh} 下移` : `Move ${name.en} down`} onClick={() => onMove(1)}>
+        <ChevronDown size={14} aria-hidden="true" />
+      </button>
+      <button type="button" className="a-row-tool a-row-tool--remove" aria-label={zh ? `刪除${name.zh}` : `Remove ${name.en}`} onClick={onRemove}>
+        <X size={14} aria-hidden="true" />
+      </button>
+    </>
+  );
+}
 
 /**
  * The row chrome every repeated-item list in this file shares: reorder, a delete
@@ -1616,9 +1622,14 @@ function RepeatedRows<T>({
                 {head}
               </span>
             )}
-            <button type="button" style={{ ...rowToolButtonStyle, opacity: i === 0 ? 0.35 : 1 }} disabled={i === 0} aria-label={zh ? `${noun.zh} ${i + 1} 上移` : `Move ${noun.en} ${i + 1} up`} onClick={() => move(i, -1)}>&#8593;</button>
-            <button type="button" style={{ ...rowToolButtonStyle, opacity: i === items.length - 1 ? 0.35 : 1 }} disabled={i === items.length - 1} aria-label={zh ? `${noun.zh} ${i + 1} 下移` : `Move ${noun.en} ${i + 1} down`} onClick={() => move(i, 1)}>&#8595;</button>
-            <button type="button" className="items-editor-remove" style={{ ...rowToolButtonStyle, position: "static" }} aria-label={zh ? `刪除${noun.zh} ${i + 1}` : `Remove ${noun.en} ${i + 1}`} onClick={() => removeItem(i)}>&#10005;</button>
+            <RowTools
+              index={i}
+              count={items.length}
+              name={{ zh: `${noun.zh} ${i + 1}`, en: `${noun.en} ${i + 1}` }}
+              zh={zh}
+              onMove={(delta) => move(i, delta)}
+              onRemove={() => removeItem(i)}
+            />
           </div>
           <div id={bodyId} hidden={!expanded}>
             {expanded && numbered && <div className="hpb-step-badge">{String(i + 1).padStart(2, "0")}</div>}
@@ -1691,7 +1702,7 @@ export function ItemsEditor({
     if (f.type === "items") {
       const nestedFields = f.fields ?? [];
       return (
-        <div key={f.key} style={{ marginBottom: 10 }}>
+        <div className="a-u-mb-10" key={f.key}>
           <FieldLabel>{f.label}</FieldLabel>
           <div className="a-u-mt-6">
             <ItemsEditor
@@ -1729,7 +1740,7 @@ export function ItemsEditor({
             />
           </Field>
           {bad && (
-            <p id={errId} style={{ color: "#b3261e", fontSize: 11, lineHeight: 1.5, margin: "-6px 0 10px" }}>
+            <p className="a-u-field-error" id={errId}>
               {zh
                 ? "網址要以 https:// 或 http:// 開頭（例如 https://www.example.com）。照現在這樣存檔，卡片會少掉連結。"
                 : "The address must start with https:// or http:// (e.g. https://www.example.com). Saved as written, the card renders with no link."}
@@ -2073,11 +2084,14 @@ export function GalleryConfigForm({
               <ImageUploadInput value={img.url} onChange={(v) => setUrl(i, v)} />
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 <span style={{ color: "var(--muted)", fontSize: 11, fontWeight: 700 }}>{zh ? `第 ${i + 1} 張` : `#${i + 1}`}</span>
-                <button type="button" style={{ ...rowToolButtonStyle, opacity: i === 0 ? 0.35 : 1 }} disabled={i === 0} aria-label={zh ? `第 ${i + 1} 張圖片上移` : `Move image ${i + 1} up`} onClick={() => moveImage(i, -1)}>&#8593;</button>
-                <button type="button" style={{ ...rowToolButtonStyle, opacity: i === images.length - 1 ? 0.35 : 1 }} disabled={i === images.length - 1} aria-label={zh ? `第 ${i + 1} 張圖片下移` : `Move image ${i + 1} down`} onClick={() => moveImage(i, 1)}>&#8595;</button>
-                <button type="button" className="items-editor-remove" style={{ ...rowToolButtonStyle, position: "static" }} aria-label={zh ? `刪除圖片 ${i + 1}` : `Remove image ${i + 1}`} onClick={() => removeImage(i)}>
-                  &#10005;
-                </button>
+                <RowTools
+                  index={i}
+                  count={images.length}
+                  name={{ zh: `第 ${i + 1} 張圖片`, en: `image ${i + 1}` }}
+                  zh={zh}
+                  onMove={(delta) => moveImage(i, delta)}
+                  onRemove={() => removeImage(i)}
+                />
               </div>
             </div>
             <input
@@ -2176,7 +2190,7 @@ export function GalleryConfigForm({
           selector makes it work; that is a globals.css change and not this
           file's to make. */}
       {showLayoutOptions && (
-        <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 12px", fontSize: 13 }}>
+        <label className="a-u-row-note">
           <input
             type="checkbox"
             checked={c.fill_height === true}
@@ -2259,7 +2273,7 @@ export function ContactInfoConfigForm({
       {plain("Email", "email")}
       {plain("LINE", "line")}
       <Field label={zh ? "Google Map 嵌入碼" : "Google Map embed code"}>
-        <textarea rows={3} style={{ fontFamily: "monospace", fontSize: 11 }} value={String(c.map_embed ?? "")} onChange={(e) => onChange({ ...c, map_embed: e.target.value })} />
+        <textarea className="a-u-mono-11" rows={3} value={String(c.map_embed ?? "")} onChange={(e) => onChange({ ...c, map_embed: e.target.value })} />
       </Field>
       {bilingual(zh ? "交通指引" : "Directions", "directions", 4)}
       <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "14px 0 12px", fontSize: 13 }}>
@@ -2345,7 +2359,7 @@ export function AttractionsConfigForm({
             clickable, with nothing on the form to explain why. It takes both
             now, and this says so, because a bare text box was how the silent
             drop went unnoticed. */}
-        <p style={{ fontSize: 11, color: "var(--muted)", margin: "6px 0 0", lineHeight: 1.5 }}>
+        <p className="a-u-hint a-u-hint-below">
           {zh
             ? "連結可填完整網址（https://，會另開分頁），或站內路徑（例如 /stays/hejing）與頁內錨點（例如 #rooms），站內連結在同分頁開啟。"
             : "A link can be a full https:// URL, which opens in a new tab, or a path on this site such as /stays/hejing or an anchor such as #rooms, which open in the same tab."}
@@ -2676,7 +2690,7 @@ export function StaysConfigForm({
            tick. The tick is named after what it does; the stored key stays
            `rail`, so nothing saved changes. */
         <Field label={zh ? "橫向捲動" : "Side-scroll"}>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+          <label className="a-u-row-mid a-u-fs-13">
             <input className="a-u-auto-width"
               type="checkbox"
               checked={c.rail === true}
@@ -2711,7 +2725,7 @@ export function StaysConfigForm({
               below is a different matter — visibleTags() narrows those same tags
               by picked_tags on every variant, news included — so it stays. */}
           {variant !== "news" && (<>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+          <label className="a-u-row-mid a-u-fs-13">
             <input className="a-u-auto-width"
               type="checkbox"
               checked={c.show_tags === true}
@@ -3032,7 +3046,7 @@ export function ContactFormConfigForm({
               placeholder={zh ? "送出後由客服團隊人工處理可預訂狀態；此表單不會付款。" : "We reply by hand; this form takes no payment."}
             />
           </Field>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 12px", fontSize: 13 }}>
+          <label className="a-u-row-note">
             <input
               type="checkbox"
               checked={c.show_line !== false}
@@ -3257,7 +3271,7 @@ export function OembedConfigForm({
       <Field label={zh ? "說明文字" : "Caption"}>
         <input type="text" value={getVal(c, "caption", editLocale)} onChange={(e) => onChange(setVal(c, "caption", editLocale, e.target.value))} />
       </Field>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+      <div className="a-u-grid-2">
         <Field label={zh ? "最大寬度 (px)" : "Max width (px)"}>
           <input
             type="number" min={240} max={1600} step={20}
@@ -3329,7 +3343,9 @@ function ItemRows({
           </button>
         </div>
       ))}
-      <button type="button" onClick={() => put([...items, {}])}>{addLabel}</button>
+      {/* The same dashed "add" bar as the other lists; this one had no class
+          and drew the browser's default grey button. */}
+      <button type="button" className="items-editor-add" onClick={() => put([...items, {}])}>{addLabel}</button>
     </div>
   );
 }
@@ -3733,13 +3749,7 @@ export function AlternatingConfigForm({
         {/* aria-pressed, because a bare button announces nothing about which way
             it is set — and this one decides which side every picture in the
             block lands on. */}
-        <button
-          type="button"
-          className={"hpb-switch" + (c.flip === true ? " is-on" : "")}
-          onClick={() => onChange({ ...c, flip: c.flip !== true })}
-          aria-pressed={c.flip === true}
-          aria-label={zh ? "第一列圖片靠左開關" : "Start on the left toggle"}
-        />
+        <Switch checked={c.flip === true} onChange={() => onChange({ ...c, flip: c.flip !== true })} label={zh ? "第一列圖片靠左開關" : "Start on the left toggle"} />
       </Field>
       <AlternatingRows c={c} zh={zh} editLocale={editLocale} onChange={onChange} />
     </div>
@@ -3837,7 +3847,7 @@ export function PartnersConfigForm({
           addLabel={zh ? "+ 新增合作品牌" : "+ Add partner"}
         />
       </div>
-      <p style={{ fontSize: 11, color: "var(--muted)", margin: "6px 0 0", lineHeight: 1.5 }}>
+      <p className="a-u-hint a-u-hint-below">
         {zh
           ? layout === "cards"
             ? "有 Logo 時卡片顯示 Logo，沒有才顯示品牌名稱文字。「代表照片」留空會改用 Logo。官方網站需填完整網址（https://）。"
@@ -4554,14 +4564,14 @@ function RoleTypePreview({
         </span>
       </div>
       {badSize && (
-        <p id={`${uid}-size-err`} role="alert" className="hpb-field-hint" style={{ color: "var(--danger, #b3261e)" }}>
+        <p id={`${uid}-size-err`} role="alert" className="hpb-field-hint a-u-danger">
           {zh
             ? "這個字級無法辨識，前台會忽略它。請填 18px、1.4rem，或 clamp(16px,2vw,24px)。"
             : "That size is not recognised and the page will ignore it. Use 18px, 1.4rem, or clamp(16px,2vw,24px)."}
         </p>
       )}
       {badColor && (
-        <p id={`${uid}-color-err`} role="alert" className="hpb-field-hint" style={{ color: "var(--danger, #b3261e)" }}>
+        <p id={`${uid}-color-err`} role="alert" className="hpb-field-hint a-u-danger">
           {zh
             ? "這個顏色無法辨識，前台會改用繼承的顏色。請填 #8b6a43、rgb(139,106,67)，或 red。"
             : "That colour is not recognised; the page will fall back to the inherited colour. Use #8b6a43, rgb(139,106,67), or red."}
@@ -4692,7 +4702,7 @@ export function RoleTypeControls({
             brings its own label tied by htmlFor — a Field is itself a label, and
             wrapping one around a control that already has one is the defect
             tests/typeScaleFieldLabels.test.mts exists for. */}
-        <div style={{ marginBottom: 10 }}>
+        <div className="a-u-mb-10">
           <FontFacePicker
             zh={zh}
             label={zh ? "字體" : "Font"}
@@ -4719,14 +4729,13 @@ export function RoleTypeControls({
               be able to hold a clamp() so it scales, and no fixed list of px
               values can express that (客戶: banner 字體需要能單獨改字體、大小). */}
           <Field label={zh ? "字級" : "Size"}>
-            <input
+            <input className="a-u-full-width a-u-mono"
               type="text"
               value={val("size")}
               onChange={(e) => set("size", e.target.value)}
               aria-invalid={badRoleSize || undefined}
               aria-describedby={badRoleSize ? `${uid}-size-err` : undefined}
               placeholder={zh ? "例如 18px 或 clamp(16px,2vw,24px)" : "e.g. 18px or clamp(16px,2vw,24px)"}
-              style={{ width: "100%", fontFamily: "monospace", fontSize: 12 }}
             />
           </Field>
           <Field label={zh ? "字重" : "Weight"}>
@@ -4743,16 +4752,15 @@ export function RoleTypeControls({
             halves are named explicitly — same reason as the hero colours. */}
         <Field label={zh ? "顏色" : "Colour"}>
           <div className="a-u-row-center">
-            <input
+            <input className="a-u-swatch-box"
               type="color"
               aria-label={zh ? `${name(role)}顏色（色票）` : `${name(role)} colour (swatch)`}
               value={/^#[0-9a-fA-F]{6}$/.test(color) ? color : "#000000"}
               onChange={(e) => set("color", e.target.value)}
-              style={{ width: 40, height: 32, border: "1px solid var(--line)", borderRadius: 4, cursor: "pointer" }}
             />
             {/* The swatch has no empty state — clearing the hex box is the only
                 way back to "use the block's own colour". */}
-            <input
+            <input className="a-u-grow a-u-mono"
               type="text"
               aria-label={zh ? `${name(role)}顏色（色碼，留空為預設）` : `${name(role)} colour (hex, blank = default)`}
               value={color}
@@ -4760,7 +4768,6 @@ export function RoleTypeControls({
               aria-invalid={badRoleColor || undefined}
               aria-describedby={badRoleColor ? `${uid}-color-err` : undefined}
               placeholder={zh ? "預設" : "Default"}
-              style={{ flex: 1, fontFamily: "monospace", fontSize: 12 }}
             />
           </div>
         </Field>
@@ -4872,7 +4879,7 @@ export function SourcesPicker({
           </label>
         ))}
       </div>
-      <p className="bf-src-group" style={{ marginTop: 14 }}>
+      <p className="bf-src-group a-u-mt-14">
         {zh ? "文章顯示頁面（可複選）" : "Article listing pages (multiple)"}
       </p>
       <div className="amenity-checkgrid">

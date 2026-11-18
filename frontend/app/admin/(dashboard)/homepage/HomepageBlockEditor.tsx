@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import type { AdminContentTag, AdminSite } from "../../modules/adminApi";
 import SubmitButton from "../../modules/SubmitButton";
-import { Button, ButtonLink, buttonClass, Callout, Segmented, useConfirm } from "../../ui";
+import { Button, ButtonLink, buttonClass, Callout, Segmented, Switch, useConfirm } from "../../ui";
 import { Field, getVal, setVal } from "../../modules/blockFields";
 import FoldSection from "../../modules/FoldSection";
 import { BLOCK_LABELS, BLOCK_HINTS, groupTitle } from "../../modules/blockCatalogue";
@@ -504,7 +504,7 @@ export default function HomepageBlockEditor({
           shared one from the site and stay editors — the same message in the
           same place should not look like three different messages. */}
       {draftRecovered && (
-        <div style={{ gridColumn: "1 / -1", margin: "14px 18px 0" }}>
+        <div className="a-u-span a-u-span-inset">
           <Callout className="se-draft-recovered" live="status" tone="warning">
             {zh
               ? "儲存失敗，已還原你未儲存的修改。請修正上方錯誤後再存一次。"
@@ -705,19 +705,12 @@ export default function HomepageBlockEditor({
               </button>
             </div>
             <div className="hpb-insp__body">
-              <div className="hpb-insp__row" style={{ paddingTop: 0 }}>
+              <div className="hpb-insp__row a-u-pt-0">
                 <div>
                   <div className="hpb-insp__row-txt">{zh ? "在首頁顯示" : "Show on homepage"}</div>
                   <div className="hpb-insp__row-sub">{zh ? "關閉則隱藏此版塊但保留設定" : "Hidden blocks keep their settings"}</div>
                 </div>
-                <button
-                  type="button"
-                  className={`hpb-switch${selected.enabled !== false ? " is-on" : ""}`}
-                  onClick={() => toggle(selected.id)}
-                  role="switch"
-                  aria-checked={selected.enabled !== false}
-                  aria-label={zh ? "顯示開關" : "Visibility"}
-                />
+                <Switch checked={selected.enabled !== false} onChange={() => toggle(selected.id)} label={zh ? "顯示開關" : "Visibility"} />
               </div>
               <div className="hpb-insp__section">
                 <span className="hpb-insp__label">{groupTitle("content", zh)}</span>
@@ -739,11 +732,11 @@ export default function HomepageBlockEditor({
         ) : (
           <>
             <div className="hpb-insp__head">
-              <Settings2 style={{ width: 18, height: 18, color: "var(--muted)" }} />
+              <Settings2 className="a-u-icon-muted" />
               <span className="hpb-insp__title">{zh ? "首頁設定" : "Homepage Settings"}</span>
             </div>
             <div className="hpb-insp__body">
-              <div className="hpb-insp__section" style={{ marginTop: 0, paddingTop: 0, borderTop: "none" }}>
+              <div className="hpb-insp__section a-u-flush-top">
                 <span className="hpb-insp__label">{zh ? "新增版塊" : "Add block"}</span>
                 <div className="hpb-palette" ref={paletteRef}>
                   {BLOCK_TYPES.filter(

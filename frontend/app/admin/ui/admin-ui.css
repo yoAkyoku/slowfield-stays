@@ -1002,6 +1002,23 @@ a.a-list__link:hover { background: var(--a-surface-2); }
   }
 }
 
+/* Move up / move down / remove beside a row of a list (RowTools in blockForms). */
+.a-row-tool {
+  background: none;
+  border: 1px solid var(--line, #ddd);
+  border-radius: 4px;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 12px;
+  height: 24px;
+  line-height: 1;
+  padding: 0;
+  width: 24px;
+}
+.a-row-tool:disabled { opacity: 0.35; cursor: default; }
+.a-row-tool--remove:hover { color: var(--ink); }
+
 /* ── Layout utilities ──────────────────────────────────────────────────────
    The block forms and the site editor repeated the same handful of inline
    style objects dozens of times (flex: 1 twenty times, a two-control row
@@ -1031,3 +1048,37 @@ a.a-list__link:hover { background: var(--a-surface-2); }
 .a-u-right { text-align: right !important; }
 .a-u-swatch { width: 48px !important; height: 36px !important; cursor: pointer !important; }
 .a-u-swatch-sm { width: 44px !important; height: 32px !important; cursor: pointer !important; }
+.a-u-swatch-box { width: 40px !important; height: 32px !important; border: 1px solid var(--line) !important; border-radius: 4px !important; cursor: pointer !important; }
+.a-u-swatch-mini { width: 32px !important; height: 30px !important; border: 1px solid var(--line) !important; border-radius: 4px !important; cursor: pointer !important; padding: 0 !important; }
+.a-u-framed { border: 1px solid var(--line) !important; border-radius: 6px !important; }
+.a-u-row-mid { display: flex !important; gap: 8px !important; align-items: center !important; }
+.a-u-row-between { display: flex !important; justify-content: space-between !important; align-items: baseline !important; margin-bottom: 8px !important; }
+.a-u-grid-2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+.a-u-span-inset { margin: 14px 18px 0 !important; }
+.a-u-label-gap { margin: 18px 0 8px !important; }
+.a-u-flush-top { margin-top: 0 !important; padding-top: 0 !important; border-top: none !important; }
+.a-u-pt-0 { padding-top: 0 !important; }
+.a-u-mb-8 { margin-bottom: 8px !important; }
+.a-u-block { display: block !important; }
+.a-u-hidden { display: none !important; }
+.a-u-mt-14 { margin-top: 14px !important; }
+.a-u-mb-10 { margin-bottom: 10px !important; }
+.a-u-fs-13 { font-size: 13px !important; }
+.a-u-pointer { cursor: pointer !important; }
+.a-u-check { width: 16px !important; height: 16px !important; cursor: pointer !important; }
+.a-u-accent { accent-color: var(--accent) !important; cursor: pointer !important; }
+.a-u-icon-muted { width: 18px !important; height: 18px !important; color: var(--muted) !important; }
+.a-u-mono { font-family: monospace !important; font-size: 12px !important; }
+.a-u-mono-11 { font-family: monospace !important; font-size: 11px !important; }
+.a-u-font-mono { font-family: var(--a-font-mono) !important; }
+/* Muted helper text. The variants only add spacing; later rules win. */
+.a-u-hint { font-size: 11px !important; color: var(--muted) !important; }
+.a-u-hint-12 { font-size: 12px !important; color: var(--muted) !important; }
+.a-u-hint-above { margin: 0 0 8px !important; }
+.a-u-hint-below { margin: 6px 0 0 !important; line-height: 1.5 !important; }
+.a-u-lh-16 { line-height: 1.6 !important; }
+.a-u-caption { display: block !important; font-size: 12px !important; color: var(--muted) !important; margin-bottom: 4px !important; }
+.a-u-danger { color: var(--danger, #b3261e) !important; }
+.a-u-field-error { color: #b3261e !important; font-size: 11px !important; line-height: 1.5 !important; margin: -6px 0 10px !important; }
+/* The small square "×" that clears a colour back to the default. */
+.a-u-clear-btn { border: 1px solid var(--line) !important; background: var(--bg) !important; width: 22px !important; height: 22px !important; border-radius: 3px !important; cursor: pointer !important; font-size: 11px !important; }

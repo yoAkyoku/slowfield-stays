@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import type { AdminContentTag, AdminSite } from "../../../../../modules/adminApi";
 import SubmitButton from "../../../../../modules/SubmitButton";
-import { Button, Callout, Check, Dialog, DialogActions, Segmented, Stack, buttonClass, useConfirm } from "../../../../../ui";
+import { Button, Callout, Check, Dialog, DialogActions, Segmented, Stack, Switch, buttonClass, useConfirm } from "../../../../../ui";
 import ImageUploadInput from "../../../../homepage/ImageUploadInput";
 import { Field, getVal, setVal, HeadingInput } from "../../../../../modules/blockFields";
 import FoldSection from "../../../../../modules/FoldSection";
@@ -571,7 +571,7 @@ export default function PropertyBlockEditor({
           shared one from the site and stay editors — the same message in the
           same place should not look like three different messages. */}
       {draftRecovered && (
-        <div style={{ gridColumn: "1 / -1", margin: "14px 18px 0" }}>
+        <div className="a-u-span a-u-span-inset">
           <Callout className="se-draft-recovered" live="status" tone="warning">
             {zh
               ? "儲存失敗，已還原你未儲存的修改。請修正上方錯誤後再存一次。"
@@ -717,17 +717,12 @@ export default function PropertyBlockEditor({
               </button>
             </div>
             <div className="hpb-insp__body">
-              <div className="hpb-insp__row" style={{ paddingTop: 0 }}>
+              <div className="hpb-insp__row a-u-pt-0">
                 <div>
                   <div className="hpb-insp__row-txt">{zh ? "在頁面顯示" : "Show on page"}</div>
                   <div className="hpb-insp__row-sub">{zh ? "關閉則隱藏此版塊但保留設定" : "Hidden blocks keep their settings"}</div>
                 </div>
-                <button
-                  type="button"
-                  className={`hpb-switch${selected.enabled !== false ? " is-on" : ""}`}
-                  onClick={() => toggle(selected.id)}
-                  aria-label={zh ? "顯示開關" : "Visibility"}
-                />
+                <Switch checked={selected.enabled !== false} onChange={() => toggle(selected.id)} label={zh ? "顯示開關" : "Visibility"} />
               </div>
               <div className="hpb-insp__section">
                 <span className="hpb-insp__label">{groupTitle("content", zh)}</span>
@@ -750,13 +745,13 @@ export default function PropertyBlockEditor({
         ) : (
           <>
             <div className="hpb-insp__head">
-              <Settings2 style={{ width: 18, height: 18, color: "var(--muted)" }} />
+              <Settings2 className="a-u-icon-muted" />
               <span className="hpb-insp__title">{zh ? "頁面設定" : "Page Settings"}</span>
             </div>
             <div className="hpb-insp__body">
               {/* Page name (bilingual) */}
               {pageKey !== "homepage" && (
-                <div className="hpb-insp__section" style={{ marginTop: 0, paddingTop: 0, borderTop: "none" }}>
+                <div className="hpb-insp__section a-u-flush-top">
                   <span className="hpb-insp__label">{zh ? "頁面名稱" : "Page Name"}</span>
                   <Field label={editLocale === "zh" ? "中文名稱" : "English Name"}>
                     <input
@@ -798,11 +793,10 @@ export default function PropertyBlockEditor({
                 </Field>
                 <Field label={zh ? "標題顏色" : "Title Color"}>
                   <div className="a-u-row">
-                    <input
+                    <input className="a-u-swatch a-u-framed"
                       type="color"
                       value={heroTitleColor}
                       onChange={(e) => setHeroTitleColor(e.target.value)}
-                      style={{ width: "48px", height: "36px", cursor: "pointer", border: "1px solid var(--line)", borderRadius: "6px" }}
                     />
                     <input className="a-u-grow"
                       type="text"
@@ -814,11 +808,10 @@ export default function PropertyBlockEditor({
                 </Field>
                 <Field label={zh ? "副標題顏色" : "Subtitle Color"}>
                   <div className="a-u-row">
-                    <input
+                    <input className="a-u-swatch a-u-framed"
                       type="color"
                       value={heroSubtitleColor}
                       onChange={(e) => setHeroSubtitleColor(e.target.value)}
-                      style={{ width: "48px", height: "36px", cursor: "pointer", border: "1px solid var(--line)", borderRadius: "6px" }}
                     />
                     <input className="a-u-grow"
                       type="text"
@@ -875,7 +868,7 @@ export default function PropertyBlockEditor({
                     a wash over a plain colour is just another plain colour. */}
                 {heroImage && (
                   <Field label={zh ? "Hero 遮罩" : "Hero mask"}>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <div className="a-u-row-mid">
                       <input
                         type="color"
                         value={heroMaskColor || "#0a0a08"}
@@ -954,12 +947,11 @@ export default function PropertyBlockEditor({
                   </Field>
                   {navLinkMode === "anchor" && (
                     <Field label={zh ? "區塊標記（首頁編輯器設定的 tag）" : "Section tag (set in the homepage editor)"}>
-                      <input
+                      <input className="a-u-full-width a-u-mono"
                         type="text"
                         value={navAnchor}
                         onChange={(e) => setNavAnchor(e.target.value.trim().replace(/\s+/g, "-").replace(/[#?&/\\%"'<>]/g, ""))}
                         placeholder={zh ? "例如 about、rooms" : "e.g. about, rooms"}
-                        style={{ width: "100%", fontFamily: "monospace", fontSize: 12 }}
                       />
                     </Field>
                   )}
@@ -992,12 +984,7 @@ export default function PropertyBlockEditor({
                     <div className="hpb-insp__row-txt">{zh ? "顯示文章列表" : "Show Article List"}</div>
                     <div className="hpb-insp__row-sub">{zh ? "區塊下方顯示 CMS 文章卡片" : "Show CMS article cards below blocks"}</div>
                   </div>
-                  <button
-                    type="button"
-                    className={`hpb-switch${showCmsList ? " is-on" : ""}`}
-                    onClick={() => setShowCmsList(!showCmsList)}
-                    aria-label={zh ? "文章列表開關" : "Article list toggle"}
-                  />
+                  <Switch checked={!!showCmsList} onChange={() => setShowCmsList(!showCmsList)} label={zh ? "文章列表開關" : "Article list toggle"} />
                 </div>
                 {showCmsList && pageKey !== "homepage" && (
                   <div className="hpb-insp__row">
@@ -1005,12 +992,7 @@ export default function PropertyBlockEditor({
                       <div className="hpb-insp__row-txt">{zh ? "顯示搜尋框" : "Show Search Box"}</div>
                       <div className="hpb-insp__row-sub">{zh ? "分類列上方的搜尋欄，關閉後版面較清爽" : "The search field above the category row"}</div>
                     </div>
-                    <button
-                      type="button"
-                      className={`hpb-switch${showSearch ? " is-on" : ""}`}
-                      onClick={() => setShowSearch(!showSearch)}
-                      aria-label={zh ? "搜尋框開關" : "Search box toggle"}
-                    />
+                    <Switch checked={!!showSearch} onChange={() => setShowSearch(!showSearch)} label={zh ? "搜尋框開關" : "Search box toggle"} />
                   </div>
                 )}
                 {/* Its own switch, not a mode shared with the search box
@@ -1022,12 +1004,7 @@ export default function PropertyBlockEditor({
                       <div className="hpb-insp__row-txt">{zh ? "顯示分類列" : "Show Category Row"}</div>
                       <div className="hpb-insp__row-sub">{zh ? "文章上方的分類標籤（全部、關於我們…），關閉後不篩選、直接列出全部文章" : "The tag chips above the articles; off lists every entry unfiltered"}</div>
                     </div>
-                    <button
-                      type="button"
-                      className={`hpb-switch${showTags ? " is-on" : ""}`}
-                      onClick={() => setShowTags(!showTags)}
-                      aria-label={zh ? "分類列開關" : "Category row toggle"}
-                    />
+                    <Switch checked={!!showTags} onChange={() => setShowTags(!showTags)} label={zh ? "分類列開關" : "Category row toggle"} />
                   </div>
                 )}
                 {/* 客戶: 內容要置中。Off by default: on every other index the wide
@@ -1039,12 +1016,7 @@ export default function PropertyBlockEditor({
                       <div className="hpb-insp__row-txt">{zh ? "卡片區對齊內文" : "Match Cards to Copy"}</div>
                       <div className="hpb-insp__row-sub">{zh ? "卡片區收窄到與上方內文同宽並置中，卡片內的標題、摘要、標籤也一併置中（適合一頁式版面）" : "Caps the card area to the copy's width and centres the card text — for a single-column page"}</div>
                     </div>
-                    <button
-                      type="button"
-                      className={`hpb-switch${cardsMatchText ? " is-on" : ""}`}
-                      onClick={() => setCardsMatchText(!cardsMatchText)}
-                      aria-label={zh ? "卡片區對齊內文開關" : "Match cards to copy toggle"}
-                    />
+                    <Switch checked={!!cardsMatchText} onChange={() => setCardsMatchText(!cardsMatchText)} label={zh ? "卡片區對齊內文開關" : "Match cards to copy toggle"} />
                   </div>
                 )}
               </FoldSection>

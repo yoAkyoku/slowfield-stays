@@ -94,7 +94,8 @@ for (const [where, file] of EDITORS) {
     const src = readEditorSurface(file);
     const expression = guardBefore(
       src,
-      /\{([\s\S]{0,300}?) && \(\n\s*<p style=\{\{ color: "#b3261e"/,
+      // The warning line: the kit's field-error class (it was an inline red style).
+      /\{([\s\S]{0,300}?) && \(\n\s*<p className="a-u-field-error"/,
       `${file} 色碼 warning`,
     );
     const gate = evaluateExpression(expression, ["selected", "isBlockBgColor"]) as (
