@@ -1,3 +1,5 @@
+import { labelFromMap } from "./adminUtils";
+
 /**
  * How permissions are grouped on screen: the roles page and the new-user form.
  *
@@ -19,4 +21,30 @@ export function permissionGroups(zh: boolean): PermissionGroup[] {
     { id: "newsletter", label: zh ? "電子報" : "Newsletter", labelEn: zh ? "NEWSLETTER" : "", permissions: ["newsletter:read", "newsletter:write"] },
     { id: "site_users", label: zh ? "站點帳號" : "Site Users", labelEn: zh ? "SITE USERS" : "", permissions: ["site_users:read", "site_users:write"] },
   ];
+}
+
+export type GrantedGroup = { label: string; permissions: Array<{ key: string; label: string; desc: string }> };
+
+/**
+ * The groups one account actually holds, for the 查看權限 dialogs on the
+ * account page and the users list. Both pages wrote the list out again by hand,
+ * under older names (住宿 / 內容) than the roles page uses for the same groups.
+ * `*` holds everything; a group the account holds nothing in is dropped.
+ */
+export function grantedPermissionGroups(
+  zh: boolean,
+  held: readonly string[],
+  labels: Record<string, string>,
+  descriptions: Record<string, string>,
+): GrantedGroup[] {
+  const set = new Set(held);
+  const all = set.has("*");
+  return permissionGroups(zh)
+    .map((g) => ({
+      label: g.label,
+      permissions: g.permissions
+        .filter((p) => all || set.has(p))
+        .map((p) => ({ key: p, label: labelFromMap(labels, p), desc: labelFromMap(descriptions, p) })),
+    }))
+    .filter((g) => g.permissions.length > 0);
 }

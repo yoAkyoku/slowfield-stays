@@ -3,7 +3,7 @@ import { ButtonLink, Page, PageHeader } from "../../ui";
 import "./cms.css";
 import type { Banner } from "../../../modules/api";
 import { getLocale, t } from "../../../modules/i18n";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import BannerFormEditor from "./BannerFormEditor";
 import { getAdminProfile, hasPermission } from "../../modules/adminApi";
 
@@ -50,18 +50,7 @@ export default async function BannerForm({
           </ButtonLink>
         }
       />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={flash?.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={errorMessage}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={flash?.notice} error={errorMessage} copy={copy.admin} />
       <BannerFormEditor
         action={action}
         banner={banner}

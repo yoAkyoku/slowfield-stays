@@ -63,3 +63,32 @@ export default function MediaPickerThumbnail({
     </button>
   );
 }
+
+/**
+ * The library grid of the two inline image pickers (homepage image fields and
+ * the stay hero). Assets with no URL are skipped; picking one hands its URL
+ * back, and the picker closes its own dialog.
+ */
+export function MediaPickerGrid({ assets, selectedUrl, onPick }: {
+  assets: MediaPickerAsset[];
+  selectedUrl: string;
+  onPick: (url: string) => void;
+}) {
+  return (
+    <div className="media-inline-library-grid">
+      {assets.map((asset) => {
+        const assetUrl = asset.url ?? asset.file ?? "";
+        if (!assetUrl) return null;
+        return (
+          <MediaPickerThumbnail
+            key={asset.id}
+            asset={asset}
+            assetUrl={assetUrl}
+            selected={selectedUrl === assetUrl}
+            onSelect={() => onPick(assetUrl)}
+          />
+        );
+      })}
+    </div>
+  );
+}

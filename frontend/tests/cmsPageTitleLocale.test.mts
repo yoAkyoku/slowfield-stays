@@ -114,14 +114,17 @@ test("both page actions still read the title from that field", () => {
   // Per action, not over the file: cmsActions carries the banner pair too, and
   // a sweep of the whole text stays green on their copies of the same line
   // while the page ones say something else entirely.
-  const actions = declarationText("app/admin/modules/cmsActions.ts", ["createPageAction", "updatePageAction"]);
-  assert.equal(actions.size, 2, "one of the page actions is gone or renamed");
-  for (const [name, src] of actions) {
-    assert.match(
-      src,
-      /title: String\(formData\.get\("title"\) \?\? ""\)/,
-      `${name} no longer sends the form's title field`,
-    );
+  /* Both send pagePayload, so the title line is pinned there, and each action
+     is checked to send it rather than a copy of its own. */
+  const actions = declarationText("app/admin/modules/cmsActions.ts", ["createPageAction", "updatePageAction", "pagePayload"]);
+  assert.equal(actions.size, 3, "one of the page actions, or pagePayload, is gone or renamed");
+  assert.match(
+    actions.get("pagePayload")!,
+    /title: String\(formData\.get\("title"\) \?\? ""\)/,
+    "pagePayload no longer sends the form's title field",
+  );
+  for (const name of ["createPageAction", "updatePageAction"]) {
+    assert.match(actions.get(name)!, /pagePayload\(formData\)/, `${name} no longer sends pagePayload`);
   }
 });
 

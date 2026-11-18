@@ -4,7 +4,7 @@ import "./newsletter.css";
 import { adminUiText, getLocale, t } from "../../../modules/i18n";
 import { AdminForbiddenError, getAdminProfile, getNewsletterCampaigns, getNewsletterSubscribers, hasPermission } from "../../modules/adminApi";
 import AdminSopButton from "../../modules/AdminSopButton";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import {
   createSubscriberAction,
   deleteCampaignAction,
@@ -78,18 +78,7 @@ export default async function NewsletterPage(
         }
       />
 
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.error}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
 
       <NewsletterTabs activeTab={activeTab} labels={tabLabels} />
 

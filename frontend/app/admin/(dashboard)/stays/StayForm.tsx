@@ -3,7 +3,7 @@ import type { Stay } from "../../../modules/api";
 import { getLocale, t } from "../../../modules/i18n";
 import { getAdminSites, getCurrentAdminSiteSlug } from "../../modules/adminApi";
 import { experienceOptions, serviceOptions, type SearchOpt } from "../../../modules/searchOptions";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import { ButtonLink, Page, PageHeader } from "../../ui";
 import StayEditor from "./StayEditor";
 
@@ -106,18 +106,7 @@ export default async function StayForm({
         description={subtitle}
         title={title}
       />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={flash?.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={errorMessage}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={flash?.notice} error={errorMessage} copy={copy.admin} />
       <StayEditor
         action={action}
         saveFailed={Boolean(flash?.error)}

@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
+import { useTransition } from "react";
+import { useErrorScreen } from "../../modules/useErrorScreen";
 import { ADMIN_FORBIDDEN_DIGEST, ADMIN_SITE_MISSING_DIGEST } from "./adminErrorDigests";
 import { clearAdminSiteCookie } from "./adminSiteCookie";
-
-type Locale = "en" | "zh";
 
 const labels = {
   en: {
@@ -32,16 +31,6 @@ const labels = {
   }
 } as const;
 
-function localeFromCookie(): Locale {
-  if (typeof document === "undefined") return "en";
-  return document.cookie
-    .split("; ")
-    .find((item) => item.startsWith("site-locale="))
-    ?.split("=")[1] === "zh"
-    ? "zh"
-    : "en";
-}
-
 export default function AdminErrorScreen({
   error,
   reset
@@ -49,12 +38,7 @@ export default function AdminErrorScreen({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
-  const [locale, setLocale] = useState<Locale>("en");
-  useEffect(() => { setLocale(localeFromCookie()); }, []);
+  const locale = useErrorScreen(error);
   const [clearing, startClearing] = useTransition();
   /* digest first, name/message second: only the digest survives a production
      build (see adminApi). The name checks keep dev behaviour identical. */

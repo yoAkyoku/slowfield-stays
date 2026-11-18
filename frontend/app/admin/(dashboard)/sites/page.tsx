@@ -1,7 +1,7 @@
 import { ExternalLink, Pencil, Plus } from "lucide-react";
 import { adminUiText, getLocale, t } from "../../../modules/i18n";
 import { getAdminProfile, getAdminSites, hasPermission } from "../../modules/adminApi";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import AdminSopButton from "../../modules/AdminSopButton";
 import AdminEmptyState from "../../modules/AdminEmptyState";
 import StatusBadge from "../../modules/StatusBadge";
@@ -65,8 +65,7 @@ export default async function AdminSitesPage(
         }
       />
 
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.notice} title={copy.admin.adminFlashSuccess} tone="success" />
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.error} title={copy.admin.adminFlashError} tone="error" />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
 
       {/* Root site card */}
       {rootSite && (

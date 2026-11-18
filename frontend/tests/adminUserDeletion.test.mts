@@ -84,9 +84,9 @@ test("a refusal reaches the operator as the server's own sentence", () => {
     assert.match(body.slice(0, 400), /adminJsonRequest\([\s\S]*?"POST",\s*"Admin user [a-z]+ failed"\)/, action);
   }
   // And the page still has somewhere to show it.
-  const flashes = jsxTags(PAGE).filter((tag) => tag.tag === "AdminFlash");
+  const flashes = jsxTags(PAGE).filter((tag) => tag.tag === "AdminFlashes");
   assert.ok(
-    flashes.some((f) => f.attrs.get("message") === "searchParams.error" && f.attrs.get("tone") === "error"),
+    flashes.some((f) => f.attrs.get("error") === "searchParams.error"),
     "帳號管理 has no error flash, so a refusal would arrive as a silent no-op",
   );
 });

@@ -7,7 +7,7 @@ import useMediaLibrary from "../../modules/useMediaLibrary";
 import MediaUploadRequirements from "../../modules/MediaUploadRequirements";
 import VideoThumbnail from "../../modules/VideoThumbnail";
 import { videoPosterUrl } from "../../../modules/media";
-import MediaPickerThumbnail from "../../modules/MediaPickerThumbnail";
+import { MediaPickerGrid } from "../../modules/MediaPickerThumbnail";
 import { Button, buttonClass, Dialog, Field, Input, SearchInput, Stack } from "../../ui";
 import "./stays.css";
 
@@ -104,21 +104,7 @@ export default function HeroImageField({
           {loadingLibrary ? <p className="meta">{labels.loadingLibrary}</p> : null}
           {!loadingLibrary && assets.length === 0 ? <p className="meta">{labels.noLibraryImages}</p> : null}
           {!loadingLibrary && filteredAssets.length ? (
-            <div className="media-inline-library-grid">
-              {filteredAssets.map((asset) => {
-                const assetUrl = asset.url ?? asset.file ?? "";
-                if (!assetUrl) return null;
-                return (
-                  <MediaPickerThumbnail
-                    key={asset.id}
-                    asset={asset}
-                    assetUrl={assetUrl}
-                    selected={url === assetUrl}
-                    onSelect={() => { setUrl(assetUrl); setShowLibrary(false); }}
-                  />
-                );
-              })}
-            </div>
+            <MediaPickerGrid assets={filteredAssets} selectedUrl={url} onPick={(assetUrl) => { setUrl(assetUrl); setShowLibrary(false); }} />
           ) : null}
           {!loadingLibrary && assets.length > 0 && filteredAssets.length === 0 && (
             <p className="meta" style={{ textAlign: "center", padding: "24px 0" }}>

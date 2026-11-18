@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
+import { useLocaleFields } from "../../modules/useLocaleFields";
 import type { Banner } from "../../../modules/api";
 import { resolveHeroScrollLabel } from "../../../modules/heroScrollLabel";
 import ConfirmSubmitButton from "../../modules/ConfirmSubmitButton";
@@ -139,20 +140,7 @@ export default function BannerFormEditor({
   });
   const zh = locale === "zh";
 
-  const getField = useCallback(
-    (field: string) => i18nFields[editLocale]?.[field] ?? "",
-    [i18nFields, editLocale],
-  );
-
-  const setField = useCallback(
-    (field: string, value: string) => {
-      setI18nFields((prev) => ({
-        ...prev,
-        [editLocale]: { ...(prev[editLocale] ?? {}), [field]: value },
-      }));
-    },
-    [editLocale],
-  );
+  const { getField, setField } = useLocaleFields(i18nFields, setI18nFields, editLocale);
 
   const primaryTitle = i18nFields[defaultLocale]?.title ?? "";
   const primarySubtitle = i18nFields[defaultLocale]?.subtitle ?? "";

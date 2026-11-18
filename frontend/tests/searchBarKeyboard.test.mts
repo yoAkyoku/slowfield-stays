@@ -27,35 +27,44 @@ const PATH = "app/modules/StaySearchBar.tsx";
  *  render creates a fresh closure over that render's `open` / `activeIndex` /
  *  `value`. Building it once and pressing twice would test a stale closure that
  *  never exists in the running component. */
-const FREE_VARS = [
-  "disabled", "items", "open", "activeIndex", "value",
-  "setOpen", "setActiveIndex", "setValue", "openWith", "commit",
-];
+/* The key logic is one function, listboxKey, that both fields hand their
+   own "where does a closed list open" and "what does Enter do" to. It is
+   lifted out and run as it is, and each field's own handler and helpers are
+   compiled around it, so the driver exercises the real code end to end. */
+const listboxKey = compileDeclarations(PATH, ["listboxKey"])({}).listboxKey as (
+  event: { key: string; preventDefault: () => void },
+  state: Record<string, unknown>,
+  openOn: (key: string) => number,
+  choose: (index: number) => void,
+) => void;
+
+type DriverState = { open: boolean; activeIndex: number; prevented: number };
+
+/** What useListbox binds for the handler on one render. */
+function bound(state: DriverState, count: number) {
+  const setActiveIndex = (v: number | ((i: number) => number)) => {
+    state.activeIndex = typeof v === "function" ? v(state.activeIndex) : v;
+  };
+  const openAt = (i: number) => { state.open = true; state.activeIndex = i; };
+  const close = () => { state.open = false; state.activeIndex = -1; };
+  const listboxKeyDown = (e: never, openOn: never, choose: never) =>
+    listboxKey(e, { open: state.open, count, activeIndex: state.activeIndex, setActiveIndex, openAt, close }, openOn, choose);
+  return { close, listboxKeyDown };
+}
 
 function driver(items: Array<{ value: string; label: string; clear?: boolean }>, value = "") {
   const state = { open: false, activeIndex: -1, value, prevented: 0 };
-  const build = compileDeclarations(PATH, ["onKeyDown"], FREE_VARS);
+  const build = compileDeclarations(PATH, ["selectedIndex", "commit", "onKeyDown"], [
+    "disabled", "items", "value", "setValue", "close", "listboxKeyDown",
+  ]);
 
   const press = (key: string) => {
     const { onKeyDown } = build({
       disabled: false,
       items,
-      open: state.open,
-      activeIndex: state.activeIndex,
       value: state.value,
-      setOpen: (v: boolean) => { state.open = v; },
-      setActiveIndex: (v: number | ((i: number) => number)) => {
-        state.activeIndex = typeof v === "function" ? v(state.activeIndex) : v;
-      },
       setValue: (v: string) => { state.value = v; },
-      openWith: (i: number) => { state.open = true; state.activeIndex = i; },
-      commit: (i: number) => {
-        const row = items[i];
-        if (!row) return;
-        state.value = row.value;
-        state.open = false;
-        state.activeIndex = -1;
-      },
+      ...bound(state, items.length),
     }) as { onKeyDown: (e: { key: string; preventDefault: () => void }) => void };
     onKeyDown({ key, preventDefault: () => { state.prevented += 1; } });
     return state;
@@ -169,24 +178,17 @@ test("the markup gives the button something to point at", () => {
 /* ── the 設施 multi-select ─────────────────────────────────────────────────── */
 
 function facilitiesDriver(options: Array<{ value: string; label: string }>) {
-  const state = { open: false, activeIndex: -1, selected: [] as string[] };
-  const build = compileDeclarations(PATH, ["onFacilitiesKeyDown"], [
-    "open", "activeIndex", "options", "setOpen", "setActiveIndex", "toggle",
-  ]);
+  const state = { open: false, activeIndex: -1, prevented: 0, selected: [] as string[] };
+  const build = compileDeclarations(PATH, ["onFacilitiesKeyDown"], ["options", "toggle", "listboxKeyDown"]);
   const press = (key: string) => {
     const { onFacilitiesKeyDown } = build({
-      open: state.open,
-      activeIndex: state.activeIndex,
       options,
-      setOpen: (v: boolean) => { state.open = v; },
-      setActiveIndex: (v: number | ((i: number) => number)) => {
-        state.activeIndex = typeof v === "function" ? v(state.activeIndex) : v;
-      },
       toggle: (v: string) => {
         state.selected = state.selected.includes(v)
           ? state.selected.filter((x) => x !== v)
           : [...state.selected, v];
       },
+      listboxKeyDown: bound(state, options.length).listboxKeyDown,
     }) as { onFacilitiesKeyDown: (e: { key: string; preventDefault: () => void }) => void };
     onFacilitiesKeyDown({ key, preventDefault: () => {} });
     return state;

@@ -65,6 +65,20 @@ export default function BlockContactInfo({ locale, config, siteLine, siteSlug }:
     : (zh ? "位置導覽" : "LOCATION GUIDE");
 
   // ── Classic layout: info column + side map, directions below ──
+  // The same map under either layout.
+  const map = mapSafe ? (
+    <div className="property-contact-map">
+      <MapEmbed
+        src={iframeSrc!}
+        title={title}
+        locale={locale}
+        brandName={mapBrandName}
+        brandMeta={mapBrandMeta}
+        externalUrl={mapsLink}
+      />
+    </div>
+  ) : null;
+
   if (layout === "classic") {
     return (
       <section className="property-contact section">
@@ -119,18 +133,7 @@ export default function BlockContactInfo({ locale, config, siteLine, siteSlug }:
               </div>
             )}
           </div>
-          {mapSafe && (
-            <div className="property-contact-map">
-              <MapEmbed
-                src={iframeSrc!}
-                title={title}
-                locale={locale}
-                brandName={mapBrandName}
-                brandMeta={mapBrandMeta}
-                externalUrl={mapsLink}
-              />
-            </div>
-          )}
+          {map}
         </div>
         <ContactOffices offices={offices} locale={locale} />
         {directions && (
@@ -212,18 +215,7 @@ export default function BlockContactInfo({ locale, config, siteLine, siteSlug }:
         )}
       </div>
 
-      {mapSafe && (
-        <div className="property-contact-map">
-          <MapEmbed
-            src={iframeSrc!}
-            title={title}
-            locale={locale}
-            brandName={mapBrandName}
-            brandMeta={mapBrandMeta}
-            externalUrl={mapsLink}
-          />
-        </div>
-      )}
+      {map}
       <ContactOffices offices={offices} locale={locale} />
     </section>
   );

@@ -12,7 +12,7 @@ import {
   TerminalSquare
 } from "lucide-react";
 import { getLocale } from "../../../modules/i18n";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import ReadinessReportActions from "./ReadinessReportActions";
 import {
   ActionTile,
@@ -595,18 +595,7 @@ export default async function AdminReadinessPage(
 
   return (
     <Page className="readiness-page">
-      <AdminFlash
-        closeLabel={locale === "zh" ? "關閉通知" : "Close notification"}
-        message={searchParams?.notice}
-        title={locale === "zh" ? "已儲存" : "Saved"}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={locale === "zh" ? "關閉通知" : "Close notification"}
-        message={searchParams?.error}
-        title={locale === "zh" ? "無法更新" : "Update failed"}
-        tone="error"
-      />
+      <AdminFlashes notice={searchParams?.notice} error={searchParams?.error} copy={{ adminFlashClose: locale === "zh" ? "關閉通知" : "Close notification", adminFlashSuccess: locale === "zh" ? "已儲存" : "Saved", adminFlashError: locale === "zh" ? "無法更新" : "Update failed" }} />
       <PageHeader
         eyebrow={c.kicker}
         title={c.title}

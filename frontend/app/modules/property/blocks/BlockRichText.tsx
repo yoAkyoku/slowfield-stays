@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { safeLineHeight, safeTypeLength } from "../../blockStyle";
 import type { Locale } from "../../i18n";
 import { cfgT , eyebrowT} from "../../tr";
+import { featureItems } from "../../featureItems";
 import { safeHtml, sanitizeRichHtml } from "../../safeHtml";
 import { safeCssColor } from "../../fontPresets";
 import FeatureIcon from "./FeatureIcon";
@@ -116,18 +117,7 @@ export default function BlockRichText({ locale, config }: { locale: Locale; conf
   // keep rendering them here (same markup as before) so that data doesn't
   // silently vanish for a site that hasn't been re-edited to use the new
   // block yet. New content should use BlockFeatureList instead.
-  const rawItems = Array.isArray(config.items) ? config.items : [];
-  const featureItems = rawItems
-    .map((raw) => {
-      const item = raw as Record<string, unknown>;
-      return {
-        icon: typeof item.icon === "string" ? item.icon : "",
-        iconColor: typeof item.icon_color === "string" ? item.icon_color : "",
-        label: cfgT(item, "label", locale),
-        detail: cfgT(item, "detail", locale),
-      };
-    })
-    .filter((item) => item.label);
+  const highlights = featureItems(config.items, locale);
 
   const textContent = (
     <>
@@ -156,9 +146,9 @@ export default function BlockRichText({ locale, config }: { locale: Locale; conf
           })}
         </div>
       )}
-      {featureItems.length > 0 && (
+      {highlights.length > 0 && (
         <div className="block-about-features">
-          {featureItems.map((item, i) => (
+          {highlights.map((item, i) => (
             <div key={i} className="block-about-feature">
               <FeatureIcon icon={item.icon} color={item.iconColor} />
               <div className="block-about-feature-info">

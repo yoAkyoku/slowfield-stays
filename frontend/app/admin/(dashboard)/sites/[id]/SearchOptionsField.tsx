@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSeededRows } from "./useSeededRows";
 import { buttonClass } from "../../../ui";
 
 /**
@@ -60,31 +60,12 @@ export default function SearchOptionsField({
 }) {
   const configured = Array.isArray(initial) && initial.length > 0;
 
-  const [rows, setRows] = useState<OptionRow[]>(() => {
+  const { rows, touched, edit, update, move, remove } = useSeededRows<OptionRow>(() => {
     if (configured) {
       return (initial as Record<string, unknown>[]).map((raw) => configuredRow(raw, defaults));
     }
     return defaults.map((d) => ({ ...d }));
   });
-
-  // Seeding the built-ins is a display convenience, not a decision to adopt
-  // them. This whole form posts every tab at once (the panels are hidden, not
-  // unmounted), so without this an admin who saves an unrelated tab would
-  // freeze a copy of today's defaults into the site and stop tracking future
-  // changes to the bundled list.
-  const [touched, setTouched] = useState(false);
-  const edit = (next: OptionRow[]) => { setTouched(true); setRows(next); };
-
-  const update = (i: number, patch: Partial<OptionRow>) =>
-    edit(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
-
-  const move = (i: number, delta: number) => {
-    const j = i + delta;
-    if (j < 0 || j >= rows.length) return;
-    const next = rows.slice();
-    [next[i], next[j]] = [next[j], next[i]];
-    edit(next);
-  };
 
   // Existing values stay stable when either display label is renamed. New rows
   // receive their initial Chinese label as the value only when first saved.
@@ -150,7 +131,7 @@ export default function SearchOptionsField({
             <button
               type="button"
               className="so-del"
-              onClick={() => edit(rows.filter((_, j) => j !== i))}
+              onClick={() => remove(i)}
               aria-label={zh ? "刪除" : "Remove"}
             >
               ✕

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSeededRows } from "./useSeededRows";
 import { buttonClass } from "../../../ui";
 
 /**
@@ -56,7 +57,7 @@ export default function GuestRangeField({
 
   const configured = Array.isArray(initial) && initial.length > 0;
 
-  const [rows, setRows] = useState<RangeRow[]>(() => {
+  const { rows, touched, edit, update, move, remove } = useSeededRows<RangeRow>(() => {
     if (configured) {
       return (initial as Record<string, unknown>[]).map((raw) => ({
         min: String(raw?.min ?? raw?.value ?? ""),
@@ -65,22 +66,6 @@ export default function GuestRangeField({
     }
     return defaults.map((d) => ({ ...d }));
   });
-
-  // See SearchOptionsField: seeding the built-ins must not silently become a
-  // decision to adopt them when an unrelated tab is saved.
-  const [touched, setTouched] = useState(false);
-  const edit = (next: RangeRow[]) => { setTouched(true); setRows(next); };
-
-  const update = (i: number, patch: Partial<RangeRow>) =>
-    edit(rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
-
-  const move = (i: number, delta: number) => {
-    const j = i + delta;
-    if (j < 0 || j >= rows.length) return;
-    const next = rows.slice();
-    [next[i], next[j]] = [next[j], next[i]];
-    edit(next);
-  };
 
   // A row with no floor has nothing to filter on, so it is not saved. min/max
   // are kept alongside the generated label so reopening the sheet shows the
@@ -153,7 +138,7 @@ export default function GuestRangeField({
             <button
               type="button"
               className="so-del"
-              onClick={() => edit(rows.filter((_, j) => j !== i))}
+              onClick={() => remove(i)}
               aria-label={zh ? "刪除" : "Remove"}
             >
               ✕

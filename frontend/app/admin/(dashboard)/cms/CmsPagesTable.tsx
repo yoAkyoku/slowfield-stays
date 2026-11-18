@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 import Link from "next/link";
-import StatusActions from "../../modules/StatusActions";
+import StatusActions, { rowStatusActions, type RowStatusActions } from "../../modules/StatusActions";
 import AdminEmptyState from "../../modules/AdminEmptyState";
 import { Badge, CellTitle, Chips, TableFrame } from "../../ui";
 import type { CmsPageIssueKey, CmsPageRow } from "./cmsConsoleData";
@@ -23,15 +23,7 @@ export default function CmsPagesTable({
   statusActionLabels,
   statusLabels
 }: {
-  actions: {
-    archive: (id: number) => (formData: FormData) => void;
-    deleteItem: (id: number) => (formData: FormData) => void;
-    purgeItem?: (id: number) => (formData: FormData) => void;
-    draft: (id: number) => (formData: FormData) => void;
-    publish: (id: number) => (formData: FormData) => void;
-    restoreItem: (id: number) => (formData: FormData) => void;
-    review: (id: number) => (formData: FormData) => void;
-  };
+  actions: RowStatusActions;
   /** Passed straight to StatusActions — see the note there. */
   canWrite?: boolean;
   /** The admin's chosen language, so the row reads in it. */
@@ -124,15 +116,7 @@ export default function CmsPagesTable({
                 <td>
                   <StatusActions
                     canWrite={canWrite}
-                    actions={{
-                      archive: actions.archive(page.id),
-                      deleteItem: actions.deleteItem(page.id),
-                      purgeItem: actions.purgeItem?.(page.id),
-                      draft: actions.draft(page.id),
-                      publish: actions.publish(page.id),
-                      restoreItem: actions.restoreItem(page.id),
-                      review: actions.review(page.id)
-                    }}
+                    actions={rowStatusActions(actions, page.id)}
                     /* Named per row. `statusActionLabels` is one object for the
                        whole table, so the sentence it carries is the same on
                        every line and names nothing — see the note in

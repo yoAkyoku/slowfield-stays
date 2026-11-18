@@ -42,10 +42,19 @@ function flat(path: string): string {
   return readCode(path).replace(/\s+/g, " ");
 }
 
-const CONTENT_ROUTES = [
-  "app/(site)/[category]/[identifier]/page.tsx",
-  "app/(site)/page/[identifier]/page.tsx",
-];
+/* The CMS detail routes (/page/x, /privacy/x, /{category}/x) all take their
+   metadata from entryMetadata, so the chain is pinned once, where it lives. */
+const CONTENT_ROUTES = ["app/modules/content/entryRoute.tsx"];
+
+test("every CMS detail route takes its metadata from entryMetadata", () => {
+  for (const route of [
+    "app/(site)/[category]/[identifier]/page.tsx",
+    "app/(site)/page/[identifier]/page.tsx",
+    "app/(site)/privacy/[identifier]/page.tsx",
+  ]) {
+    assert.match(flat(route), /return entryMetadata\(/, `${route} builds its own metadata again`);
+  }
+});
 
 for (const route of CONTENT_ROUTES) {
   test(`${route}: the meta title falls back to the page's own title`, () => {

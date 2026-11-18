@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-type Locale = "en" | "zh";
+import { useErrorScreen } from "../modules/useErrorScreen";
 
 const copy = {
   en: {
@@ -22,16 +20,6 @@ const copy = {
   }
 } as const;
 
-function localeFromCookie(): Locale {
-  if (typeof document === "undefined") return "en";
-  return document.cookie
-    .split("; ")
-    .find((item) => item.startsWith("site-locale="))
-    ?.split("=")[1] === "zh"
-    ? "zh"
-    : "en";
-}
-
 export default function SiteError({
   error,
   reset
@@ -39,12 +27,7 @@ export default function SiteError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
-  const [locale, setLocale] = useState<Locale>("en");
-  useEffect(() => { setLocale(localeFromCookie()); }, []);
+  const locale = useErrorScreen(error);
   const labels = copy[locale];
 
   return (

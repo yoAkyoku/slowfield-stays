@@ -3,7 +3,7 @@ import { ButtonLink, Page, PageHeader } from "../../ui";
 import "./cms.css";
 import { getAdminProfile, hasPermission, type AdminContentTag, type AdminPage, type AdminSite } from "../../modules/adminApi";
 import { adminUiText, getLocale, t } from "../../../modules/i18n";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import PageFormEditor from "./PageFormEditor";
 
 export default async function PageForm({
@@ -68,18 +68,7 @@ export default async function PageForm({
           </ButtonLink>
         }
       />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={flash?.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={errorMessage}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={flash?.notice} error={errorMessage} copy={copy.admin} />
       <PageFormEditor
         action={action}
         saveFailed={Boolean(flash?.error)}

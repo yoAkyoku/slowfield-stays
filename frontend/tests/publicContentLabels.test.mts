@@ -12,5 +12,5 @@ test("privacy detail fallback is localized without changing CMS text", () => {
   const src = readCode("app/(site)/privacy/[identifier]/page.tsx");
   assert.match(src, /locale === "zh" \? "隱私政策" : "Privacy"/);
   assert.match(src, /const pageTitle = trs\(page, "title", locale\)/);
-  assert.match(src, /const pageBody = trs\(page, "body", locale\)/);
+  assert.match(readCode("app/modules/content/entryRoute.tsx"), /trs\(page, "body", locale\)/);
 });

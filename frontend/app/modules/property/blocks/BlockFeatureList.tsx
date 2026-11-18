@@ -1,5 +1,6 @@
 import type { Locale } from "../../i18n";
 import { cfgT, eyebrowT } from "../../tr";
+import { featureItems } from "../../featureItems";
 import FeatureIcon from "./FeatureIcon";
 import SectionHeading from "../../SectionHeading";
 
@@ -22,18 +23,7 @@ export default function BlockFeatureList({ locale, config }: { locale: Locale; c
   const heading = cfgT(c, "heading", locale);
   const layout = c.layout === "grid" ? "grid" : "row";
 
-  const rawItems = Array.isArray(c.items) ? c.items : [];
-  const items = rawItems
-    .map((raw) => {
-      const item = raw as Record<string, unknown>;
-      return {
-        icon: typeof item.icon === "string" ? item.icon : "",
-        iconColor: typeof item.icon_color === "string" ? item.icon_color : "",
-        label: cfgT(item, "label", locale),
-        detail: cfgT(item, "detail", locale),
-      };
-    })
-    .filter((item) => item.label);
+  const items = featureItems(c.items, locale);
 
   if (!items.length) return null;
 

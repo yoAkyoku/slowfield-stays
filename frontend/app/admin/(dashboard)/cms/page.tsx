@@ -7,7 +7,7 @@ import { adminUiText, getLocale, t } from "../../../modules/i18n";
 import { getAdminBanners, getAdminPagesAll, getAdminProfile, getAdminSites, getCurrentAdminSiteSlug, hasPermission } from "../../modules/adminApi";
 import { siteContentTypesFromConfig } from "../../modules/siteContentTypes";
 import AdminSopButton from "../../modules/AdminSopButton";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import AdminTablePagination from "../../modules/AdminTablePagination";
 import { getPageSlice } from "../../modules/paginationUtils";
 import BulkSelectForm from "../../modules/BulkSelectForm";
@@ -327,6 +327,112 @@ export default async function AdminCmsPage(
     issues: localCopy.tabIssues
   };
 
+  /* The articles and banners tabs share their filter row, their bulk wording
+     and one table each, drawn inside the bulk form for an editor and bare for a
+     reader. The two branches each wrote the table out in full, and had already
+     come apart: the read-only banner list ignored the pagination below it. */
+  const filterActions = (tab: "pages" | "banners") => (
+    <>
+      <Button type="submit" variant="primary">{copy.admin.adminFilter}</Button>
+      <ButtonLink href={`/admin/cms?tab=${tab}&visibility=${encodeURIComponent(visibility)}`} variant="ghost">
+        {locale === "zh" ? "清除" : "Reset"}
+      </ButtonLink>
+    </>
+  );
+
+  const visibilityStatusSelects = (
+    <>
+      <Select aria-label={localCopy.filterVisibility} name="visibility" defaultValue={visibility}>
+        <option value="active">{visibilityLabels.active}</option>
+        <option value="deleted">{visibilityLabels.deleted}</option>
+        <option value="all">{visibilityLabels.all}</option>
+      </Select>
+      <Select aria-label={localCopy.filterStatus} name="status" defaultValue={status}>
+        <option value="">{localCopy.filterStatus}</option>
+        <option value="draft">{copy.admin.statusLabels.draft}</option>
+        <option value="review">{copy.admin.statusLabels.review}</option>
+        <option value="published">{copy.admin.statusLabels.published}</option>
+        <option value="archived">{copy.admin.statusLabels.archived}</option>
+      </Select>
+    </>
+  );
+
+  const bulkLabels = {
+    selectAll: copy.admin.bulkSelectAll,
+    selected: copy.admin.bulkSelected,
+    deleteSelected: isBin ? bulkPurgeLabels.deleteSelected : copy.admin.bulkDeleteSelected,
+    confirmTitle: isBin ? bulkPurgeLabels.confirmTitle : copy.admin.bulkConfirmTitle,
+    confirmText: isBin ? bulkPurgeLabels.confirmText : copy.admin.bulkConfirmText,
+    cancel: copy.admin.adminConfirmCancel
+  };
+
+  /** `writable` is the editor's table: row checkboxes and every write control. */
+  const pagesTable = (writable: boolean) => (
+    <CmsPagesTable
+      canWrite={writable}
+      locale={locale}
+      actions={{
+        archive: (id) => updatePageStatusAction.bind(null, String(id), "archived"),
+        deleteItem: (id) => deletePageAction.bind(null, String(id), hrefFor("pages")),
+        purgeItem: (id) => purgePageAction.bind(null, String(id), hrefFor("pages")),
+        draft: (id) => updatePageStatusAction.bind(null, String(id), "draft"),
+        publish: (id) => updatePageStatusAction.bind(null, String(id), "published"),
+        restoreItem: (id) => restorePageAction.bind(null, String(id), hrefFor("pages")),
+        review: (id) => updatePageStatusAction.bind(null, String(id), "review")
+      }}
+      categoryLabel={localCopy.pagesCategory}
+      emptyText={pagesEmptyText}
+      emptyTitle={pagesEmptyTitle}
+      issueLabels={localCopy.issueLabels}
+      labels={{
+        actions: localCopy.tableActions,
+        deletedLabel: deletedBadgeLabel,
+        issues: localCopy.pagesIssues,
+        slug: localCopy.pagesSlug,
+        status: localCopy.tableStatus,
+        title: localCopy.pagesTitleLabel
+      }}
+      pages={paginatedPages}
+      pageTypeLabel={pageTypeName}
+      showCheckbox={writable}
+      statusActionLabels={statusActionLabels}
+      statusLabels={copy.admin.statusLabels}
+    />
+  );
+
+  const bannersTable = (writable: boolean) => (
+    <CmsBannersTable
+      canWrite={writable}
+      locale={locale}
+      actions={{
+        archive: (id) => updateBannerStatusAction.bind(null, String(id), "archived"),
+        deleteItem: (id) => deleteBannerAction.bind(null, String(id), hrefFor("banners")),
+        purgeItem: (id) => purgeBannerAction.bind(null, String(id), hrefFor("banners")),
+        draft: (id) => updateBannerStatusAction.bind(null, String(id), "draft"),
+        publish: (id) => updateBannerStatusAction.bind(null, String(id), "published"),
+        restoreItem: (id) => restoreBannerAction.bind(null, String(id), hrefFor("banners")),
+        review: (id) => updateBannerStatusAction.bind(null, String(id), "review")
+      }}
+      banners={paginatedBanners}
+      ctaLabel={ctaPageName}
+      emptyText={bannersEmptyText}
+      emptyTitle={bannersEmptyTitle}
+      issueLabels={localCopy.issueLabels}
+      labels={{
+        actions: localCopy.tableActions,
+        deletedLabel: deletedBadgeLabel,
+        issues: localCopy.tableIssues,
+        order: localCopy.tableOrder,
+        status: localCopy.tableStatus,
+        thumbnail: localCopy.tableThumbnail,
+        title: localCopy.tableTitle
+      }}
+      showCheckbox={writable}
+      statusActionLabels={statusActionLabels}
+      statusLabels={copy.admin.statusLabels}
+    />
+  );
+
   return (
     <Page>
       <PageHeader
@@ -362,8 +468,7 @@ export default async function AdminCmsPage(
       <Stack gap="lg">
       <CmsTabs activeTab={activeTab} counts={tabCounts} hrefFor={hrefFor} labels={tabLabels} />
 
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.notice} title={copy.admin.adminFlashSuccess} tone="success" />
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.error} title={copy.admin.adminFlashError} tone="error" />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
 
       {activeTab === "overview" ? (
         <CmsOverviewPanel
@@ -387,29 +492,9 @@ export default async function AdminCmsPage(
         <>
           <form action="/admin/cms" key={JSON.stringify([visibility, status, category, query])}>
             <input type="hidden" name="tab" value="pages" />
-            <Toolbar
-              end={
-                <>
-                  <Button type="submit" variant="primary">{copy.admin.adminFilter}</Button>
-                  <ButtonLink href={`/admin/cms?tab=pages&visibility=${encodeURIComponent(visibility)}`} variant="ghost">
-                    {locale === "zh" ? "清除" : "Reset"}
-                  </ButtonLink>
-                </>
-              }
-            >
+            <Toolbar end={filterActions("pages")}>
             <SearchInput aria-label={localCopy.qPage} defaultValue={query} icon={<Search />} name="q" placeholder={localCopy.qPage} />
-            <Select aria-label={localCopy.filterVisibility} name="visibility" defaultValue={visibility}>
-              <option value="active">{visibilityLabels.active}</option>
-              <option value="deleted">{visibilityLabels.deleted}</option>
-              <option value="all">{visibilityLabels.all}</option>
-            </Select>
-            <Select aria-label={localCopy.filterStatus} name="status" defaultValue={status}>
-              <option value="">{localCopy.filterStatus}</option>
-              <option value="draft">{copy.admin.statusLabels.draft}</option>
-              <option value="review">{copy.admin.statusLabels.review}</option>
-              <option value="published">{copy.admin.statusLabels.published}</option>
-              <option value="archived">{copy.admin.statusLabels.archived}</option>
-            </Select>
+            {visibilityStatusSelects}
             <Select aria-label={localCopy.pagesCategory} name="category" defaultValue={category}>
               <option value="">{localCopy.pagesCategory}</option>
               {categories.map((item) => (
@@ -421,80 +506,11 @@ export default async function AdminCmsPage(
             </Toolbar>
           </form>
           {canWrite ? (
-            <BulkSelectForm
-              action={bulkDeletePagesAction}
-              labels={{
-                selectAll: copy.admin.bulkSelectAll,
-                selected: copy.admin.bulkSelected,
-                deleteSelected: isBin ? bulkPurgeLabels.deleteSelected : copy.admin.bulkDeleteSelected,
-                confirmTitle: isBin ? bulkPurgeLabels.confirmTitle : copy.admin.bulkConfirmTitle,
-                confirmText: isBin ? bulkPurgeLabels.confirmText : copy.admin.bulkConfirmText,
-                cancel: copy.admin.adminConfirmCancel
-              }}
-              purge={isBin}
-              returnTo={hrefFor("pages")}
-            >
-              <CmsPagesTable
-                canWrite
-                locale={locale}
-                actions={{
-                  archive: (id) => updatePageStatusAction.bind(null, String(id), "archived"),
-                  deleteItem: (id) => deletePageAction.bind(null, String(id), hrefFor("pages")),
-                  purgeItem: (id) => purgePageAction.bind(null, String(id), hrefFor("pages")),
-                  draft: (id) => updatePageStatusAction.bind(null, String(id), "draft"),
-                  publish: (id) => updatePageStatusAction.bind(null, String(id), "published"),
-                  restoreItem: (id) => restorePageAction.bind(null, String(id), hrefFor("pages")),
-                  review: (id) => updatePageStatusAction.bind(null, String(id), "review")
-                }}
-                categoryLabel={localCopy.pagesCategory}
-                emptyText={pagesEmptyText}
-                emptyTitle={pagesEmptyTitle}
-                issueLabels={localCopy.issueLabels}
-                labels={{
-                  actions: localCopy.tableActions,
-                  deletedLabel: deletedBadgeLabel,
-                  issues: localCopy.pagesIssues,
-                  slug: localCopy.pagesSlug,
-                  status: localCopy.tableStatus,
-                  title: localCopy.pagesTitleLabel
-                }}
-                pages={paginatedPages}
-                pageTypeLabel={pageTypeName}
-                showCheckbox
-                statusActionLabels={statusActionLabels}
-                statusLabels={copy.admin.statusLabels}
-              />
+            <BulkSelectForm action={bulkDeletePagesAction} labels={bulkLabels} purge={isBin} returnTo={hrefFor("pages")}>
+              {pagesTable(true)}
             </BulkSelectForm>
           ) : (
-            <CmsPagesTable
-              canWrite={false}
-              locale={locale}
-              actions={{
-                archive: (id) => updatePageStatusAction.bind(null, String(id), "archived"),
-                deleteItem: (id) => deletePageAction.bind(null, String(id), hrefFor("pages")),
-                purgeItem: (id) => purgePageAction.bind(null, String(id), hrefFor("pages")),
-                draft: (id) => updatePageStatusAction.bind(null, String(id), "draft"),
-                publish: (id) => updatePageStatusAction.bind(null, String(id), "published"),
-                restoreItem: (id) => restorePageAction.bind(null, String(id), hrefFor("pages")),
-                review: (id) => updatePageStatusAction.bind(null, String(id), "review")
-              }}
-              categoryLabel={localCopy.pagesCategory}
-              emptyText={pagesEmptyText}
-              emptyTitle={pagesEmptyTitle}
-              issueLabels={localCopy.issueLabels}
-              labels={{
-                actions: localCopy.tableActions,
-                deletedLabel: deletedBadgeLabel,
-                issues: localCopy.pagesIssues,
-                slug: localCopy.pagesSlug,
-                status: localCopy.tableStatus,
-                title: localCopy.pagesTitleLabel
-              }}
-              pages={paginatedPages}
-              pageTypeLabel={pageTypeName}
-              statusActionLabels={statusActionLabels}
-              statusLabels={copy.admin.statusLabels}
-            />
+            pagesTable(false)
           )}
           <AdminTablePagination pageSize={cmsPageSize} totalRows={filteredPages.length} />
         </>
@@ -504,106 +520,17 @@ export default async function AdminCmsPage(
         <>
           <form action="/admin/cms" key={JSON.stringify([visibility, status, category, query])}>
             <input type="hidden" name="tab" value="banners" />
-            <Toolbar
-              end={
-                <>
-                  <Button type="submit" variant="primary">{copy.admin.adminFilter}</Button>
-                  <ButtonLink href={`/admin/cms?tab=banners&visibility=${encodeURIComponent(visibility)}`} variant="ghost">
-                    {locale === "zh" ? "清除" : "Reset"}
-                  </ButtonLink>
-                </>
-              }
-            >
+            <Toolbar end={filterActions("banners")}>
             <SearchInput aria-label={localCopy.qBanner} defaultValue={query} icon={<Search />} name="q" placeholder={localCopy.qBanner} />
-            <Select aria-label={localCopy.filterVisibility} name="visibility" defaultValue={visibility}>
-              <option value="active">{visibilityLabels.active}</option>
-              <option value="deleted">{visibilityLabels.deleted}</option>
-              <option value="all">{visibilityLabels.all}</option>
-            </Select>
-            <Select aria-label={localCopy.filterStatus} name="status" defaultValue={status}>
-              <option value="">{localCopy.filterStatus}</option>
-              <option value="draft">{copy.admin.statusLabels.draft}</option>
-              <option value="review">{copy.admin.statusLabels.review}</option>
-              <option value="published">{copy.admin.statusLabels.published}</option>
-              <option value="archived">{copy.admin.statusLabels.archived}</option>
-            </Select>
+            {visibilityStatusSelects}
             </Toolbar>
           </form>
           {canWrite ? (
-            <BulkSelectForm
-              action={bulkDeleteBannersAction}
-              labels={{
-                selectAll: copy.admin.bulkSelectAll,
-                selected: copy.admin.bulkSelected,
-                deleteSelected: isBin ? bulkPurgeLabels.deleteSelected : copy.admin.bulkDeleteSelected,
-                confirmTitle: isBin ? bulkPurgeLabels.confirmTitle : copy.admin.bulkConfirmTitle,
-                confirmText: isBin ? bulkPurgeLabels.confirmText : copy.admin.bulkConfirmText,
-                cancel: copy.admin.adminConfirmCancel
-              }}
-              purge={isBin}
-              returnTo={hrefFor("banners")}
-            >
-              <CmsBannersTable
-                canWrite
-                locale={locale}
-                actions={{
-                  archive: (id) => updateBannerStatusAction.bind(null, String(id), "archived"),
-                  deleteItem: (id) => deleteBannerAction.bind(null, String(id), hrefFor("banners")),
-                  purgeItem: (id) => purgeBannerAction.bind(null, String(id), hrefFor("banners")),
-                  draft: (id) => updateBannerStatusAction.bind(null, String(id), "draft"),
-                  publish: (id) => updateBannerStatusAction.bind(null, String(id), "published"),
-                  restoreItem: (id) => restoreBannerAction.bind(null, String(id), hrefFor("banners")),
-                  review: (id) => updateBannerStatusAction.bind(null, String(id), "review")
-                }}
-                banners={paginatedBanners}
-                ctaLabel={ctaPageName}
-                emptyText={bannersEmptyText}
-                emptyTitle={bannersEmptyTitle}
-                issueLabels={localCopy.issueLabels}
-                labels={{
-                  actions: localCopy.tableActions,
-                  deletedLabel: deletedBadgeLabel,
-                  issues: localCopy.tableIssues,
-                  order: localCopy.tableOrder,
-                  status: localCopy.tableStatus,
-                  thumbnail: localCopy.tableThumbnail,
-                  title: localCopy.tableTitle
-                }}
-                showCheckbox
-                statusActionLabels={statusActionLabels}
-                statusLabels={copy.admin.statusLabels}
-              />
+            <BulkSelectForm action={bulkDeleteBannersAction} labels={bulkLabels} purge={isBin} returnTo={hrefFor("banners")}>
+              {bannersTable(true)}
             </BulkSelectForm>
           ) : (
-            <CmsBannersTable
-              canWrite={false}
-              locale={locale}
-              actions={{
-                archive: (id) => updateBannerStatusAction.bind(null, String(id), "archived"),
-                deleteItem: (id) => deleteBannerAction.bind(null, String(id), hrefFor("banners")),
-                purgeItem: (id) => purgeBannerAction.bind(null, String(id), hrefFor("banners")),
-                draft: (id) => updateBannerStatusAction.bind(null, String(id), "draft"),
-                publish: (id) => updateBannerStatusAction.bind(null, String(id), "published"),
-                restoreItem: (id) => restoreBannerAction.bind(null, String(id), hrefFor("banners")),
-                review: (id) => updateBannerStatusAction.bind(null, String(id), "review")
-              }}
-              banners={filteredBanners}
-              ctaLabel={ctaPageName}
-              emptyText={bannersEmptyText}
-              emptyTitle={bannersEmptyTitle}
-              issueLabels={localCopy.issueLabels}
-              labels={{
-                actions: localCopy.tableActions,
-                deletedLabel: deletedBadgeLabel,
-                issues: localCopy.tableIssues,
-                order: localCopy.tableOrder,
-                status: localCopy.tableStatus,
-                thumbnail: localCopy.tableThumbnail,
-                title: localCopy.tableTitle
-              }}
-              statusActionLabels={statusActionLabels}
-              statusLabels={copy.admin.statusLabels}
-            />
+            bannersTable(false)
           )}
           <AdminTablePagination pageSize={cmsPageSize} totalRows={filteredBanners.length} />
         </>

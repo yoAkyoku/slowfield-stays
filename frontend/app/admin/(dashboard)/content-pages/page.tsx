@@ -6,7 +6,7 @@ import { listingCategoriesForPage } from "../../../modules/contentRoutes";
 import ListingCategoriesModal from "./ListingCategoriesModal";
 import CreateWebsitePageModal from "./CreateWebsitePageModal";
 import { listingPublicHref } from "../../modules/listingPublicHref";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import AdminEmptyState from "../../modules/AdminEmptyState";
 import { ButtonLink, Callout, Card, CellTitle, RowActions, Page, PageHeader, Stack, TableFrame } from "../../ui";
 import "../cms/cms.css";
@@ -28,7 +28,7 @@ export default async function WebsitePages({searchParams}: {searchParams: Promis
    actions={<>{site && canView && <ButtonLink href={`/admin/sites/${site.id}`}>{zh ? "導覽與網站設定" : "Navigation and site settings"}</ButtonLink>}{canEdit && <CreateWebsitePageModal categories={categories} initialCategory={requestedCategory?.key} zh={zh}/>}</>}
   />
   <Stack gap="lg">
-  <AdminFlash message={query.notice} title={zh ? "已完成" : "Done"} tone="success" closeLabel={zh ? "關閉" : "Close"}/><AdminFlash message={query.error} title={zh ? "未完成" : "Error"} tone="error" closeLabel={zh ? "關閉" : "Close"}/>
+  <AdminFlashes notice={query.notice} error={query.error} copy={{ adminFlashClose: zh ? "關閉" : "Close", adminFlashSuccess: zh ? "已完成" : "Done", adminFlashError: zh ? "未完成" : "Error" }} />
   {requestedCategory && <Callout tone="info" title={zh ? `為「${requestedCategory.label.zh}」設定前台入口` : `Set an entry point for ${requestedCategory.label.en || requestedCategory.label.zh}`}>{canEdit ? (zh ? "可在下方既有頁面按「設定收錄分類」，或按「新增頁面」建立文章列表。" : "Choose categories on an existing page below, or add an article listing page.") : (zh ? "目前帳號僅能查看，請網站管理者設定收錄分類。" : "This account can only view pages. Ask a website manager to configure included categories.")}</Callout>}
   {savedPage && site && <div role="status"><Callout tone="success" title={zh ? `已儲存「${pageLabel(savedPage,config[savedPage].label,zh ? "zh" : "en")}」` : "Page saved"} actions={<>{canView && <ButtonLink size="sm" href={`/admin/sites/${site.id}/pages/${encodeURIComponent(savedPage)}`}>{zh ? "接著編輯版面" : "Edit layout"}</ButtonLink>}<ButtonLink size="sm" variant="ghost" target="_blank" rel="noopener noreferrer" href={listingPublicHref(site,savedPage)}>{zh ? "查看前台（新分頁）" : "View public page (new tab)"}</ButtonLink></>}/></div>}
   <Card flush title={zh ? `共 ${pages.length} 個網站頁面` : `${pages.length} website pages`} description={zh ? "在表格內左右滑動查看更多欄位，頁面名稱固定；分類設定在右側操作。" : "Scroll inside the table for more columns. Page names stay visible; category settings are on the right."}>

@@ -10,7 +10,7 @@ import {
   hasPermission,
   type AdminContentTag,
 } from "../../../modules/adminApi";
-import AdminFlash from "../../../modules/AdminFlash";
+import { AdminFlashes } from "../../../modules/AdminFlash";
 import { createContentTagAction } from "../../../modules/cmsActions";
 import { ContentTagCreateModal, ContentTagEditModal } from "./ContentTagModals";
 import TagUsageModal from "./TagUsageModal";
@@ -127,8 +127,7 @@ export default async function AdminContentTagsPage(
       />
 
       <Stack gap="lg">
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.notice} title={copy.admin.adminFlashSuccess} tone="success" />
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.error} title={copy.admin.adminFlashError} tone="error" />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
 
       <section aria-label={zh ? "標籤搜尋與篩選" : "Tag search and filters"}>
         <form method="get" key={JSON.stringify([query, status, usageFilter])}>

@@ -1,6 +1,36 @@
 import { ButtonLink, RowActions, buttonClass } from "../ui";
 import ConfirmSubmitButton from "./ConfirmSubmitButton";
 
+type FormAction = (formData: FormData) => void;
+
+/** The server actions one row's controls submit to. */
+export type StatusActionSet = {
+  archive: FormAction;
+  deleteItem?: FormAction;
+  purgeItem?: FormAction;
+  draft: FormAction;
+  publish: FormAction;
+  restoreItem?: FormAction;
+  review: FormAction;
+};
+
+/** The same set as a table receives it: one factory per action, given the row id. */
+export type RowStatusActions = { [K in keyof StatusActionSet]: (id: number) => FormAction };
+
+/** Bind a table's action factories to one row. The banner and article tables
+ *  each spelled this out key by key. */
+export function rowStatusActions(actions: RowStatusActions, id: number): StatusActionSet {
+  return {
+    archive: actions.archive(id),
+    deleteItem: actions.deleteItem?.(id),
+    purgeItem: actions.purgeItem?.(id),
+    draft: actions.draft(id),
+    publish: actions.publish(id),
+    restoreItem: actions.restoreItem?.(id),
+    review: actions.review(id),
+  };
+}
+
 export default function StatusActions({
   actions,
   canWrite = true,
@@ -12,15 +42,7 @@ export default function StatusActions({
   previewHref,
   status
 }: {
-  actions: {
-    archive: (formData: FormData) => void;
-    deleteItem?: (formData: FormData) => void;
-    purgeItem?: (formData: FormData) => void;
-    draft: (formData: FormData) => void;
-    publish: (formData: FormData) => void;
-    restoreItem?: (formData: FormData) => void;
-    review: (formData: FormData) => void;
-  };
+  actions: StatusActionSet;
   /**
    * False for a reader. Every control below the two links performs a write the
    * API will refuse with a 403, so showing them offers a dead end — and one of

@@ -3,7 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { ButtonLink, Page, PageHeader } from "../../../../../ui";
 import { notFound } from "next/navigation";
 import { AdminForbiddenError, getAdminContentTags, getAdminProfile, getAdminSite, hasPermission } from "../../../../../modules/adminApi";
-import AdminFlash from "../../../../../modules/AdminFlash";
+import { AdminFlashes } from "../../../../../modules/AdminFlash";
 import { getLocale, t } from "../../../../../../modules/i18n";
 import { updatePropertyPageAction } from "../../../../../modules/propertyPagesActions";
 import PropertyBlockEditor from "./PropertyBlockEditor";
@@ -155,18 +155,7 @@ export default async function PropertyPageEditorPage(
         }
       />
 
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.error}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
 
       <AdminSiteProvider slug={site.slug} permissions={profile.permissions}>
       <PropertyBlockEditor

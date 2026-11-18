@@ -2,33 +2,14 @@ import { contentTypeCatalogue } from "../../../modules/contentTypes";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentSite, getPages, resolvePage } from "../../../modules/api";
-import { contentIndexHref, listingIndexHref } from "../../../modules/contentRoutes";
+import { listingIndexHref } from "../../../modules/contentRoutes";
 import { getLocale, publicUiText } from "../../../modules/i18n";
-import { tagsT, trs } from "../../../modules/tr";
-import JsonLd from "../../../modules/JsonLd";
 import ArticleDetail from "../../../modules/content/ArticleDetail";
-import { buildMetadata, cmsEntrySeo, excerpt, seoTextForLocale, siteUrl } from "../../../modules/seo";
+import { EntryJsonLd, entryMetadata, redirectToCanonical } from "../../../modules/content/entryRoute";
 
 export async function generateMetadata(props: { params: Promise<{ category: string; identifier: string }> }) {
   const params = await props.params;
-  const locale = await getLocale();
-  const [site, page] = await Promise.all([getCurrentSite(), resolvePage(params.category, params.identifier)]);
-  if (!page) {
-    return buildMetadata({ title: publicUiText(locale).notFound, noIndex: true, path: `/${params.category}/${params.identifier}`, site });
-  }
-  const seo = cmsEntrySeo(page, locale);
-  return buildMetadata({
-    title: seo.title || seoTextForLocale(trs(page, "title", locale), locale) || (locale === "zh" ? "文章" : "Article"),
-    description: seo.description
-      || seoTextForLocale(trs(page, "summary", locale), locale)
-      || seoTextForLocale(excerpt(trs(page, "body", locale)), locale),
-    image: seo.image || page.cover_image_url,
-    canonical: seo.canonical,
-        publishedTime: page.published_at ?? undefined,
-    path: page.public_path || `/${params.category}/${page.slug || page.id}`,
-    site,
-    type: "article"
-  });
+  return entryMetadata(params.category, params.identifier, { zh: "文章", en: "Article" });
 }
 
 export default async function CmsPublicPage(props: { params: Promise<{ category: string; identifier: string }> }) {
@@ -45,6 +26,7 @@ export default async function CmsPublicPage(props: { params: Promise<{ category:
     getCurrentSite(),
   ]);
   if (!page) notFound();
+  const canonicalPath = redirectToCanonical(page, params.category, params.identifier);
   const locale = await getLocale();
   const ui = publicUiText(locale);
   const contentCopy = ui.content[page.content_type as keyof typeof ui.content];
@@ -52,27 +34,10 @@ export default async function CmsPublicPage(props: { params: Promise<{ category:
   const backHref = listingIndexHref(site, page.content_type);
   // Every entry in this category, for prev / next / related on the article.
   const siblings = await getPages(page.content_type);
-  const canonicalPath = page.public_path || `/${params.category}/${page.slug || page.id}`;
-  const requestedPath = `/${params.category}/${params.identifier}`;
-  const pageTitle = trs(page, "title", locale);
-  const pageSummary = trs(page, "summary", locale);
-
-  if (page.slug && requestedPath !== canonicalPath) {
-    redirect(canonicalPath);
-  }
 
   return (
     <main className="content-detail-page">
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "Article",
-          headline: seoTextForLocale(pageTitle, locale) || undefined,
-          description: seoTextForLocale(pageSummary, locale) || undefined,
-          image: page.cover_image_url ? siteUrl(page.cover_image_url, site) : undefined,
-          url: siteUrl(canonicalPath, site)
-        }}
-      />
+      <EntryJsonLd page={page} locale={locale} site={site} path={canonicalPath} />
       <ArticleDetail
         page={page}
         locale={locale}

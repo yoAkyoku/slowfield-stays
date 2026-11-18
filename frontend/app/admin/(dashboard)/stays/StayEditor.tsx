@@ -13,6 +13,7 @@ import {
   X
 } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useLocaleFields } from "../../modules/useLocaleFields";
 import { draftJson, useFormDraft } from "../../modules/useFormDraft";
 import type { Stay } from "../../../modules/api";
 import HeroImageField from "./HeroImageField";
@@ -120,13 +121,7 @@ export default function StayEditor({
     };
   });
 
-  const getField = useCallback((field: string) => i18nFields[editLocale]?.[field] ?? "", [i18nFields, editLocale]);
-  const setField = useCallback((field: string, value: string) => {
-    setI18nFields((prev) => ({
-      ...prev,
-      [editLocale]: { ...(prev[editLocale] ?? {}), [field]: value },
-    }));
-  }, [editLocale]);
+  const { getField, setField } = useLocaleFields(i18nFields, setI18nFields, editLocale);
 
   /* ── Primary values (default locale, used for hidden inputs) ── */
   const name = i18nFields[defaultLocale]?.name ?? "";

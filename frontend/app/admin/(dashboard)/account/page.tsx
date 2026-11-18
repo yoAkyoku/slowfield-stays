@@ -1,11 +1,12 @@
 import { getLocale, t } from "../../../modules/i18n";
 import { getAdminProfile } from "../../modules/adminApi";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import { changePasswordAction } from "../../modules/accountActions";
 import SubmitButton from "../../modules/SubmitButton";
 import { Badge, Card, DescriptionList, Field, FormActions, Grid, Input, Page, PageHeader, Stack, buttonClass } from "../../ui";
 import AccountPermissionModal from "./AccountPermissionModal";
 import { labelFromMap } from "../../modules/adminUtils";
+import { grantedPermissionGroups } from "../../modules/permissionGroups";
 
 /* Permission keys keep the plain lookup: an unlisted one is a bug in the
    table, and dressing `sites:read` up as "Sites:read" would hide it. Roles go
@@ -26,18 +27,7 @@ export default async function AdminAccountPage(
   return (
     <Page>
       <PageHeader title={copy.admin.adminAccountTitle} description={copy.admin.adminAccountText} />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.error}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
       <Grid cols={2}>
         {/* Profile */}
         <Card title={profile.name || profile.email} description={copy.admin.adminProfile}>
@@ -51,31 +41,7 @@ export default async function AdminAccountPage(
                   label: copy.admin.adminPermissions,
                   value: (
                     <AccountPermissionModal
-                      groups={(() => {
-                        const permSet = new Set(profile.permissions);
-                        const hasAll = permSet.has("*");
-                        return [
-                          { label: zh ? "群站管理" : "Site Network", permissions: ["sites:read", "sites:write"] },
-                          { label: zh ? "全域帳號" : "Global Users", permissions: ["global_users:read", "global_users:write"] },
-                          { label: zh ? "角色管理" : "Roles", permissions: ["roles:read", "roles:write"] },
-                          { label: zh ? "住宿" : "Stays", permissions: ["stays:read", "stays:write"] },
-                          { label: zh ? "內容" : "Content", permissions: ["cms:read", "cms:write", "media:read", "media:write"] },
-                          { label: zh ? "表單聯絡" : "Form contacts", permissions: ["inquiries:read", "inquiries:write"] },
-                          { label: zh ? "電子報" : "Newsletter", permissions: ["newsletter:read", "newsletter:write"] },
-                          { label: zh ? "站點帳號" : "Site Users", permissions: ["site_users:read", "site_users:write"] }
-                        ]
-                          .map((g) => ({
-                            label: g.label,
-                            permissions: g.permissions
-                              .filter((p) => hasAll || permSet.has(p))
-                              .map((p) => ({
-                                key: p,
-                                label: labelFromMap(copy.admin.permissionLabels, p),
-                                desc: labelFromMap(copy.admin.permissionDescriptions, p)
-                              }))
-                          }))
-                          .filter((g) => g.permissions.length > 0);
-                      })()}
+                      groups={grantedPermissionGroups(zh, profile.permissions, copy.admin.permissionLabels, copy.admin.permissionDescriptions)}
                       labels={{
                         close: zh ? "關閉權限視窗" : "Close permissions",
                         title: copy.admin.adminPermissions,

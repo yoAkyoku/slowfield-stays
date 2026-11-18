@@ -542,20 +542,5 @@ function parseInquiryTypes(raw: FormDataEntryValue | null, previous: unknown): u
   // the stored list alone"; an empty one means the editor was there and was
   // cleared, which is a real instruction to fall back to the built-in list.
   if (raw === null) return previous ?? [];
-  const text = String(raw).trim();
-  if (!text) return [];
-  try {
-    const parsed = JSON.parse(text) as unknown;
-    if (!Array.isArray(parsed)) return previous ?? [];
-    return parsed.filter((item) => {
-      const o = (item ?? {}) as Record<string, unknown>;
-      const label = o.label as Record<string, string> | string | undefined;
-      const hasLabel = typeof label === "string"
-        ? label.trim().length > 0
-        : Boolean(label && (label.zh?.trim() || label.en?.trim()));
-      return hasLabel && INQUIRY_SOURCES.some(([code]: [string, string, string]) => code === String(o.value ?? ""));
-    });
-  } catch {
-    return previous ?? [];
-  }
+  return parseLabelledList(raw, previous, (value) => INQUIRY_SOURCES.some(([code]: [string, string, string]) => code === value));
 }

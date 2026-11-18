@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
+import { useLocaleFields } from "../../../modules/useLocaleFields";
 import { ArrowLeft } from "lucide-react";
 import AdminFlash from "../../../modules/AdminFlash";
 import { createSiteAction } from "../../../modules/siteActions";
@@ -38,20 +39,7 @@ export default function NewSiteForm({
   const currentCopy = editLocale === "zh" ? copyZh : copyEn;
   const isZh = editLocale === "zh";
 
-  const getField = useCallback(
-    (field: string) => i18nFields[editLocale]?.[field] ?? "",
-    [i18nFields, editLocale],
-  );
-
-  const setField = useCallback(
-    (field: string, value: string) => {
-      setI18nFields((prev) => ({
-        ...prev,
-        [editLocale]: { ...(prev[editLocale] ?? {}), [field]: value },
-      }));
-    },
-    [editLocale],
-  );
+  const { getField, setField } = useLocaleFields(i18nFields, setI18nFields, editLocale);
 
   // Auto-detect root site so child sites are linked correctly
   const rootSite = sites.find((s: any) => !s.parent_site_id);

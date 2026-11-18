@@ -1,5 +1,5 @@
 import { AdminForbiddenError, getAdminContentTags, getAdminProfile, getAdminSites, getCurrentAdminSiteSlug, hasPermission } from "../../modules/adminApi";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import AdminSopButton from "../../modules/AdminSopButton";
 import { getLocale, t } from "../../../modules/i18n";
 import { updateHomepageAction } from "../../modules/homepageActions";
@@ -70,18 +70,7 @@ export default async function HomepageEditorPage(
         }
         title={zh ? "首頁版塊編輯" : "Homepage Blocks"}
       />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.error}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
       {site ? (
         <HomepageBlockEditor
           action={updateHomepageAction}

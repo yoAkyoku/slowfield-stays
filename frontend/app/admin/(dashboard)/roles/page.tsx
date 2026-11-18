@@ -1,6 +1,6 @@
 import { getLocale, t } from "../../../modules/i18n";
 import { getAdminPermissions, getAdminProfile, getAdminRoles, hasPermission } from "../../modules/adminApi";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import AdminSopButton from "../../modules/AdminSopButton";
 import { ShieldAlert } from "lucide-react";
 import { Callout, Page, PageHeader } from "../../ui";
@@ -38,8 +38,7 @@ export default async function AdminRolesPage(
           </AdminSopButton>
         }
       />
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.notice} title={copy.admin.adminFlashSuccess} tone="success" />
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.error} title={copy.admin.adminFlashError} tone="error" />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
       <Callout tone="warning" icon={<ShieldAlert />} title={copy.admin.rolesRiskTitle}>
         {copy.admin.rolesRiskText}
       </Callout>

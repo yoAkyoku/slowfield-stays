@@ -13,8 +13,9 @@ function parseBodyBlocks(formData: FormData) {
   }
 }
 
-export async function createBannerAction(formData: FormData) {
-  const result = await adminJsonDataRequest<{ id: number; status: string }>("/cms/banners", {
+/** What the banner form sends, the same on create and on save. */
+function bannerPayload(formData: FormData) {
+  return {
     title: String(formData.get("title") ?? ""),
     subtitle: String(formData.get("subtitle") ?? ""),
     image_url: String(formData.get("image_url") ?? ""),
@@ -23,7 +24,11 @@ export async function createBannerAction(formData: FormData) {
     sort_order: Number(formData.get("sort_order") ?? 0),
     status: String(formData.get("status") ?? "draft"),
     translations: parseTranslations(formData)
-  });
+  };
+}
+
+export async function createBannerAction(formData: FormData) {
+  const result = await adminJsonDataRequest<{ id: number; status: string }>("/cms/banners", bannerPayload(formData));
   if (!result.ok) formRedirect(result, formData, "/admin/cms");
   const banner = result.data;
   if (!banner?.id) stampedRedirect("/admin/cms/banners/new?error=Banner+create+failed");
@@ -31,20 +36,7 @@ export async function createBannerAction(formData: FormData) {
 }
 
 export async function updateBannerAction(id: string, formData: FormData) {
-  const result = await adminJsonRequest(
-    `/cms/banners/${id}`,
-    {
-      title: String(formData.get("title") ?? ""),
-      subtitle: String(formData.get("subtitle") ?? ""),
-      image_url: String(formData.get("image_url") ?? ""),
-      cta_label: String(formData.get("cta_label") ?? "Explore"),
-      cta_href: String(formData.get("cta_href") ?? "/stays"),
-      sort_order: Number(formData.get("sort_order") ?? 0),
-      status: String(formData.get("status") ?? "draft"),
-      translations: parseTranslations(formData)
-    },
-    "PUT"
-  );
+  const result = await adminJsonRequest(`/cms/banners/${id}`, bannerPayload(formData), "PUT");
   formRedirect(result, formData, "/admin/cms");
 }
 
@@ -63,8 +55,9 @@ export async function restoreBannerAction(id: string, returnTo = "/admin/cms?vis
   actionRedirect(result, returnTo);
 }
 
-export async function createPageAction(formData: FormData) {
-  const result = await adminJsonDataRequest<{ id: number; slug: string | null; status: string }>("/cms/pages", {
+/** What the page form sends, the same on create and on save. */
+function pagePayload(formData: FormData) {
+  return {
     slug: String(formData.get("slug") ?? "").trim() || null,
     title: String(formData.get("title") ?? ""),
     summary: String(formData.get("summary") ?? ""),
@@ -94,7 +87,11 @@ export async function createPageAction(formData: FormData) {
       canonical: String(formData.get("seo_canonical") ?? "")
     },
     translations: parseTranslations(formData)
-  });
+  };
+}
+
+export async function createPageAction(formData: FormData) {
+  const result = await adminJsonDataRequest<{ id: number; slug: string | null; status: string }>("/cms/pages", pagePayload(formData));
   if (!result.ok) formRedirect(result, formData, "/admin/cms");
   const page = result.data;
   if (!page?.id) stampedRedirect("/admin/cms/pages/new?error=Page+create+failed");
@@ -104,41 +101,7 @@ export async function createPageAction(formData: FormData) {
 }
 
 export async function updatePageAction(id: string, formData: FormData) {
-  const result = await adminJsonRequest(
-    `/cms/pages/${id}`,
-    {
-      slug: String(formData.get("slug") ?? "").trim() || null,
-      title: String(formData.get("title") ?? ""),
-      summary: String(formData.get("summary") ?? ""),
-      body: String(formData.get("body") ?? ""),
-      body_blocks: parseBodyBlocks(formData),
-      content_type: String(formData.get("content_type") ?? "page"),
-      categories: [
-        String(formData.get("content_type") ?? "page"),
-        ...formData.getAll("categories").map(String),
-      ],
-      layout: String(formData.get("layout") ?? "page"),
-      cover_image_url: String(formData.get("cover_image_url") ?? ""),
-      sort_order: Number(formData.get("sort_order") ?? 0),
-      tags: String(formData.get("tags") ?? "")
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      related_stay_ids: String(formData.get("related_stay_ids") ?? "")
-        .split(",")
-        .map((item) => Number(item.trim()))
-        .filter(Boolean),
-      status: String(formData.get("status") ?? "draft"),
-      seo: {
-        title: String(formData.get("seo_title") ?? ""),
-        description: String(formData.get("seo_description") ?? ""),
-        og_image: String(formData.get("seo_og_image") ?? ""),
-        canonical: String(formData.get("seo_canonical") ?? "")
-      },
-      translations: parseTranslations(formData)
-    },
-    "PUT"
-  );
+  const result = await adminJsonRequest(`/cms/pages/${id}`, pagePayload(formData), "PUT");
   formRedirect(result, formData, "/admin/cms");
 }
 

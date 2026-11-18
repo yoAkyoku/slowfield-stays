@@ -4,6 +4,7 @@ import { articleListingLocations } from "../../modules/articlePlacement";
 
 import { Eye } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocaleFields } from "../../modules/useLocaleFields";
 import type { AdminContentTag, AdminPage, AdminSite } from "../../modules/adminApi";
 import { articleCollectionPlacements } from "../../modules/articlePlacement";
 import ConfirmSubmitButton from "../../modules/ConfirmSubmitButton";
@@ -397,20 +398,7 @@ export default function PageFormEditor({
     }
   }, [draftKey, submissionFields]);
 
-  const getField = useCallback(
-    (field: string) => i18nFields[editLocale]?.[field] ?? "",
-    [i18nFields, editLocale],
-  );
-
-  const setField = useCallback(
-    (field: string, value: string) => {
-      setI18nFields((prev) => ({
-        ...prev,
-        [editLocale]: { ...(prev[editLocale] ?? {}), [field]: value },
-      }));
-    },
-    [editLocale],
-  );
+  const { getField, setField } = useLocaleFields(i18nFields, setI18nFields, editLocale);
 
   // Select the appropriate copy and ui based on editLocale
   const currentCopy = editLocale === "zh" ? copyZh : copyEn;

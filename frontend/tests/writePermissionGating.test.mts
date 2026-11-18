@@ -59,14 +59,14 @@ test("the status transitions are gated too, not just the deletes", () => {
 });
 
 test("the CMS read-only branch declares itself read-only", () => {
-  // Both tables render twice, once per branch. A new instance that omits
-  // canWrite would default to true and reopen this.
+  /* Each table is written once, as a function of `writable`, and drawn in
+     both branches. An instance that omitted canWrite would default to true and
+     reopen this, so the one instance must pass the flag through, and the
+     reader's branch must ask for the read-only table. */
   const src = CMS_PAGE.join("\n");
-  assert.equal((src.match(/<CmsPagesTable\b/g) ?? []).length, 2);
-  assert.equal((src.match(/<CmsBannersTable\b/g) ?? []).length, 2);
-
-  const readOnly = CMS_PAGE.filter((l) => l.trim() === "canWrite={false}").length;
-  const writable = CMS_PAGE.filter((l) => l.trim() === "canWrite").length;
-  assert.equal(readOnly, 2, "expected two read-only instances passing canWrite={false}");
-  assert.equal(writable, 2, "expected two writable instances passing canWrite");
+  for (const [table, fn] of [["CmsPagesTable", "pagesTable"], ["CmsBannersTable", "bannersTable"]]) {
+    assert.equal((src.match(new RegExp(`<${table}\\b`, "g")) ?? []).length, 1, `${table} is written out more than once again`);
+    assert.match(src, new RegExp(`const ${fn} = \\(writable: boolean\\) => \\(\\n\\s*<${table}\\n\\s*canWrite=\\{writable\\}`), `${table} no longer passes canWrite through`);
+    assert.match(src, new RegExp(`\\{canWrite \\? \\([\\s\\S]*?\\{${fn}\\(true\\)\\}[\\s\\S]*?\\) : \\(\\s*${fn}\\(false\\)\\s*\\)\\}`), `the reader's branch no longer draws the read-only ${table}`);
+  }
 });

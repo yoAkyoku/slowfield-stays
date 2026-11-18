@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 import { getLocale } from "../../../../modules/i18n";
 import { getAdminArticleCategories, getAdminPagesAll, getAdminSites, getCurrentAdminSiteSlug, getAdminProfile, hasPermission, AdminForbiddenError } from "../../../modules/adminApi";
 import { articleCategories } from "../../../modules/articlePlacement";
-import AdminFlash from "../../../modules/AdminFlash";
+import { AdminFlashes } from "../../../modules/AdminFlash";
 import AdminEmptyState from "../../../modules/AdminEmptyState";
 import { listingPublicHref } from "../../../modules/listingPublicHref";
 import CategoryModal from "./CategoryModal";
@@ -28,7 +28,7 @@ export default async function CategoriesPage({searchParams}: {searchParams: Prom
    actions={hasPermission(profile.permissions,"cms:write") ? <CategoryModal zh={zh}/> : undefined}
   />
   <Stack gap="lg">
-  <AdminFlash message={query.notice} title={zh ? "已完成" : "Done"} tone="success" closeLabel={zh ? "關閉" : "Close"}/><AdminFlash message={query.error} title={zh ? "未完成" : "Error"} tone="error" closeLabel={zh ? "關閉" : "Close"}/>
+  <AdminFlashes notice={query.notice} error={query.error} copy={{ adminFlashClose: zh ? "關閉" : "Close", adminFlashSuccess: zh ? "已完成" : "Done", adminFlashError: zh ? "未完成" : "Error" }} />
   {query.notice && savedCategory && <div role="status"><Callout tone="success" title={zh ? `已儲存「${savedCategory.label.zh}」` : "Category saved"} actions={canManagePages ? <ButtonLink size="sm" href={`/admin/content-pages?category=${encodeURIComponent(savedCategory.key)}`}>{zh ? "前往網站頁面設定" : "Set up on website pages"}</ButtonLink> : undefined}>
    <p>{zh ? "要讓訪客找到這類文章，請到網站頁面設定此分類的入口。" : "To help visitors find these articles, add this category to a website page."}</p>
    {!canManagePages && <p>{zh ? "前台入口需由網站管理者設定；你仍可將文章加入此分類。" : "A website manager must configure the entry point. You can still assign articles to this category."}</p>}

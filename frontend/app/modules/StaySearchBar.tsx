@@ -28,6 +28,102 @@ type Opt = { value: string; label: string };
 export type LocationOption = { value: string; label: string };
 export type LocationGroup = { county: string; label: string; districts: LocationOption[] };
 
+type ListboxState = {
+  open: boolean;
+  count: number;
+  activeIndex: number;
+  setActiveIndex: (next: number | ((i: number) => number)) => void;
+  openAt: (index: number) => void;
+  close: () => void;
+};
+type OpenKey = "ArrowDown" | "ArrowUp" | "Enter";
+
+/**
+ * The keyboard of a click-only listbox, shared by the single and multi-select
+ * fields of the search bar, which each carried their own copy.
+ *
+ * Arrow keys move the highlight and wrap; Home/End jump; Escape and Tab close.
+ * On a closed list, `openOn(key)` names the row it opens on; Enter/Space on
+ * an open list hands the highlighted row to `choose`.
+ */
+function listboxKey(
+  event: { key: string; preventDefault: () => void },
+  { open, count, activeIndex, setActiveIndex, openAt, close }: ListboxState,
+  openOn: (key: OpenKey) => number,
+  choose: (index: number) => void,
+) {
+  switch (event.key) {
+    case "ArrowDown":
+      event.preventDefault();
+      if (!open) openAt(openOn("ArrowDown"));
+      else setActiveIndex((i) => (i + 1) % count);
+      break;
+    case "ArrowUp":
+      event.preventDefault();
+      if (!open) openAt(openOn("ArrowUp"));
+      else setActiveIndex((i) => (i - 1 + count) % count);
+      break;
+    case "Home":
+      if (open) { event.preventDefault(); setActiveIndex(0); }
+      break;
+    case "End":
+      if (open) { event.preventDefault(); setActiveIndex(count - 1); }
+      break;
+    case "Enter":
+    case " ":
+      event.preventDefault();
+      if (open && activeIndex >= 0 && activeIndex < count) choose(activeIndex);
+      else openAt(openOn("Enter"));
+      break;
+    case "Escape":
+      if (open) { event.preventDefault(); close(); }
+      break;
+    case "Tab":
+      // Leaving the control closes it; the panel is not in the tab order.
+      close();
+      break;
+    default:
+      break;
+  }
+}
+
+/** The open state, highlight and scroll of a listbox, with its keyboard bound. */
+function useListbox(count: number) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const listId = useId();
+  const optionId = (i: number) => `${listId}-opt-${i}`;
+  useDismiss(wrapRef, () => setOpen(false), open);
+
+  // Follow the active row with the scroll, or arrowing past the visible rows
+  // moves a highlight nobody can see.
+  useEffect(() => {
+    if (!open || activeIndex < 0) return;
+    listRef.current?.querySelector(`#${CSS.escape(optionId(activeIndex))}`)
+      ?.scrollIntoView({ block: "nearest" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, activeIndex]);
+
+  const openAt = (index: number) => {
+    setOpen(true);
+    setActiveIndex(index);
+  };
+  const close = () => {
+    setOpen(false);
+    setActiveIndex(-1);
+  };
+
+  const onKeyDown = (
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    openOn: (key: OpenKey) => number,
+    choose: (index: number) => void,
+  ) => listboxKey(event, { open, count, activeIndex, setActiveIndex, openAt, close }, openOn, choose);
+
+  return { open, activeIndex, setActiveIndex, wrapRef, listRef, listId, optionId, openAt, close, onKeyDown };
+}
+
 /** Click-only dropdown that writes a hidden input (name) — no keyboard typing.
  *  Controlled when `value`/`onChange` are supplied, else self-managed. */
 function SelectField({
@@ -52,12 +148,6 @@ function SelectField({
   const [innerValue, setInnerValue] = useState(defaultValue);
   const value = controlledValue !== undefined ? controlledValue : innerValue;
   const setValue = (v: string) => { if (onChange) onChange(v); else setInnerValue(v); };
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-  const listId = useId();
-  useDismiss(wrapRef, () => setOpen(false), open);
-
   const selected = options.find((o) => o.value === value);
 
   /* Every row the keyboard can land on, in the order they are drawn — the
@@ -77,68 +167,20 @@ function SelectField({
      reader said "expanded, listbox" and the arrow keys did nothing, which is
      worse than a plain <select> because it promises an interface that is not
      there. All four fields of the search bar are this component. */
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const optionId = (i: number) => `${listId}-opt-${i}`;
-
-  const openWith = (index: number) => {
-    setOpen(true);
-    setActiveIndex(index);
-  };
+  const { open, activeIndex, setActiveIndex, wrapRef, listRef, listId, optionId, openAt, close, onKeyDown: listboxKeyDown } = useListbox(items.length);
+  // A closed list opens on the chosen row, whichever key opened it.
+  const selectedIndex = Math.max(0, items.findIndex((row) => !row.clear && row.value === value));
 
   const commit = (index: number) => {
     const row = items[index];
     if (!row) return;
     setValue(row.value);
-    setOpen(false);
-    setActiveIndex(-1);
+    close();
   };
-
-  // Follow the active row with the scroll, or arrowing past the visible rows
-  // moves a highlight nobody can see.
-  useEffect(() => {
-    if (!open || activeIndex < 0) return;
-    listRef.current?.querySelector(`#${CSS.escape(optionId(activeIndex))}`)
-      ?.scrollIntoView({ block: "nearest" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, activeIndex]);
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (disabled) return;
-    const selectedIndex = Math.max(0, items.findIndex((row) => !row.clear && row.value === value));
-    switch (event.key) {
-      case "ArrowDown":
-        event.preventDefault();
-        if (!open) openWith(selectedIndex);
-        else setActiveIndex((i) => (i + 1) % items.length);
-        break;
-      case "ArrowUp":
-        event.preventDefault();
-        if (!open) openWith(selectedIndex);
-        else setActiveIndex((i) => (i - 1 + items.length) % items.length);
-        break;
-      case "Home":
-        if (open) { event.preventDefault(); setActiveIndex(0); }
-        break;
-      case "End":
-        if (open) { event.preventDefault(); setActiveIndex(items.length - 1); }
-        break;
-      case "Enter":
-      case " ":
-        event.preventDefault();
-        if (open && activeIndex >= 0) commit(activeIndex);
-        else openWith(selectedIndex);
-        break;
-      case "Escape":
-        if (open) { event.preventDefault(); setOpen(false); setActiveIndex(-1); }
-        break;
-      case "Tab":
-        // Leaving the control closes it; the panel is not in the tab order.
-        setOpen(false);
-        setActiveIndex(-1);
-        break;
-      default:
-        break;
-    }
+    listboxKeyDown(event, () => selectedIndex, commit);
   };
 
   return (
@@ -152,9 +194,7 @@ function SelectField({
         aria-controls={listId}
         aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
         disabled={disabled}
-        onClick={() => (open ? (setOpen(false), setActiveIndex(-1)) : openWith(
-          Math.max(0, items.findIndex((row) => !row.clear && row.value === value)),
-        ))}
+        onClick={() => (open ? close() : openAt(selectedIndex))}
         onKeyDown={onKeyDown}
       >
         <span className="ssb-select-icon" aria-hidden="true">{icon}</span>
@@ -249,61 +289,14 @@ function FacilitiesField({
 }) {
   const values = options.map((o) => o.value);
   const [selected, setSelected] = useState<string[]>(defaultValues.filter((v) => values.includes(v)));
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
-  const listId = useId();
-  useDismiss(wrapRef, () => setOpen(false), open);
   const toggle = (v: string) => setSelected((s) => (s.includes(v) ? s.filter((x) => x !== v) : [...s, v]));
 
   /* The same keyboard the single-select list has. This one is a multi-select,
      so Enter/Space TICKS the active row and deliberately leaves the list open —
      picking three facilities should not mean reopening the panel three times. */
-  const [activeIndex, setActiveIndex] = useState(-1);
-  const optionId = (i: number) => `${listId}-opt-${i}`;
-
-  useEffect(() => {
-    if (!open || activeIndex < 0) return;
-    listRef.current?.querySelector(`#${CSS.escape(optionId(activeIndex))}`)
-      ?.scrollIntoView({ block: "nearest" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, activeIndex]);
-
-  const onFacilitiesKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
-    switch (event.key) {
-      case "ArrowDown":
-        event.preventDefault();
-        if (!open) { setOpen(true); setActiveIndex(0); }
-        else setActiveIndex((i) => (i + 1) % options.length);
-        break;
-      case "ArrowUp":
-        event.preventDefault();
-        if (!open) { setOpen(true); setActiveIndex(options.length - 1); }
-        else setActiveIndex((i) => (i - 1 + options.length) % options.length);
-        break;
-      case "Home":
-        if (open) { event.preventDefault(); setActiveIndex(0); }
-        break;
-      case "End":
-        if (open) { event.preventDefault(); setActiveIndex(options.length - 1); }
-        break;
-      case "Enter":
-      case " ":
-        event.preventDefault();
-        if (open && activeIndex >= 0 && options[activeIndex]) toggle(options[activeIndex].value);
-        else { setOpen(true); setActiveIndex(0); }
-        break;
-      case "Escape":
-        if (open) { event.preventDefault(); setOpen(false); setActiveIndex(-1); }
-        break;
-      case "Tab":
-        setOpen(false);
-        setActiveIndex(-1);
-        break;
-      default:
-        break;
-    }
-  };
+  const { open, activeIndex, setActiveIndex, wrapRef, listRef, listId, optionId, openAt, close, onKeyDown: listboxKeyDown } = useListbox(options.length);
+  const onFacilitiesKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) =>
+    listboxKeyDown(event, (key) => (key === "ArrowUp" ? options.length - 1 : 0), (i) => toggle(options[i].value));
 
   return (
     <div className={`ssb-select${open ? " is-open" : ""}`} ref={wrapRef}>
@@ -312,7 +305,7 @@ function FacilitiesField({
         type="button" className="ssb-select-btn" aria-haspopup="listbox"
         aria-expanded={open} aria-controls={listId}
         aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
-        onClick={() => (open ? (setOpen(false), setActiveIndex(-1)) : (setOpen(true), setActiveIndex(0)))}
+        onClick={() => (open ? close() : openAt(0))}
         onKeyDown={onFacilitiesKeyDown}
       >
         <span className="ssb-select-icon" aria-hidden="true"><SlidersHorizontal size={16} /></span>

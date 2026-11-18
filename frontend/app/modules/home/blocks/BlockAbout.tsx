@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Locale } from "../../i18n";
 import { cfgT , eyebrowT} from "../../tr";
+import { featureItems } from "../../featureItems";
 import { isSafeUrl } from "../../safeHtml";
 import FeatureIcon from "../../property/blocks/FeatureIcon";
 import AboutImageCarousel from "./AboutImageCarousel";
@@ -50,18 +51,7 @@ export default function BlockAbout({ locale, config }: { locale: Locale; config?
   // author asking for no button at all, so it stays empty.
   const ctaHref = !rawCtaHref || isSafeUrl(rawCtaHref) ? rawCtaHref : "/experience";
 
-  const rawItems = Array.isArray(c.items) ? c.items : [];
-  const items = rawItems
-    .map((raw) => {
-      const item = raw as Record<string, unknown>;
-      return {
-        icon: typeof item.icon === "string" ? item.icon : "",
-        iconColor: typeof item.icon_color === "string" ? item.icon_color : "",
-        label: cfgT(item, "label", locale),
-        detail: cfgT(item, "detail", locale),
-      };
-    })
-    .filter((item) => item.label);
+  const items = featureItems(c.items, locale);
 
   const classes = [
     "block-about",

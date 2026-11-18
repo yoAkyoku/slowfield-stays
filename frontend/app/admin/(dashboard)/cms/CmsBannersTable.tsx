@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import StatusActions from "../../modules/StatusActions";
+import StatusActions, { rowStatusActions, type RowStatusActions } from "../../modules/StatusActions";
 import AdminEmptyState from "../../modules/AdminEmptyState";
 import { Badge, CellTitle, TableFrame } from "../../ui";
 import type { CmsBannerRow, CmsIssueKey } from "./cmsConsoleData";
@@ -25,15 +25,7 @@ export default function CmsBannersTable({
   statusActionLabels,
   statusLabels
 }: {
-  actions: {
-    archive: (id: number) => (formData: FormData) => void;
-    deleteItem: (id: number) => (formData: FormData) => void;
-    purgeItem?: (id: number) => (formData: FormData) => void;
-    draft: (id: number) => (formData: FormData) => void;
-    publish: (id: number) => (formData: FormData) => void;
-    restoreItem: (id: number) => (formData: FormData) => void;
-    review: (id: number) => (formData: FormData) => void;
-  };
+  actions: RowStatusActions;
   /** Passed straight to StatusActions — see the note there. */
   canWrite?: boolean;
   /** The admin's chosen language, so the row reads in it. */
@@ -138,15 +130,7 @@ export default function CmsBannersTable({
                 <td>
                   <StatusActions
                     canWrite={canWrite}
-                    actions={{
-                      archive: actions.archive(banner.id),
-                      deleteItem: actions.deleteItem(banner.id),
-                      purgeItem: actions.purgeItem?.(banner.id),
-                      draft: actions.draft(banner.id),
-                      publish: actions.publish(banner.id),
-                      restoreItem: actions.restoreItem(banner.id),
-                      review: actions.review(banner.id)
-                    }}
+                    actions={rowStatusActions(actions, banner.id)}
                     /* Named per row — see the note in StatusActions. A banner is
                        identified by its headline; two banners on one site look
                        alike in a list otherwise. */

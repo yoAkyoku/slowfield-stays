@@ -2,7 +2,7 @@ import { Film, Images, Layers } from "lucide-react";
 import { getLocale, t } from "../../../modules/i18n";
 import { getAdminMediaOverview, getAdminProfile, hasPermission } from "../../modules/adminApi";
 import AdminSopButton from "../../modules/AdminSopButton";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import { Grid, Page, PageHeader, StatCard } from "../../ui";
 import MediaLibraryView from "./MediaLibraryView";
 import MediaUploadModal from "./MediaUploadModal";
@@ -59,18 +59,7 @@ export default async function AdminMediaPage(
           ) : null
         }
       />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.error}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
 
       <Grid cols={3}>
         <StatCard icon={<Layers />} label={copy.admin.mediaTotalAssets} tone="brand" value={summary.total} />

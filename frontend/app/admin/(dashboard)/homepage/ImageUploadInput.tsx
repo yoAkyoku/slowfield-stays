@@ -7,7 +7,7 @@ import useMediaLibrary from "../../modules/useMediaLibrary";
 import { isVideoUrl, videoPosterUrl } from "../../../modules/media";
 import MediaUploadRequirements from "../../modules/MediaUploadRequirements";
 import VideoThumbnail from "../../modules/VideoThumbnail";
-import MediaPickerThumbnail from "../../modules/MediaPickerThumbnail";
+import { MediaPickerGrid } from "../../modules/MediaPickerThumbnail";
 import { Button, buttonClass, Dialog, Field, Input, SearchInput, Stack } from "../../ui";
 
 export default function ImageUploadInput({
@@ -132,21 +132,7 @@ export default function ImageUploadInput({
           {loadingLibrary && <p className="meta" style={{ padding: "24px 0", textAlign: "center" }}>{"載入中… Loading…"}</p>}
           {!loadingLibrary && assets.length === 0 && <p className="meta" style={{ padding: "24px 0", textAlign: "center" }}>{"沒有圖片 No images found"}</p>}
           {!loadingLibrary && filteredAssets.length > 0 && (
-            <div className="media-inline-library-grid">
-              {filteredAssets.map((asset) => {
-                const assetUrl = asset.url ?? asset.file ?? "";
-                if (!assetUrl) return null;
-                return (
-                  <MediaPickerThumbnail
-                    key={asset.id}
-                    asset={asset}
-                    assetUrl={assetUrl}
-                    selected={value === assetUrl}
-                    onSelect={() => { onChange(assetUrl); setShowLibrary(false); }}
-                  />
-                );
-              })}
-            </div>
+            <MediaPickerGrid assets={filteredAssets} selectedUrl={value} onPick={(assetUrl) => { onChange(assetUrl); setShowLibrary(false); }} />
           )}
           {!loadingLibrary && assets.length > 0 && filteredAssets.length === 0 && (
             <p className="meta" style={{ textAlign: "center", padding: "24px 0" }}>

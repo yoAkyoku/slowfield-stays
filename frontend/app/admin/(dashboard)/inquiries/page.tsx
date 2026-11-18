@@ -3,7 +3,7 @@ import { Badge, Button, ButtonLink, Callout, Card, Chips, Grid, Input, Page, Pag
 import "./inquiries.css";
 import { getLocale, t } from "../../../modules/i18n";
 import { getAdminBookingRequests, getAdminInquiries, getAdminProfile, hasPermission, type AdminInquiry } from "../../modules/adminApi";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import AdminSopButton from "../../modules/AdminSopButton";
 import AdminTable from "../../modules/AdminTable";
 import AdminTablePagination from "../../modules/AdminTablePagination";
@@ -238,18 +238,7 @@ export default async function AdminInquiriesPage(
         description={localCopy.heroText}
       />
 
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.notice}
-        title={copy.admin.adminFlashSuccess}
-        tone="success"
-      />
-      <AdminFlash
-        closeLabel={copy.admin.adminFlashClose}
-        message={searchParams.error}
-        title={copy.admin.adminFlashError}
-        tone="error"
-      />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
 
       <Grid cols={4}>
         <StatCard

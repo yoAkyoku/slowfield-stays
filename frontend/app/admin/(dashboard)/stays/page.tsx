@@ -3,7 +3,7 @@ import Link from "next/link";
 import { adminUiText, getLocale, t } from "../../../modules/i18n";
 import { getAdminProfile, getAdminStays, hasPermission } from "../../modules/adminApi";
 import AdminEmptyState from "../../modules/AdminEmptyState";
-import AdminFlash from "../../modules/AdminFlash";
+import { AdminFlashes } from "../../modules/AdminFlash";
 import AdminSopButton from "../../modules/AdminSopButton";
 import AdminTablePagination from "../../modules/AdminTablePagination";
 import { trs } from "../../../modules/tr";
@@ -212,6 +212,105 @@ export default async function AdminStaysPage(
   const paginatedStays = getPageSlice(rows, stayCurrentPage, stayPageSize);
   const recentItems = rows.slice(0, 3).map((stay) => ({ ...stay, issueCount: stay.issueKeys.length }));
 
+  /* One card for both branches. The reader's copy had been written out again
+     without the facts row, so a reader saw less of each stay than an editor
+     did; `writable` now only adds the bulk checkbox and the write controls. */
+  const stayCard = (stay: (typeof paginatedStays)[number], writable: boolean) => (
+    <article className="stay-catalog-card" key={stay.id}>
+      {writable ? <input type="checkbox" name="ids" value={stay.id} className="bulk-select-checkbox" /> : null}
+      <Link aria-label={trs(stay, "name", locale)} className="stay-catalog-link" href={`/admin/stays/${stay.id}/edit`}>
+        <div className="stay-catalog-media">
+          {stay.hero_image_url ? <img src={stay.hero_image_url} alt="" /> : <div>{copy.admin.qualityMissingHero}</div>}
+        </div>
+        <div className="stay-catalog-body">
+          <div className="stay-catalog-heading">
+            <div>
+              <p className="a-eyebrow">{stay.region || stay.destination}</p>
+              <h2>{trs(stay, "name", locale)}</h2>
+            </div>
+            <div className="stay-catalog-heading-badges">
+              {stay.deleted_at ? <Badge tone="danger">{deletedBadgeLabel}</Badge> : null}
+            </div>
+          </div>
+          <p>{trs(stay, "summary", locale) || copy.admin.qualityMissingSummary}</p>
+          <dl className="stay-catalog-facts">
+            <div>
+              <dt>
+                <MapPin size={14} />
+                {copy.admin.adminDestination}
+              </dt>
+              <dd>{stay.destination || "-"}</dd>
+            </div>
+            <div>
+              <dt>
+                <CircleDollarSign size={14} />
+                {copy.admin.adminBasePrice}
+              </dt>
+              <dd>{formatPrice(stay.base_price)}</dd>
+            </div>
+            <div>
+              <dt>
+                <Users size={14} />
+                {copy.admin.adminGuests}
+              </dt>
+              <dd>{stay.max_guests}</dd>
+            </div>
+            <div>
+              <dt>
+                <BedDouble size={14} />
+                {ui.stays.roomTypes}
+              </dt>
+              <dd>{stay.room_types?.length ?? 0}</dd>
+            </div>
+          </dl>
+        </div>
+      </Link>
+      <div className="stay-catalog-footer">
+        <div className="stay-catalog-footer-meta">
+          <Badge dot tone={stay.issueKeys.length ? "warning" : "success"}>
+            {stay.issueKeys.length ? `${stay.issueKeys.length} ${localCopy.qualityIssues}` : copy.admin.adminReady}
+          </Badge>
+        </div>
+        <div className="stay-catalog-actions">
+          {writable ? (
+            <StatusActions
+              actions={{
+                archive: updateStayStatusAction.bind(null, String(stay.id), "archived"),
+                deleteItem: deleteStayAction.bind(null, String(stay.id), visibilityBase),
+                purgeItem: purgeStayAction.bind(null, String(stay.id), visibilityBase),
+                draft: updateStayStatusAction.bind(null, String(stay.id), "draft"),
+                publish: updateStayStatusAction.bind(null, String(stay.id), "published"),
+                restoreItem: restoreStayAction.bind(null, String(stay.id), visibilityBase),
+                review: updateStayStatusAction.bind(null, String(stay.id), "review")
+              }}
+              /* Named per row — see the note in StatusActions.
+                 Deleting a stay takes its rooms and enquiries
+                 with it, so this is the dialog that most needs to
+                 say which one. */
+              confirmDeleteBody={
+                locale === "zh"
+                  ? `確定要刪除住宿「${trs(stay, "name", locale)}」嗎？它會移到「已刪除」，可在該處還原。`
+                  : `Delete the stay "${trs(stay, "name", locale)}"? It moves to the deleted list, where it can be restored.`
+              }
+              confirmPurgeBody={
+                locale === "zh"
+                  ? `確定要永久刪除住宿「${trs(stay, "name", locale)}」嗎？它會從資料庫中移除，且無法還原。`
+                  : `Permanently delete the stay "${trs(stay, "name", locale)}"? It will be removed from the database and cannot be restored.`
+              }
+              deletedAt={stay.deleted_at}
+              editHref={`/admin/stays/${stay.id}/edit`}
+              labels={statusActionLabels}
+              previewHref={`/admin/preview/stays/${stay.id}`}
+              status={stay.status}
+            />
+          ) : (
+            <ButtonLink href={`/admin/preview/stays/${stay.id}`} size="sm" variant="ghost">{copy.admin.adminPreview}</ButtonLink>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+
   return (
     <Page>
       <PageHeader
@@ -239,8 +338,7 @@ export default async function AdminStaysPage(
         title={copy.admin.staysTitle}
       />
 
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.notice} title={copy.admin.adminFlashSuccess} tone="success" />
-      <AdminFlash closeLabel={copy.admin.adminFlashClose} message={searchParams.error} title={copy.admin.adminFlashError} tone="error" />
+      <AdminFlashes notice={searchParams.notice} error={searchParams.error} copy={copy.admin} />
 
       <StaysTabs
         activeTab={activeTab}
@@ -295,134 +393,10 @@ export default async function AdminStaysPage(
                 purge={isBin}
                 returnTo={visibilityBase}
               >
-                <div className="stay-catalog-grid">
-                  {paginatedStays.map((stay) => (
-                    <article className="stay-catalog-card" key={stay.id}>
-                      <input type="checkbox" name="ids" value={stay.id} className="bulk-select-checkbox" />
-                      <Link aria-label={trs(stay, "name", locale)} className="stay-catalog-link" href={`/admin/stays/${stay.id}/edit`}>
-                        <div className="stay-catalog-media">
-                          {stay.hero_image_url ? <img src={stay.hero_image_url} alt="" /> : <div>{copy.admin.qualityMissingHero}</div>}
-                        </div>
-                        <div className="stay-catalog-body">
-                          <div className="stay-catalog-heading">
-                            <div>
-                              <p className="a-eyebrow">{stay.region || stay.destination}</p>
-                              <h2>{trs(stay, "name", locale)}</h2>
-                            </div>
-                            <div className="stay-catalog-heading-badges">
-                              {stay.deleted_at ? <Badge tone="danger">{deletedBadgeLabel}</Badge> : null}
-                            </div>
-                          </div>
-                          <p>{trs(stay, "summary", locale) || copy.admin.qualityMissingSummary}</p>
-                          <dl className="stay-catalog-facts">
-                            <div>
-                              <dt>
-                                <MapPin size={14} />
-                                {copy.admin.adminDestination}
-                              </dt>
-                              <dd>{stay.destination || "-"}</dd>
-                            </div>
-                            <div>
-                              <dt>
-                                <CircleDollarSign size={14} />
-                                {copy.admin.adminBasePrice}
-                              </dt>
-                              <dd>{formatPrice(stay.base_price)}</dd>
-                            </div>
-                            <div>
-                              <dt>
-                                <Users size={14} />
-                                {copy.admin.adminGuests}
-                              </dt>
-                              <dd>{stay.max_guests}</dd>
-                            </div>
-                            <div>
-                              <dt>
-                                <BedDouble size={14} />
-                                {ui.stays.roomTypes}
-                              </dt>
-                              <dd>{stay.room_types?.length ?? 0}</dd>
-                            </div>
-                          </dl>
-                        </div>
-                      </Link>
-                      <div className="stay-catalog-footer">
-                        <div className="stay-catalog-footer-meta">
-                          <Badge dot tone={stay.issueKeys.length ? "warning" : "success"}>
-                            {stay.issueKeys.length ? `${stay.issueKeys.length} ${localCopy.qualityIssues}` : copy.admin.adminReady}
-                          </Badge>
-                        </div>
-                        <div className="stay-catalog-actions">
-                          <StatusActions
-                            actions={{
-                              archive: updateStayStatusAction.bind(null, String(stay.id), "archived"),
-                              deleteItem: deleteStayAction.bind(null, String(stay.id), visibilityBase),
-                              purgeItem: purgeStayAction.bind(null, String(stay.id), visibilityBase),
-                              draft: updateStayStatusAction.bind(null, String(stay.id), "draft"),
-                              publish: updateStayStatusAction.bind(null, String(stay.id), "published"),
-                              restoreItem: restoreStayAction.bind(null, String(stay.id), visibilityBase),
-                              review: updateStayStatusAction.bind(null, String(stay.id), "review")
-                            }}
-                            /* Named per row — see the note in StatusActions.
-                               Deleting a stay takes its rooms and enquiries
-                               with it, so this is the dialog that most needs to
-                               say which one. */
-                            confirmDeleteBody={
-                              locale === "zh"
-                                ? `確定要刪除住宿「${trs(stay, "name", locale)}」嗎？它會移到「已刪除」，可在該處還原。`
-                                : `Delete the stay "${trs(stay, "name", locale)}"? It moves to the deleted list, where it can be restored.`
-                            }
-                            confirmPurgeBody={
-                              locale === "zh"
-                                ? `確定要永久刪除住宿「${trs(stay, "name", locale)}」嗎？它會從資料庫中移除，且無法還原。`
-                                : `Permanently delete the stay "${trs(stay, "name", locale)}"? It will be removed from the database and cannot be restored.`
-                            }
-                            deletedAt={stay.deleted_at}
-                            editHref={`/admin/stays/${stay.id}/edit`}
-                            labels={statusActionLabels}
-                            previewHref={`/admin/preview/stays/${stay.id}`}
-                            status={stay.status}
-                          />
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                <div className="stay-catalog-grid">{paginatedStays.map((stay) => stayCard(stay, true))}</div>
               </BulkSelectForm>
             ) : (
-              <div className="stay-catalog-grid">
-                {paginatedStays.map((stay) => (
-                  <article className="stay-catalog-card" key={stay.id}>
-                    <Link aria-label={trs(stay, "name", locale)} className="stay-catalog-link" href={`/admin/stays/${stay.id}/edit`}>
-                      <div className="stay-catalog-media">
-                        {stay.hero_image_url ? <img src={stay.hero_image_url} alt="" /> : <div>{copy.admin.qualityMissingHero}</div>}
-                      </div>
-                      <div className="stay-catalog-body">
-                        <div className="stay-catalog-heading">
-                          <div>
-                            <p className="a-eyebrow">{stay.region || stay.destination}</p>
-                            <h2>{trs(stay, "name", locale)}</h2>
-                          </div>
-                          <div className="stay-catalog-heading-badges">
-                            {stay.deleted_at ? <Badge tone="danger">{deletedBadgeLabel}</Badge> : null}
-                          </div>
-                        </div>
-                        <p>{trs(stay, "summary", locale) || copy.admin.qualityMissingSummary}</p>
-                      </div>
-                    </Link>
-                    <div className="stay-catalog-footer">
-                      <div className="stay-catalog-footer-meta">
-                        <Badge dot tone={stay.issueKeys.length ? "warning" : "success"}>
-                          {stay.issueKeys.length ? `${stay.issueKeys.length} ${localCopy.qualityIssues}` : copy.admin.adminReady}
-                        </Badge>
-                      </div>
-                      <div className="stay-catalog-actions">
-                        <ButtonLink href={`/admin/preview/stays/${stay.id}`} size="sm" variant="ghost">{copy.admin.adminPreview}</ButtonLink>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
+              <div className="stay-catalog-grid">{paginatedStays.map((stay) => stayCard(stay, false))}</div>
             )
           ) : (
             <AdminEmptyState text={localCopy.listEmptyText} title={localCopy.listEmptyTitle} />

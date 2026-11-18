@@ -5,7 +5,8 @@ import { getLocale, publicUiText, type Locale } from "../../../modules/i18n";
 import { cfgT, trs } from "../../../modules/tr";
 import { cssUrl } from "../../../modules/safeCss";
 import { safeCssColor } from "../../../modules/fontPresets";
-import { buildMetadata, cmsEntrySeo, excerpt, pageSettingsSeo, seoTextForLocale, siteUrl } from "../../../modules/seo";
+import { buildMetadata, pageSettingsSeo, seoTextForLocale, siteUrl } from "../../../modules/seo";
+import { pageEntryMetadata } from "../../../modules/content/entryRoute";
 import JsonLd from "../../../modules/JsonLd";
 import ContentFacets from "../../../modules/content/ContentFacets";
 import ArticleDetail from "../../../modules/content/ArticleDetail";
@@ -67,18 +68,10 @@ export async function generateMetadata(props: { params: Promise<{ slug: string; 
       (await resolvePage(pageKey, params.pageSlug[1], params.slug)) ??
       (await resolveSharedPage(CATEGORY_TO_CONTENT_TYPE[pageKey], params.pageSlug[1], params.slug));
     if (cmsPage) {
-      const seo = cmsEntrySeo(cmsPage, locale);
-      return buildMetadata({
-        title: seo.title || seoTextForLocale(trs(cmsPage, "title", locale), locale) || (locale === "zh" ? "文章" : "Article"),
-        description: seo.description
-          || seoTextForLocale(trs(cmsPage, "summary", locale), locale)
-          || seoTextForLocale(excerpt(trs(cmsPage, "body", locale)), locale),
-        image: seo.image || cmsPage.cover_image_url,
-        canonical: seo.canonical,
-        publishedTime: cmsPage.published_at ?? undefined,
+      return pageEntryMetadata(cmsPage, locale, {
         path: `/stays/${params.slug}/${params.pageSlug.join("/")}`,
         site: { ...site, name: siteName },
-        type: "article",
+        fallback: { zh: "文章", en: "Article" },
       });
     }
   }
@@ -91,21 +84,11 @@ export async function generateMetadata(props: { params: Promise<{ slug: string; 
       ?? (await resolvePage("news", identifier, params.slug))
       ?? (await resolveSharedPage(contentType, identifier, params.slug));
     if (!cmsPage) return buildMetadata({ title: publicUiText(locale).notFound, noIndex: true });
-    if (cmsPage) {
-      const seo = cmsEntrySeo(cmsPage, locale);
-      return buildMetadata({
-        title: seo.title || seoTextForLocale(trs(cmsPage, "title", locale), locale) || (locale === "zh" ? "文章" : "Article"),
-        description: seo.description
-          || seoTextForLocale(trs(cmsPage, "summary", locale), locale)
-          || seoTextForLocale(excerpt(trs(cmsPage, "body", locale)), locale),
-        image: seo.image || cmsPage.cover_image_url,
-        canonical: seo.canonical,
-        publishedTime: cmsPage.published_at ?? undefined,
-        path: `/stays/${params.slug}/${params.pageSlug.join("/")}`,
-        site: { ...site, name: siteName },
-        type: "article",
-      });
-    }
+    return pageEntryMetadata(cmsPage, locale, {
+      path: `/stays/${params.slug}/${params.pageSlug.join("/")}`,
+      site: { ...site, name: siteName },
+      fallback: { zh: "文章", en: "Article" },
+    });
   }
 
   // Block page or CMS list page

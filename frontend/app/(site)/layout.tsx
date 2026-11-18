@@ -3,20 +3,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isServableThroughSiteOverride } from "../modules/siteVisibility";
 import { isAdminPreview } from "../modules/adminPreview";
-import { sanitizeCustomCode } from "../modules/safeHtml";
-import Script from "next/script";
 import { Suspense } from "react";
 import { getCurrentSite, getPages } from "../modules/api";
 import CookieConsentBanner from "../modules/CookieConsentBanner";
 import { DEFAULT_COOKIE_NOTICE, DEFAULT_GDPR_NOTICE, consentNotice, footerNotice, noticeLines } from "../modules/consentNotice";
-import ServerHeadCode from "../modules/ServerHeadCode";
-import { fontVars, layoutVars, typeScaleVars, themeVars, pageBackgroundStyle } from "../modules/fontPresets";
+import { SiteCustomCode, headerSocialLinks, siteStyleVars } from "../modules/siteChrome";
 import { getLocale, t } from "../modules/i18n";
-import { httpOnly, lineUrl, resolveSocialLinks } from "../modules/socialLinks";
+import { resolveSocialLinks } from "../modules/socialLinks";
 import NavigationProgress from "../modules/NavigationProgress";
 import ScrollToTopFab from "../modules/ScrollToTopFab";
 import FooterNewsletter from "../modules/newsletter/FooterNewsletter";
-import { IconFacebook, IconInstagram, IconLine, IconThreads, IconTikTok } from "../modules/icons/SocialIcons";
+import HeaderSocial from "../modules/HeaderSocial";
 import SiteHeaderClient from "./SiteHeaderClient";
 import SiteReveal from "./SiteReveal";
 /* Which pages appear in the nav, what they are called and what order they sit
@@ -39,10 +36,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     allPages.filter((p) => p.status === "published").map((p) => p.content_type)
   );
   const siteName = resolveSiteName(site, locale);
-  const theme = themeVars(site.theme_config);
-  const rawGaId = typeof site.settings?.ga_id === "string" ? site.settings.ga_id : "";
-  const gaId = /^(G|UA|GTM|AW)-[A-Za-z0-9-]+$/.test(rawGaId) ? rawGaId : "";
-  const adsCode = typeof site.settings?.ads_code === "string" ? site.settings.ads_code : "";
   // Consent copy, in the reader's own language: see modules/consentNotice.
   const cookieNotice = consentNotice(site.settings?.cookie_notice, locale, DEFAULT_COOKIE_NOTICE);
   const gdprNotice = consentNotice(site.settings?.gdpr_notice, locale, DEFAULT_GDPR_NOTICE);
@@ -57,22 +50,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const footerTitle = footerNotice(site.settings?.footer_title, locale) || siteName;
   const footerCopyright = footerNotice(site.settings?.footer_copyright, locale)
     || `© ${new Date().getFullYear()} ${siteName}`;
-  const headCode = typeof site.settings?.head_code === "string" ? site.settings.head_code : "";
-  const bodyCode = typeof site.settings?.body_code === "string" ? site.settings.body_code : "";
   const s = site.settings as Record<string, any> | undefined;
   const socialObj = resolveSocialLinks(s, (site as any).social_links);
 
-  // Header social icons (far right). Validate URLs here so the client just renders.
-  const headerSocial = {
-    instagram: httpOnly(socialObj.instagram),
-    facebook: httpOnly(socialObj.facebook),
-    // LINE is stored as a bare @handle, so it needs lineUrl (not httpOnly, which
-    // drops anything that is not already a URL). The footer already did this; the
-    // header was stripping social_line=@handle and only honouring contact_line.
-    line: lineUrl(socialObj.line || site.contact_config?.line),
-    threads: httpOnly(socialObj.threads),
-    tiktok: httpOnly(socialObj.tiktok),
-  };
+  const headerSocial = headerSocialLinks(socialObj, site.contact_config?.line);
 
   const navLinks = buildNavLinks(site, locale, cmsVisibleTypes);
 
@@ -92,17 +73,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const footerNav = navLinks.filter((n) => !n.navHidden && !n.footerHidden);
 
   return (
-    <div style={{
-      ...theme,
-      ...fontVars(site.settings as Record<string, unknown> | undefined),
-      ...typeScaleVars(site.settings as Record<string, unknown> | undefined),
-      ...layoutVars(site.settings as Record<string, unknown> | undefined),
-      // Re-apply body font here so a preset's --font-body override actually reaches
-      // the page text (body inherits the root default otherwise — headings already
-      // opt in via var(--font-title), but paragraphs relied on inheritance).
-      fontFamily: "var(--font-body)",
-      ...pageBackgroundStyle(site.theme_config),
-    } as React.CSSProperties}>
+    <div style={siteStyleVars(site)}>
       <a className="skip-link" href="#main-content">
         {locale === "zh" ? "跳至主要內容" : "Skip to main content"}
       </a>
@@ -118,26 +89,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         social={headerSocial}
         autoHide={Boolean(site.settings?.header_auto_hide)}
       />
-      {headCode ? <ServerHeadCode html={headCode} /> : null}
-      {gaId ? (
-        <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
-          <Script id="ga-tracking" strategy="afterInteractive">{`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${gaId}');
-          `}</Script>
-        </>
-      ) : null}
-      {adsCode && !/[<>"']/.test(adsCode) ? <Script id="ads-code" strategy="afterInteractive">{adsCode}</Script> : null}
-      {bodyCode ? (
-        bodyCode.includes("<") ? (
-          <div dangerouslySetInnerHTML={{ __html: sanitizeCustomCode(bodyCode) }} suppressHydrationWarning />
-        ) : !/[<>"']/.test(bodyCode) ? (
-          <Script id="custom-body-code" strategy="afterInteractive">{bodyCode}</Script>
-        ) : null
-      ) : null}
+      <SiteCustomCode settings={site.settings} />
       <div id="main-content" tabIndex={-1}>
         {children}
       </div>
@@ -184,13 +136,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           <div className="footer-bottom-left">
             <span>{footerCopyright}</span>
           </div>
-          <div className="footer-bottom-right footer-social-icons">
-            {socialObj.instagram && /^https?:\/\//.test(socialObj.instagram) && <a href={socialObj.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><IconInstagram size={16} /></a>}
-            {socialObj.facebook && /^https?:\/\//.test(socialObj.facebook) && <a href={socialObj.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook"><IconFacebook size={16} /></a>}
-            {(() => { const url = lineUrl(socialObj.line || site.contact_config?.line); return url ? <a href={url} target="_blank" rel="noopener noreferrer" aria-label="LINE"><IconLine size={16} /></a> : null; })()}
-            {socialObj.threads && /^https?:\/\//.test(socialObj.threads) && <a href={socialObj.threads} target="_blank" rel="noopener noreferrer" aria-label="Threads"><IconThreads size={16} /></a>}
-            {socialObj.tiktok && /^https?:\/\//.test(socialObj.tiktok) && <a href={socialObj.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><IconTikTok size={16} /></a>}
-          </div>
+          <HeaderSocial social={headerSocial} locale={locale} className="footer-bottom-right footer-social-icons" />
         </div>
       </footer>
     </div>
